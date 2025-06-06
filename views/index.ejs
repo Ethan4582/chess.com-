@@ -1,21 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chess App</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    .chessboard {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      grid-template-rows: repeat(8, minmax(0, 1fr));
+      width: 400px;
+      height: 400px;
+    }
+
+    .piece.white {
+      color: white;
+      filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+    }
+
+    .piece.black {
+      color: #000 !important;
+      -webkit-text-stroke: 0px #000;
+      text-shadow: none;
+      font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'Noto Sans Symbols', 'DejaVu Sans', Arial, sans-serif;
+    }
+
+    .flipped {
+      transform: rotate(180deg);
+    }
+
+    .square {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .square.light {
+      background-color: #f0d9b5;
+    }
+
+    .square.dark {
+      background-color: #b58863;
+    }
+
+    .piece {
+      font-size: 36px;
+      cursor: pointer;
+    }
+
+    .dragging {
+      opacity: 0.5;
+    }
+
+    .flipped .piece {
+      transform: rotate(180deg);
+    }
+  </style>
 </head>
-<body>
-  
-  <div class="w-full h-screen bg-zinc-900 flex items-center justify-center">
-   <div class=" chessboard w-96 h-96 bg-red-500"></div>
+<body class="bg-zinc-900 text-white">
+
+  <!-- Landing Page -->
+  <div id="landing" class="w-full h-screen flex flex-col items-center justify-center gap-6">
+    <h1 class="text-4xl font-bold">Welcome to Chess Game</h1>
+    <button id="startBtn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg">Start Game</button>
   </div>
 
-   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-   
-   <script src="/js/chessgame.js"></script>
+  <!-- Game Page (Hidden by default) -->
+  <div id="game" class="hidden w-full h-screen flex items-center justify-center">
+    <div class="chessboard bg-red-500"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Routing logic: Show Game on Button Click
+    document.getElementById("startBtn").addEventListener("click", () => {
+      document.getElementById("landing").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+    });
+  </script>
+  <script src="/js/chessgame.js"></script>
 
 </body>
 </html>
