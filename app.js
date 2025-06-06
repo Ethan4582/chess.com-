@@ -18,9 +18,13 @@ let currentPlayer = "w";
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public'))); // static files like image
 
-app.get('/', (req, res)=>{
-   res.render("index",{title: "Chess Game"});
-})
+app.get('/', (req, res) => {
+   res.render("index");
+});
+
+app.get('/io/:id', (req, res) => {
+   res.render("game", { gameId: req.params.id, title: "Chess Game" });
+});
 
 io.on("connection", (uniqsocket) => {
    console.log("New player connected: " + uniqsocket.id, currentPlayer);

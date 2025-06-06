@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chess Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+      body {
+         background-color: #211f1f;
+      }
+   
+      .bg-background {
+         background-color: #171717;
+      }
+   
+      .bg-white {
+         background-color: rgb(21, 20, 20);
+      }
+   
+      .bg-black {
+         background-color: black;
+      }
+   
+      .text-white {
+         color: white;
+      }
+   
+      .text-black {
+         color: black;
+      }
+   .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            grid-template-rows: repeat(8, minmax(0, 1fr));
+            width: 400px;
+            height: 400px;
+            transform: rotate(0deg);
+        }
+
+        .piece.white {
+            color: white;
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+        }
+
+       .piece.black {
+    color: #000 !important;
+    -webkit-text-stroke: 0px #000;
+    text-shadow: none;
+    font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'Noto Sans Symbols', 'DejaVu Sans', Arial, sans-serif;
+}
+        .flipped {
+            transform: rotate(180deg);
+        }
+
+        .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .square.light {
+            background-color: #f0d9b5;
+        }
+
+        .square.dark {
+            background-color: #b58863;
+        }
+
+        .piece {
+            font-size: 36px;
+            cursor: pointer;
+        }
+
+        .piece.draggable {
+            cursor: grab;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        /* Rotate pieces for black player */
+        .flipped .piece {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-background flex items-center justify-center min-h-screen">
+  <div class="chessboard"></div>
+  <script src="/socket.io/socket.io.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <script src="/js/chessgame.js"></script>
+</body>
+</html>

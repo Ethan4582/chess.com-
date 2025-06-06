@@ -1,87 +1,753 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chess App</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Master</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            background: '#0f172a',
+            border: '#1e293b',
+            card: '#1e293b',
+            accent: '#334155',
+            destructive: '#ef4444',
+            'destructive-foreground': '#ffffff',
+            muted: '#94a3b8',
+            'muted-foreground': '#cbd5e1',
+            foreground: '#f1f5f9',
+          },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+            'scale-in': 'scaleIn 0.5s ease-out forwards',
+            'scroll': 'scroll 30s linear infinite',
+            'shimmer': 'shimmer 1.5s infinite linear',
+            'gradient': 'gradient 3s linear infinite',
+            'text-reveal': 'textReveal 1.5s ease-out forwards',
+            'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: 0, transform: 'translateY(20px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' }
+            },
+            scaleIn: {
+              '0%': { opacity: 0, transform: 'scale(0.9)' },
+              '100%': { opacity: 1, transform: 'scale(1)' }
+            },
+            scroll: {
+              '0%': { transform: 'translateX(0)' },
+              '100%': { transform: 'translateX(-50%)' }
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-1000px 0' },
+              '100%': { backgroundPosition: '1000px 0' }
+            },
+            gradient: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '100%': { backgroundPosition: '100% 50%' }
+            },
+            textReveal: {
+              '0%': { clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)' },
+              '100%': { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)' }
+            },
+            pulse: {
+              '0%, 100%': { opacity: 1 },
+              '50%': { opacity: 0.5 }
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    .chessboard {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      grid-template-rows: repeat(8, minmax(0, 1fr));
-      width: 400px;
-      height: 400px;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
     }
-
-    .piece.white {
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .shimmer-text {
+      background: linear-gradient(90deg, #f0f0f0, #e0e0e0, #f0f0f0);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .shimmer-effect {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .shimmer-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    }
+    
+    .rainbow-button {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f97316, #eab308, #84cc16, #10b981, #06b6d4, #0ea5e9, #6366f1);
+      background-size: 300% 100%;
+      border: none;
       color: white;
-      filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
     }
-
-    .piece.black {
-      color: #000 !important;
-      -webkit-text-stroke: 0px #000;
-      text-shadow: none;
-      font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'Noto Sans Symbols', 'DejaVu Sans', Arial, sans-serif;
+    
+    .rainbow-button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
     }
-
-    .flipped {
-      transform: rotate(180deg);
+    
+    .backdrop-blur-md {
+      backdrop-filter: blur(12px);
     }
-
-    .square {
+    
+    .pointer-events-none {
+      pointer-events: none;
+    }
+    
+    .overflow-hidden {
+      overflow: hidden;
+    }
+    
+    .absolute {
+      position: absolute;
+    }
+    
+    .relative {
+      position: relative;
+    }
+    
+    .inset-0 {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .z-10 {
+      z-index: 10;
+    }
+    
+    .z-50 {
+      z-index: 50;
+    }
+    
+    .bg-background\/80 {
+      background-color: rgba(15, 23, 42, 0.8);
+    }
+    
+    .bg-card\/50 {
+      background-color: rgba(30, 41, 59, 0.5);
+    }
+    
+    .bg-primary\/5 {
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .bg-primary\/10 {
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+    
+    .border-border {
+      border-color: #1e293b;
+    }
+    
+    .chess-piece {
+      font-size: 2rem;
+    }
+    
+    .theme-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .square.light {
-      background-color: #f0d9b5;
-    }
-
-    .square.dark {
-      background-color: #b58863;
-    }
-
-    .piece {
-      font-size: 36px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #1e293b;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
-
-    .dragging {
-      opacity: 0.5;
+    
+    .theme-toggle:hover {
+      background-color: #334155;
+      transform: scale(1.1);
     }
-
-    .flipped .piece {
-      transform: rotate(180deg);
+    
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background-color: #6366f1;
+      pointer-events: none;
+      transition: all 0.1s ease-linear;
+    }
+    
+    .border-beam {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .border-beam::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+    
+    .text-reveal {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .text-reveal::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #0f172a, transparent);
+      animation: textReveal 1.5s ease-out forwards;
+    }
+    
+    .github-button {
+      background: linear-gradient(#fff, #fff), 
+                 linear-gradient(#fff 50%, rgba(255,255,255,0.6) 80%, rgba(0,0,0,0)), 
+                 linear-gradient(90deg, hsl(0,100%,63%), hsl(90,100%,63%), hsl(210,100%,63%), hsl(195,100%,63%), hsl(270,100%,63%));
+      background-size: 200%;
+      background-clip: padding-box, border-box, border-box;
+      background-origin: border-box;
+      border: 0.08rem solid transparent;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      color: #000;
+      cursor: pointer;
+      transition: transform 0.2s;
+      overflow: hidden;
+      text-decoration: none;
+    }
+    
+    .github-button::before {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: 50%;
+      z-index: 0;
+      height: 20%;
+      width: 60%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, hsl(0,100%,63%), hsl(90,100%,63%), hsl(210,100%,63%), hsl(195,100%,63%), hsl(270,100%,63%));
+      filter: blur(0.8rem);
+    }
+    
+    .github-button:hover {
+      transform: scale(1.05);
+    }
+    
+    .github-button:active {
+      transform: scale(0.95);
+    }
+    
+    .github-button span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .github-button .star-count {
+      position: relative;
+      z-index: 1;
+      margin-left: 0.5rem;
+      font-weight: 600;
+      color: #000;
+    }
+    
+    .dark .github-button {
+      background: linear-gradient(#121213, #121213), 
+                 linear-gradient(#121213 50%, rgba(18,18,19,0.6) 80%, rgba(18,18,19,0)), 
+                 linear-gradient(90deg, hsl(0,100%,63%), hsl(90,100%,63%), hsl(210,100%,63%), hsl(195,100%,63%), hsl(270,100%,63%));
+      color: #fff;
+    }
+    
+    .dark .github-button .star-count {
+      color: #fff;
     }
   </style>
 </head>
-<body class="bg-zinc-900 text-white">
+<body class="bg-background text-foreground font-sans dark">
+  <!-- Light mode background -->
+  <div class="light-bg absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem] hidden dark:hidden">
+    <div class="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
+  </div>
+  
+  <!-- Dark mode background -->
+  <div class="dark-bg absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
+  
+  <!-- Particles container -->
+  <div id="particles-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+  
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-2 animate-scale-in">
+          <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+          </svg>
+          <span class="text-xl font-bold gradient-text">Chess Master</span>
+        </div>
 
-  <!-- Landing Page -->
-  <div id="landing" class="w-full h-screen flex flex-col items-center justify-center gap-6">
-    <h1 class="text-4xl font-bold">Welcome to Chess Game</h1>
-    <button id="startBtn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg">Start Game</button>
+        <!-- Navigation Items -->
+        <div class="hidden md:flex items-center space-x-8">
+          <button data-section="home" class="nav-link text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105">
+            Home
+          </button>
+          <button data-section="about" class="nav-link text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105">
+            About
+          </button>
+          <button data-section="contact" class="nav-link text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105">
+            Contact
+          </button>
+        </div>
+
+        <!-- Right side items -->
+        <div class="flex items-center gap-4">
+          <!-- GitHub Star Button -->
+          <a href="https://github.com/Ethan4582/chess.com-" target="_blank" rel="noopener noreferrer" class="github-button">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"></path>
+            </svg>
+            <span>Star on GitHub</span>
+            <div class="ml-2 flex items-center gap-1 star-count">
+              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" fill-rule="evenodd"></path>
+              </svg>
+              <span>2</span>
+            </div>
+          </a>
+          
+          <!-- Theme Toggle -->
+          <div class="theme-toggle animate-scale-in" style="animation-delay: 0.2s">
+            <svg id="theme-icon" class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="relative z-10">
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center p-4 pt-16">
+      <div class="max-w-4xl mx-auto text-center">
+        <!-- Header with Sparkle Text -->
+        <div class="mb-8">
+          <div class="relative">
+            <h1 class="text-5xl md:text-8xl font-bold mb-4 gradient-text text-reveal animate-text-reveal">Chess Master</h1>
+            <div id="sparkles-container" class="absolute inset-0"></div>
+          </div>
+          <p class="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up">
+            Experience the timeless game of strategy and skill with modern design and smooth animations.
+          </p>
+        </div>
+
+        <!-- Rainbow Start Button -->
+        <div class="animate-fade-in-up" style="animation-delay: 0.4s">
+         <button id="start-game" class="rainbow-button animate-gradient">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+  Start Game Instantly
+</button>
+<script>
+  document.getElementById('start-game').onclick = function() {
+    // Generate a random game id (could use socket id or uuid)
+    const gameId = Math.random().toString(36).substr(2, 9);
+    window.location.href = `/io/${gameId}`;
+  }
+</script>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marquee Testimonials -->
+    <div id="testimonials" class="w-full overflow-hidden bg-primary/5 py-12 border-y border-border my-16">
+      <div class="flex animate-scroll whitespace-nowrap">
+        <!-- First row of testimonials -->
+        <div class="flex">
+          <span class="mx-8 text-lg font-medium text-muted-foreground">⭐ This chess game is absolutely amazing! The graphics are stunning and gameplay is smooth.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🎯 Best chess platform I've ever used. Perfect for both beginners and masters.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">💎 Love the interactive features and the responsive design. Highly recommended!</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🚀 The animations and effects make chess more engaging than ever before.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">⭐ This chess game is absolutely amazing! The graphics are stunning and gameplay is smooth.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🎯 Best chess platform I've ever used. Perfect for both beginners and masters.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">💎 Love the interactive features and the responsive design. Highly recommended!</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🚀 The animations and effects make chess more engaging than ever before.</span>
+        </div>
+      </div>
+      <div class="flex animate-scroll whitespace-nowrap mt-4" style="animation-direction: reverse;">
+        <!-- Second row of testimonials -->
+        <div class="flex">
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🏆 Outstanding user experience with modern design principles throughout.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">✨ Chess has never been this fun and visually appealing to play.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🎨 Incredible attention to detail in every aspect of the game interface.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🔥 The most beautiful chess experience available on the web today.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🏆 Outstanding user experience with modern design principles throughout.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">✨ Chess has never been this fun and visually appealing to play.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🎨 Incredible attention to detail in every aspect of the game interface.</span>
+          <span class="mx-8 text-lg font-medium text-muted-foreground">🔥 The most beautiful chess experience available on the web today.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 px-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16 animate-fade-in-up">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Why Choose Chess Master?</h2>
+          <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Discover the perfect blend of strategy, design, and innovation in our chess platform
+          </p>
+        </div>
+        
+        <!-- Mission and Vision -->
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+          <div class="relative p-8 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-xl animate-fade-in-up">
+            <div class="border-beam"></div>
+            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 backdrop-blur-sm">
+              <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-transparent">
+              Our Mission
+            </h3>
+            <p class="text-lg text-muted-foreground">
+              To revolutionize the way people experience chess by combining timeless strategy with modern design and technology.
+            </p>
+          </div>
+          
+          <div class="relative p-8 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-xl animate-fade-in-up" style="animation-delay: 0.2s">
+            <div class="border-beam"></div>
+            <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 backdrop-blur-sm">
+              <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-500/90 to-blue-500/70 bg-clip-text text-transparent">
+              Our Vision
+            </h3>
+            <p class="text-lg text-muted-foreground">
+              Creating a global community where chess enthusiasts of all levels can connect, learn, and enjoy the game in a beautifully designed environment.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Values -->
+        <div class="grid md:grid-cols-3 gap-8 animate-fade-in-up" style="animation-delay: 0.4s">
+          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
+            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="chess-piece text-2xl">♔</span>
+            </div>
+            <h3 class="font-semibold mb-2 text-xl">Master Strategy</h3>
+            <p class="text-muted-foreground">Develop your strategic thinking and improve your game with our intuitive interface</p>
+          </div>
+
+          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
+            <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="chess-piece text-2xl">♛</span>
+            </div>
+            <h3 class="font-semibold mb-2 text-xl">Beautiful Design</h3>
+            <p class="text-muted-foreground">Experience chess with stunning animations and modern, responsive interface</p>
+          </div>
+
+          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
+            <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="chess-piece text-2xl">♜</span>
+            </div>
+            <h3 class="font-semibold mb-2 text-xl">Learn & Grow</h3>
+            <p class="text-muted-foreground">Perfect for both beginners and advanced players looking to enhance their skills</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-background/90">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-text">Get In Touch</h2>
+          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Have questions or feedback? We'd love to hear from you!
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-12">
+          <div class="animate-fade-in-up">
+            <h3 class="text-2xl font-semibold mb-4">Contact Information</h3>
+            <p class="text-muted-foreground mb-6">
+              Reach out to us through any of these channels:
+            </p>
+            
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <svg class="h-6 w-6 text-primary mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <div>
+                  <h4 class="font-medium text-lg">Email</h4>
+                  <p class="text-muted-foreground">singhashirwad2003@gmail.com</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-8">
+              <h4 class="font-medium text-lg mb-4">Connect with us</h4>
+              <div class="flex space-x-4">
+                <a href="https://www.linkedin.com/in/ashirwad08singh" target="_blank" class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors">
+                  <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://github.com/ashirwad08singh" target="_blank" class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors">
+                  <i class="fab fa-github"></i>
+                </a>
+                <a href="https://twitter.com/singhashir65848" target="_blank" class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="animate-fade-in-up" style="animation-delay: 0.2s">
+            <h3 class="text-2xl font-semibold mb-4">Project Repository</h3>
+            <p class="text-muted-foreground mb-6">
+              Chess Master is an open-source project. Feel free to contribute to our repository on GitHub!
+            </p>
+            
+            <a href="https://github.com/Ethan4582/chess.com-" target="_blank" class="inline-block github-button">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"></path>
+              </svg>
+              <span>Contribute on GitHub</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-8 border-t border-border/30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-muted-foreground">
+          © 2024 Chess Master. All rights reserved.
+        </p>
+      </div>
+    </footer>
   </div>
 
-  <!-- Game Page (Hidden by default) -->
-  <div id="game" class="hidden w-full h-screen flex items-center justify-center">
-    <div class="chessboard bg-red-500"></div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    // Routing logic: Show Game on Button Click
-    document.getElementById("startBtn").addEventListener("click", () => {
-      document.getElementById("landing").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
+    // DOM elements
+    const appContainer = document.getElementById('app');
+    const themeToggle = document.querySelector('.theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // State
+    let darkMode = true;
+    let particles = [];
+    
+    // Initialize particles
+    function initParticles() {
+      const container = document.getElementById('particles-container');
+      
+      // Create 100 particles
+      for (let i = 0; i < 100; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random properties
+        const size = Math.random() * 3 + 1;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const opacity = Math.random() * 0.5 + 0.2;
+        const velocityX = (Math.random() - 0.5) * 0.5;
+        const velocityY = (Math.random() - 0.5) * 0.5;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${x}%`;
+        particle.style.top = `${y}%`;
+        particle.style.opacity = opacity;
+        
+        container.appendChild(particle);
+        
+        particles.push({
+          element: particle,
+          x,
+          y,
+          velocityX,
+          velocityY
+        });
+      }
+      
+      // Animate particles
+      setInterval(() => {
+        particles.forEach(particle => {
+          particle.x = (particle.x + particle.velocityX + 100) % 100;
+          particle.y = (particle.y + particle.velocityY + 100) % 100;
+          
+          particle.element.style.left = `${particle.x}%`;
+          particle.element.style.top = `${particle.y}%`;
+        });
+      }, 50);
+    }
+    
+    // Initialize sparkles
+    function initSparkles() {
+      const container = document.getElementById('sparkles-container');
+      let sparkles = [];
+      
+      // Add sparkles periodically
+      setInterval(() => {
+        // Remove old sparkles
+        sparkles = sparkles.filter(sparkle => sparkle.opacity > 0);
+        
+        // Add new sparkle
+        const newSparkle = document.createElement('div');
+        newSparkle.className = 'absolute pointer-events-none text-yellow-400';
+        newSparkle.textContent = '✨';
+        
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const scale = Math.random() * 0.5 + 0.5;
+        
+        newSparkle.style.left = `${x}%`;
+        newSparkle.style.top = `${y}%`;
+        newSparkle.style.transform = `scale(${scale})`;
+        newSparkle.style.opacity = '1';
+        newSparkle.style.fontSize = '1rem';
+        
+        container.appendChild(newSparkle);
+        
+        sparkles.push({
+          element: newSparkle,
+          opacity: 1,
+          scale
+        });
+      }, 300);
+      
+      // Fade sparkles
+      setInterval(() => {
+        sparkles.forEach(sparkle => {
+          sparkle.opacity = Math.max(0, sparkle.opacity - 0.1);
+          sparkle.scale *= 0.95;
+          
+          sparkle.element.style.opacity = sparkle.opacity;
+          sparkle.element.style.transform = `scale(${sparkle.scale})`;
+          
+          // Remove if invisible
+          if (sparkle.opacity <= 0) {
+            sparkle.element.remove();
+          }
+        });
+      }, 100);
+    }
+    
+    // Toggle dark mode
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      
+      if (darkMode) {
+        document.documentElement.classList.add('dark');
+        document.querySelector('.light-bg').classList.add('hidden');
+        document.querySelector('.dark-bg').classList.remove('hidden');
+        themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>`;
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.querySelector('.light-bg').classList.remove('hidden');
+        document.querySelector('.dark-bg').classList.add('hidden');
+        themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>`;
+      }
+    }
+    
+    // Scroll to section
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    
+    // Event listeners
+    themeToggle.addEventListener('click', toggleDarkMode);
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const section = link.getAttribute('data-section');
+        scrollToSection(section);
+      });
+    });
+    
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+      initParticles();
+      initSparkles();
+      
+      // Add animation to elements on scroll
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
     });
   </script>
-  <script src="/js/chessgame.js"></script>
-
 </body>
 </html>
