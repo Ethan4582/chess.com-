@@ -32,14 +32,28 @@
       .text-black {
          color: black;
       }
-   .chessboard {
+   /* .chessboard {
             display: grid;
             grid-template-columns: repeat(8, minmax(0, 1fr));
             grid-template-rows: repeat(8, minmax(0, 1fr));
             width: 400px;
             height: 400px;
             transform: rotate(0deg);
-        }
+        } */
+
+            .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            grid-template-rows: repeat(8, minmax(0, 1fr));
+            width: 540px;
+            height: 540px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            }
+            .piece {
+            font-size: 200px;
+            cursor: pointer;
+            }
 
         .piece.white {
             color: white;
@@ -84,8 +98,18 @@
         }
     </style>
 </head>
-<body class="bg-background flex items-center justify-center min-h-screen">
-  <div class="chessboard"></div>
+
+     <body class="bg-background min-h-screen flex items-center justify-center">
+  <div class="flex flex-col items-center justify-center w-full">
+    <div id="player-info" class="mb-6 text-white text-2xl font-bold text-center"></div>
+    <div class="chessboard"></div>
+  </div>
+  <!-- scripts here -->
+</body>
+  
+
+
+  </div>
   <script src="/socket.io/socket.io.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>

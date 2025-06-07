@@ -22,6 +22,10 @@ app.get('/io/:id', (req, res) => {
    res.render("game", { gameId: req.params.id, title: "Chess Game" });
 });
 
+app.get('/api/room-exists/:id', (req, res) => {
+  res.json({ exists: !!games[req.params.id] });
+});
+
 io.on("connection", (socket) => {
     socket.on("joinRoom", (roomId) => {
         socket.join(roomId);

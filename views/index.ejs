@@ -392,7 +392,7 @@
         </div>
 
         <!-- Rainbow Start Button -->
-        <div class="animate-fade-in-up" style="animation-delay: 0.4s">
+        <div class="flex justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s">
           <button id="start-game" class="rainbow-button animate-gradient">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
@@ -400,7 +400,7 @@
             </svg>
             Start Game Instantly
           </button>
-          <button id="view-game" class="rainbow-button animate-gradient ml-4">
+          <button id="view-game" class="rainbow-button animate-gradient">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553 2.276A2 2 0 0122 14.118V17a2 2 0 01-2 2H4a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L7 10"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
@@ -595,16 +595,43 @@
     </footer>
   </div>
 
+  <!-- Username Modal -->
+<div id="username-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 hidden">
+  <div class="bg-white dark:bg-background rounded-xl p-8 shadow-lg w-full max-w-sm flex flex-col gap-4">
+    <label for="username-input" class="block text-lg font-semibold mb-2">Enter your username</label>
+    <input id="username-input" type="text" class="w-full px-3 py-2 rounded border border-border bg-card/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" autocomplete="off" />
+    <button id="username-submit" class="rainbow-button mt-2">Continue</button>
+  </div>
+</div>
+
+<!-- Room ID Modal -->
+<div id="roomid-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 hidden">
+  <div class="bg-white dark:bg-background rounded-xl p-8 shadow-lg w-full max-w-sm flex flex-col gap-4">
+    <label for="roomid-input" class="block text-lg font-semibold mb-2">Enter Room ID</label>
+    <input id="roomid-input" type="text" class="w-full px-3 py-2 rounded border border-border bg-card/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Room ID" autocomplete="off" />
+    <span id="roomid-error" class="text-red-500 text-sm hidden">Room not found.</span>
+    <button id="roomid-submit" class="rainbow-button mt-2">Continue</button>
+  </div>
+</div>
+
   <script>
     // DOM elements
     const appContainer = document.getElementById('app');
     const themeToggle = document.querySelector('.theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const navLinks = document.querySelectorAll('.nav-link');
+    const usernameModal = document.getElementById('username-modal');
+    const roomIdModal = document.getElementById('roomid-modal');
+    const usernameInput = document.getElementById('username-input');
+    const roomIdInput = document.getElementById('roomid-input');
+    const usernameSubmit = document.getElementById('username-submit');
+    const roomIdSubmit = document.getElementById('roomid-submit');
+    const roomIdError = document.getElementById('roomid-error');
     
     // State
     let darkMode = true;
     let particles = [];
+    let username = '';
     
     // Initialize particles
     function initParticles() {
@@ -755,7 +782,97 @@
       document.querySelectorAll('.animate-on-scroll').forEach(el => {
         observer.observe(el);
       });
+      
+      // Show username modal on first visit
+      if (!localStorage.getItem('username')) {
+        usernameModal.classList.remove('hidden');
+      }
+      
+      // Room ID modal logic
+      document.getElementById('view-game').addEventListener('click', () => {
+        roomIdModal.classList.remove('hidden');
+      });
+      
+      roomIdSubmit.addEventListener('click', () => {
+        const roomId = roomIdInput.value.trim();
+        
+        if (roomId) {
+          // Validate room ID (simple check, can be improved)
+          if (roomId.length === 9) {
+            roomIdError.classList.add('hidden');
+            window.location.href = `/io/${roomId}`;
+          } else {
+            roomIdError.classList.remove('hidden');
+          }
+        }
+      });
+      
+      // Username submission
+      usernameSubmit.addEventListener('click', () => {
+        const usernameValue = usernameInput.value.trim();
+        
+        if (usernameValue) {
+          username = usernameValue;
+          localStorage.setItem('username', username);
+          usernameModal.classList.add('hidden');
+          
+          // Optionally, you can greet the user or do something with the username
+          alert(`Welcome, ${username}!`);
+        }
+      });
     });
   </script>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Start Game
+  document.getElementById('start-game').onclick = function() {
+    document.getElementById('username-modal').classList.remove('hidden');
+    document.getElementById('username-input').focus();
+    document.getElementById('username-submit').onclick = function() {
+      const username = document.getElementById('username-input').value.trim();
+      if (username) {
+        document.getElementById('username-modal').classList.add('hidden');
+        const gameId = Math.random().toString(36).substr(2, 9);
+        window.location.href = `/io/${gameId}?username=${encodeURIComponent(username)}`;
+      }
+    };
+    document.getElementById('username-input').onkeydown = function(e) {
+      if (e.key === "Enter") document.getElementById('username-submit').click();
+    };
+  };
+
+  // View Game
+  document.getElementById('view-game').onclick = function() {
+    document.getElementById('roomid-modal').classList.remove('hidden');
+    document.getElementById('roomid-input').focus();
+    document.getElementById('roomid-submit').onclick = async function() {
+      const roomId = document.getElementById('roomid-input').value.trim();
+      if (roomId) {
+        // Check if room exists
+        const res = await fetch(`/api/room-exists/${roomId}`);
+        const data = await res.json();
+        if (data.exists) {
+          document.getElementById('roomid-error').classList.add('hidden');
+          document.getElementById('roomid-modal').classList.add('hidden');
+          document.getElementById('username-modal').classList.remove('hidden');
+          document.getElementById('username-input').focus();
+          document.getElementById('username-submit').onclick = function() {
+            const username = document.getElementById('username-input').value.trim();
+            if (username) {
+              document.getElementById('username-modal').classList.add('hidden');
+              window.location.href = `/io/${roomId}?username=${encodeURIComponent(username)}`;
+            }
+          };
+        } else {
+          document.getElementById('roomid-error').classList.remove('hidden');
+        }
+      }
+    };
+    document.getElementById('roomid-input').onkeydown = function(e) {
+      if (e.key === "Enter") document.getElementById('roomid-submit').click();
+    };
+  };
+});
+</script>
 </body>
 </html>

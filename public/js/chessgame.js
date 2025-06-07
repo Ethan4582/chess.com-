@@ -21,6 +21,9 @@ let draggedPiece = null;
 let source = null;
 let playerRole = null;
 
+const params = new URLSearchParams(window.location.search);
+const username = params.get('username') || "Guest";
+
 const renderBoard = () => {
    const board = chess.board();
    boardElement.innerHTML = ""; // clear the board
@@ -78,6 +81,14 @@ const renderBoard = () => {
    }
 };
 
+function updatePlayerInfo() {
+  const infoDiv = document.getElementById('player-info');
+  let roleText = "";
+  if (playerRole === "w") roleText = "White";
+  else if (playerRole === "b") roleText = "Black";
+  else roleText = "Spectator";
+  infoDiv.innerHTML = `<div>${username} <span class="text-primary">(${roleText})</span></div>`;
+}
 
 const handleMove = (source, target) => {
    const move={
@@ -91,11 +102,13 @@ const handleMove = (source, target) => {
 
 socket.on("playerRole", (role) => {
    playerRole = role;
+   updatePlayerInfo();
    renderBoard();
 });
 
 socket.on('SpectatorRole', () => {
-   playerRole = null; // No specific role for spectato
+   playerRole = "spectator";
+   updatePlayerInfo();
    renderBoard();
 });
 
