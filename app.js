@@ -6,17 +6,13 @@ const path = require('path');
 
 // instance of express app
 const app = express();
-
-const server= http.createServer(app);
+const server = http.createServer(app);
 const io = socket(server);
 
-const chess = new Chess(); // functionality to handle chess game logic
-
-let players = {}; 
-let currentPlayer = "w"; 
-
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public'))); // static files like image
+app.use(express.static(path.join(__dirname, 'public')));
+
+const games = {}; // { roomId: { chess, players: {white, black} } }
 
 app.get('/', (req, res) => {
    res.render("index");
@@ -26,69 +22,76 @@ app.get('/io/:id', (req, res) => {
    res.render("game", { gameId: req.params.id, title: "Chess Game" });
 });
 
-io.on("connection", (uniqsocket) => {
-   console.log("New player connected: " + uniqsocket.id, currentPlayer);
-    if(! players.white){
-      players.white = uniqsocket.id;
-      uniqsocket.emit("playerRole", "w"); //  the person who connect tp us 
-    }
-    else if(! players.black){
-      players.black = uniqsocket.id;
-      uniqsocket.emit("playerRole", "b");
-    } else {
-      uniqsocket.emit("spectatorRole");
-      return;
-    }
+io.on("connection", (socket) => {
+    socket.on("joinRoom", (roomId) => {
+        socket.join(roomId);
 
-    uniqsocket.on("disconnect", () => {
-      if(uniqsocket.id === players.white) {
-        delete players.white;
-      }
-      if(uniqsocket.id === players.black) {
-        delete players.black;
-      }
-       
+        // Create game if not exists
+        if (!games[roomId]) {
+            games[roomId] = {
+                chess: new Chess(),
+                players: {}
+            };
+        }
+
+        const game = games[roomId];
+
+        // Assign role
+        let role;
+        if (!game.players.white) {
+            game.players.white = socket.id;
+            role = "w";
+        } else if (!game.players.black) {
+            game.players.black = socket.id;
+            role = "b";
+        } else {
+            role = "spectator";
+        }
+
+        socket.emit("playerRole", role);
+        if (role === "spectator") socket.emit("spectatorRole");
+
+        // Send current board state
+        socket.emit("updateBoard", game.chess.fen());
+
+        // Store roomId on socket for cleanup
+        socket.roomId = roomId;
+        socket.role = role;
     });
 
-    // validate the move
-    uniqsocket.on("makeMove", (move) => {
-      // check if the move is valid
-      try{
-         if(chess.turn()==='w' && uniqsocket.id !== players.white){
-            return uniqsocket.emit("invalidMove", "It's not your turn!");
-         }
+    socket.on("makeMove", (move) => {
+        const roomId = socket.roomId;
+        if (!roomId || !games[roomId]) return;
 
-         if(chess.turn()==='b' && uniqsocket.id !== players.black){
-            return uniqsocket.emit("invalidMove", "It's no; your turn!");
-         }
+        const game = games[roomId];
+        const chess = game.chess;
 
-        const res= chess.move(move); // make the made 
-         if(!res) {
-            return uniqsocket.emit("invalidMove", "Invalid move!");
-         }
+        // Only allow correct player to move
+        if ((chess.turn() === 'w' && socket.id !== game.players.white) ||
+            (chess.turn() === 'b' && socket.id !== game.players.black)) {
+            return socket.emit("invalidMove", "It's not your turn!");
+        }
 
-         if(res){
-            currentPlayer = chess.turn(); // update the current player
-            io.emit("moveMade", { //board state update
-              move: res,
-            //   turn: currentPlayer
-            }); // broadcast the move to all players 
-             io.emit("boradState", chess.fen()); // update the board state for all players
-         }else{
-            return uniqsocket.emit("invalidMove", "Invalid move!");
-         }
+        const res = chess.move(move);
+        if (!res) {
+            return socket.emit("invalidMove", "Invalid move!");
+        }
 
-      }
-      catch(err) {
-        console.error("Invalid move attempted: ", err);
-        uniqsocket.emit("invalidMove", "Invalid move!");
-      }
+        // Broadcast move and board state to all in room
+        io.to(roomId).emit("moveMade", { move: res });
+        io.to(roomId).emit("updateBoard", chess.fen());
     });
 
+    socket.on("disconnect", () => {
+        const roomId = socket.roomId;
+        if (roomId && games[roomId]) {
+            const game = games[roomId];
+            if (game.players.white === socket.id) delete game.players.white;
+            if (game.players.black === socket.id) delete game.players.black;
+            // Optionally: delete game if no players left
+        }
+    });
 });
 
-server.listen(3000, ()=>{
-  //  console.log("Server is running on port 3000");
-});
-
+server.listen(3000);
 module.exports = server;

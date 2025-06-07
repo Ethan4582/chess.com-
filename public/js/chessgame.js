@@ -111,6 +111,9 @@ socket.on("moveMade", (data) => {
    renderBoard(); // re-render the board
 });
 
+const urlParams = window.location.pathname.split('/');
+const roomId = urlParams[urlParams.length - 1];
+socket.emit("joinRoom", roomId);
 
 // Call the function to render the board on page load
 renderBoard();
