@@ -98,15 +98,54 @@
         }
     </style>
 </head>
+      <body class="bg-background min-h-screen flex flex-col items-center justify-start p-4">
+  <!-- Info and Share Link Box -->
+  <div class="w-full max-w-2xl p-1 rounded-xl bg-black shadow-lg border border-gray-700 mb-6">
+    <div id="player-info" class="mb-4 text-white text-xl font-semibold text-center"></div>
 
-     <body class="bg-background min-h-screen flex items-center justify-center">
-  <div class="flex flex-col items-center justify-center w-full">
-    <div id="player-info" class="mb-6 text-white text-2xl font-bold text-center"></div>
-    <div class="chessboard"></div>
+    <div class="text-center text-white text-sm">
+      <p class="mb-2 font-medium">
+        Share this link with your friend to join as 
+        <span class="text-yellow-400 font-semibold">Black</span>:
+      </p>
+
+      <div class="inline-flex items-center gap-2 bg-gray-900 rounded-md px-3 py-1 shadow-inner">
+        <span id="room-link" class="select-all text-primary font-mono text-sm"></span>
+        <button onclick="copyRoomLink()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-2 py-0.5 rounded text-sm transition">
+          Copy
+        </button>
+      </div>
+
+      <!-- Room ID Button -->
+      <div class="mt-4">
+        <button onclick="getRoomId()" class="bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-1 rounded text-sm transition">
+          Get Room ID
+        </button>
+        <div id="room-id-display" class="mt-2 text-xs text-gray-300 font-mono"></div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('room-link').textContent = window.location.origin + window.location.pathname;
+
+      function copyRoomLink() {
+        navigator.clipboard.writeText(window.location.origin + window.location.pathname);
+        alert('Link copied!');
+      }
+
+      function getRoomId() {
+        const parts = window.location.pathname.split('/io/');
+        const roomId = parts.length > 1 ? parts[1] : 'Room ID not found';
+        document.getElementById('room-id-display').textContent = `Room ID: ${roomId}`;
+      }
+    </script>
   </div>
-  <!-- scripts here -->
+
+  <!-- Chessboard Section -->
+  <div class="chessboard "></div>
 </body>
-  
+
+   
 
 
   </div>

@@ -313,9 +313,7 @@
 </head>
 <body class="bg-background text-foreground font-sans dark">
   <!-- Light mode background -->
-  <div class="light-bg absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem] hidden dark:hidden">
-    <div class="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
-  </div>
+  <div class="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"><div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px]"></div></div>
   
   <!-- Dark mode background -->
   <div class="dark-bg absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
@@ -457,67 +455,57 @@
         <div class="text-center mb-16 animate-fade-in-up">
           <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Why Choose Chess Master?</h2>
           <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Discover the perfect blend of strategy, design, and innovation in our chess platform
+            Discover a modern, multiplayer chess platform with real-time gameplay, beautiful UI, and seamless sharing.
           </p>
         </div>
         
-        <!-- Mission and Vision -->
+        <!-- Features -->
         <div class="grid md:grid-cols-2 gap-8 mb-16">
           <div class="relative p-8 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-xl animate-fade-in-up">
             <div class="border-beam"></div>
             <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 backdrop-blur-sm">
-              <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
+              <span class="chess-piece text-2xl">♔</span>
             </div>
             <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-transparent">
-              Our Mission
+              Real-Time Multiplayer
             </h3>
             <p class="text-lg text-muted-foreground">
-              To revolutionize the way people experience chess by combining timeless strategy with modern design and technology.
+              Play chess live with friends or anyone by sharing a unique game link. Each player is assigned a color automatically, and spectators can watch ongoing games.
             </p>
           </div>
           
           <div class="relative p-8 rounded-2xl border border-border/40 bg-card/50 backdrop-blur-xl animate-fade-in-up" style="animation-delay: 0.2s">
             <div class="border-beam"></div>
             <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 backdrop-blur-sm">
-              <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
-              </svg>
+              <span class="chess-piece text-2xl">♛</span>
             </div>
             <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-500/90 to-blue-500/70 bg-clip-text text-transparent">
-              Our Vision
+              Clean, Responsive UI
             </h3>
             <p class="text-lg text-muted-foreground">
-              Creating a global community where chess enthusiasts of all levels can connect, learn, and enjoy the game in a beautifully designed environment.
+              Enjoy a beautiful, mobile-friendly chessboard with smooth drag-and-drop, animated effects, and theme support (light/dark mode).
             </p>
           </div>
         </div>
         
-        <!-- Values -->
-        <div class="grid md:grid-cols-3 gap-8 animate-fade-in-up" style="animation-delay: 0.4s">
+        <div class="grid md:grid-cols-2 gap-8 animate-fade-in-up" style="animation-delay: 0.4s">
           <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
             <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="chess-piece text-2xl">♔</span>
-            </div>
-            <h3 class="font-semibold mb-2 text-xl">Master Strategy</h3>
-            <p class="text-muted-foreground">Develop your strategic thinking and improve your game with our intuitive interface</p>
-          </div>
-
-          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
-            <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="chess-piece text-2xl">♛</span>
-            </div>
-            <h3 class="font-semibold mb-2 text-xl">Beautiful Design</h3>
-            <p class="text-muted-foreground">Experience chess with stunning animations and modern, responsive interface</p>
-          </div>
-
-          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
-            <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <span class="chess-piece text-2xl">♜</span>
             </div>
-            <h3 class="font-semibold mb-2 text-xl">Learn & Grow</h3>
-            <p class="text-muted-foreground">Perfect for both beginners and advanced players looking to enhance their skills</p>
+            <h3 class="font-semibold mb-2 text-xl">Move History & Spectator Mode</h3>
+            <p class="text-muted-foreground">
+              See every move with piece symbols and coordinates in a live move history panel. Spectators can join any game and watch in real time.
+            </p>
+          </div>
+          <div class="text-center p-8 rounded-xl bg-card/50 backdrop-blur-lg hover:scale-[1.02] transition-all duration-300 shimmer-effect">
+            <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="chess-piece text-2xl">♙</span>
+            </div>
+            <h3 class="font-semibold mb-2 text-xl">Easy Game Sharing & Usernames</h3>
+            <p class="text-muted-foreground">
+              Instantly create a game and share the link. Players and spectators enter their username, which is displayed above the board with their role.
+            </p>
           </div>
         </div>
       </div>
