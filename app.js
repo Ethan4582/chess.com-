@@ -76,17 +76,25 @@ io.on("connection", (socket) => {
             return socket.emit("invalidMove", "It's not your turn!");
         }
 
-        const res = chess.move(move);
-        if (!res) {
-            return socket.emit("invalidMove", "Invalid move!");
+        try {
+            const res = chess.move(move);
+            if (!res) {
+                return socket.emit("invalidMove", "Invalid move!");
+            }
+            // Save FEN to history
+            game.history.push(chess.fen());
+
+            io.to(roomId).emit("moveMade", { move: res });
+            io.to(roomId).emit("updateBoard", chess.fen());
+        } catch (err) {
+            socket.emit("invalidMove", "You are playing an invalid move or dragging not properly.");
+            // rollback to previous FEN when erro happem
+            if (game.history.length > 0) {
+                const lastFen = game.history[game.history.length - 1];
+                chess.load(lastFen);
+                io.to(roomId).emit("updateBoard", lastFen);
+            }
         }
-
-        // Save FEN to history
-        game.history.push(chess.fen());
-
-        // Broadcast move and board state to all in roo
-        io.to(roomId).emit("moveMade", { move: res });
-        io.to(roomId).emit("updateBoard", chess.fen());
     });
 
     socket.on("stepHistory", (direction) => {

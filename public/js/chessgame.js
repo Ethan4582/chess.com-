@@ -94,7 +94,7 @@ const handleMove = (source, target) => {
    const move={
        from:`${String.fromCharCode(97 + source.col)}${8 - source.row}`,
        to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`, 
-         promoition: "q" 
+         promotion: "q" 
    }
    socket.emit("makeMove", move); // emit the move to the server
    draggedPiece = null; // reset the dragged piece
@@ -137,6 +137,10 @@ socket.on("moveMade", (data) => {
    const { move } = data;
    chess.move(move); 
    renderBoard(); // 
+});
+
+socket.on("invalidMove", (msg) => {
+    alert(msg || "You are playing an invalid move or dragging not properly.");
 });
 
 const urlParams = window.location.pathname.split('/');
