@@ -30,11 +30,13 @@ io.on("connection", (socket) => {
     socket.on("joinRoom", (roomId) => {
         socket.join(roomId);
 
-        // Create game if not exists
+     
         if (!games[roomId]) {
+            const chess = new Chess();
             games[roomId] = {
-                chess: new Chess(),
-                players: {}
+                chess,
+                players: {},
+                history: [chess.fen()] 
             };
         }
 
@@ -58,7 +60,6 @@ io.on("connection", (socket) => {
         // Send current board state
         socket.emit("updateBoard", game.chess.fen());
 
-        // Store roomId on socket for cleanup
         socket.roomId = roomId;
         socket.role = role;
     });
@@ -70,7 +71,6 @@ io.on("connection", (socket) => {
         const game = games[roomId];
         const chess = game.chess;
 
-        // Only allow correct player to move
         if ((chess.turn() === 'w' && socket.id !== game.players.white) ||
             (chess.turn() === 'b' && socket.id !== game.players.black)) {
             return socket.emit("invalidMove", "It's not your turn!");
@@ -81,9 +81,34 @@ io.on("connection", (socket) => {
             return socket.emit("invalidMove", "Invalid move!");
         }
 
-        // Broadcast move and board state to all in room
+        // Save FEN to history
+        game.history.push(chess.fen());
+
+        // Broadcast move and board state to all in roo
         io.to(roomId).emit("moveMade", { move: res });
         io.to(roomId).emit("updateBoard", chess.fen());
+    });
+
+    socket.on("stepHistory", (direction) => {
+        const roomId = socket.roomId;
+        if (!roomId || !games[roomId]) return;
+        const game = games[roomId];
+
+        if (typeof game.historyIndex !== "number") {
+            game.historyIndex = game.history.length - 1;
+        }
+
+        if (direction === "back" && game.historyIndex > 0) {
+            game.historyIndex--;
+        } else if (direction === "forward" && game.historyIndex < game.history.length - 1) {
+            game.historyIndex++;
+        }
+
+        const fen = game.history[game.historyIndex];
+        if (fen) {
+            game.chess.load(fen);
+            io.to(roomId).emit("updateBoard", fen);
+        }
     });
 
     socket.on("disconnect", () => {
@@ -92,7 +117,7 @@ io.on("connection", (socket) => {
             const game = games[roomId];
             if (game.players.white === socket.id) delete game.players.white;
             if (game.players.black === socket.id) delete game.players.black;
-            // Optionally: delete game if no players left
+            
         }
     });
 });

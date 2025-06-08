@@ -100,28 +100,43 @@ const handleMove = (source, target) => {
    draggedPiece = null; // reset the dragged piece
 };
 
+function updateStepButtons() {
+    const backBtn = document.getElementById('step-back');
+    const forwardBtn = document.getElementById('step-forward');
+    if (playerRole === "spectator") {
+        backBtn.style.display = "none";
+        forwardBtn.style.display = "none";
+    } else {
+        backBtn.style.display = "";
+        forwardBtn.style.display = "";
+    }
+}
+
+
 socket.on("playerRole", (role) => {
    playerRole = role;
    updatePlayerInfo();
    renderBoard();
+   updateStepButtons();
 });
 
 socket.on('SpectatorRole', () => {
    playerRole = "spectator";
    updatePlayerInfo();
    renderBoard();
+   updateStepButtons();
 });
 
 socket.on("updateBoard", (board) => {
-   chess.load(board); // load the birard state 
+   chess.load(board); //
    renderBoard();
 });
 
 
 socket.on("moveMade", (data) => {
    const { move } = data;
-   chess.move(move); // make the move on the chess instance
-   renderBoard(); // re-render the board
+   chess.move(move); 
+   renderBoard(); // 
 });
 
 const urlParams = window.location.pathname.split('/');
@@ -130,3 +145,10 @@ socket.emit("joinRoom", roomId);
 
 // Call the function to render the board on page load
 renderBoard();
+
+document.getElementById('step-back').onclick = () => {
+    socket.emit("stepHistory", "back");
+};
+document.getElementById('step-forward').onclick = () => {
+    socket.emit("stepHistory", "forward");
+};
