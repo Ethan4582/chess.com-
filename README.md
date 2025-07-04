@@ -9,12 +9,10 @@ A real-time multiplayer chess platform with modern UI, move history, and spectat
 <div align="center">
   <!-- Replace the src with your demo video link or upload -->
   <video width="600" controls>
-    <source src="PASTE_YOUR_DEMO_VIDEO_LINK_HERE.mp4" type="video/mp4">
+    <source src="https://www.youtube.com/embed/tKic7dz63Xs?si=llT0NYixYHYSQzV4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 </div>
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/tKic7dz63Xs?si=llT0NYixYHYSQzV4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Features
 
