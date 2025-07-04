@@ -6,16 +6,6 @@ A real-time multiplayer chess platform with modern UI, move history, and spectat
 
 ## Demo Video
 
-<div align="center">
-  <!-- Replace the src with your demo video link or upload -->
-  <video width="600" controls>
-    <source src="https://www.youtube.com/embed/tKic7dz63Xs?si=llT0NYixYHYSQzV4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-## Demo Video
-
 [![Demo Video](https://img.youtube.com/vi/tKic7dz63Xs/0.jpg)](https://www.youtube.com/watch?v=tKic7dz63Xs)
 
 ## Features
