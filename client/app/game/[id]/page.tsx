@@ -9,9 +9,11 @@ import { AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
-import { GameHeader } from '@/components/GameHeader';
 import { GameSidebar } from '@/components/GameSidebar';
 import { GameOverModal } from '@/components/GameOverModal';
+import { AppLayout } from '@/components/AppLayout';
+
+// ... (keep logic above the return, adding sidebarOpen state)
 
 // ─── Types ───
 type PlayerRole = 'w' | 'b' | 'spectator' | null;
@@ -258,14 +260,12 @@ export default function GamePage() {
         : `You were checkmated. Better luck next time!`;
 
   return (
-    <div className="min-h-screen bg-[#070708] text-slate-100 flex flex-col items-center py-10 px-4 md:px-8 relative overflow-hidden">
+    <AppLayout isConnected={isConnected}>
       {/* ─── Background Glows ─── */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-purple-600/10 blur-[120px] rounded-full" />
       </div>
-
-      {/* ─── Toast Notifications ─── */}
       <div className="fixed top-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
         <AnimatePresence>
           {toasts.map((t) => (
@@ -283,74 +283,55 @@ export default function GamePage() {
         </AnimatePresence>
       </div>
 
-      {/* ─── Header ─── */}
-      <GameHeader 
-        router={router}
-        isSpectator={isSpectator}
-        isPlayer={isPlayer}
-        gameOver={gameOver}
-        playerName={playerName}
-        roleLabel={roleLabel}
-        isConnected={isConnected}
-        shareLink={shareLink}
-      />
+      {/* ─── Main Content Canvas ─── */}
+      <div className="w-full flex h-full">
+        
+        {/* Game Section (80%) */}
+        <section className="flex-[8] flex flex-col items-center justify-center p-8 bg-[#0e0e0f] h-full overflow-y-auto">
+          <div className="w-full max-w-[800px] flex items-center justify-center aspect-square relative group">
+            <div className="absolute -inset-4 border border-white/5 rounded-2xl pointer-events-none" />
+            <div className="relative z-10 w-full h-full p-2">
+              <ChessBoard 
+                fen={fen} 
+                onMove={handleMove} 
+                playerRole={role} 
+                onSpectatorAttempt={() => {
+                  if (!session) router.push('/login');
+                }}
+              />
+            </div>
 
-      {/* ─── Main Content ─── */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 items-start justify-center z-10">
-        <div className="flex flex-col items-center">
-          <div className="relative">
             {gameOver && (
-              <div className="absolute inset-0 z-20 bg-[#070708]/40 backdrop-blur-[2px] rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 z-20 bg-[#0e0e0f]/50 backdrop-blur-[2px] rounded-2xl pointer-events-none" />
             )}
-            <ChessBoard 
-              fen={fen} 
-              onMove={handleMove} 
-              playerRole={role} 
-              onSpectatorAttempt={() => {
-                if (!session) router.push('/login');
-              }}
-            />
-          </div>
-
-          {isPlayer && (
-            <div className="flex items-center gap-4 mt-8">
-              <button
-                // Assuming ChevronLeft/Right are handled or we need to put them in page
-                // We'll keep them here since handleStep is simple
-                onClick={() => handleStep('back')}
-                className="p-4 glass rounded-2xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all active:scale-90 flex items-center justify-center font-bold"
-              >
-                {'<'}
-              </button>
-              <div className="px-6 py-4 glass rounded-2xl font-bold min-w-[200px] text-center border border-white/5">
-                <span className="text-sm uppercase tracking-widest text-indigo-500">
-                  {gameOver ? 'Match Complete' : (role === 'w' ? 'You are White' : 'You are Black')}
+            
+            {!gameOver && isPlayer && roomState.black && roomState.white && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 glass rounded-full border border-white/10 flex items-center gap-4 animate-pulse z-20">
+                <span className={`w-2 h-2 rounded-full ${role === 'w' ? 'bg-white shadow-[0_0_10px_white]' : 'bg-[#ba9eff] shadow-[0_0_10px_#ba9eff]'}`} />
+                <span className="text-xs font-medium tracking-widest uppercase text-white">
+                  Match In Progress...
                 </span>
               </div>
-              <button
-                onClick={() => handleStep('forward')}
-                className="p-4 glass rounded-2xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all active:scale-90 flex items-center justify-center font-bold"
-              >
-                {'>'}
-              </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </section>
 
-        {/* Sidebar */}
-        <GameSidebar 
-          roomState={roomState}
-          role={role}
-          gameOver={gameOver}
-          roomId={roomId as string}
-          shareLink={shareLink}
-          session={session}
-          messages={messages}
-          chatInput={chatInput}
-          setChatInput={setChatInput}
-          handleSendMessage={handleSendMessage}
-        />
-      </div>
+        {/* Sidebar Controls (20%) */}
+        <div className="flex-[2] bg-[#131314] flex flex-col min-w-[320px] z-20">
+          <GameSidebar 
+            roomState={roomState}
+            role={role}
+            gameOver={gameOver}
+            roomId={roomId as string}
+            shareLink={shareLink}
+            session={session}
+            messages={messages}
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+            handleSendMessage={handleSendMessage}
+          />
+        </div>
+        </div>
 
       <GameOverModal 
         gameOver={gameOver}
@@ -361,7 +342,6 @@ export default function GamePage() {
         handleReturnHome={handleReturnHome}
         setGameOver={setGameOver}
       />
-
-    </div>
+    </AppLayout>
   );
 }

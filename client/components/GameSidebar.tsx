@@ -1,4 +1,4 @@
-import { Users, ShieldCheck, Copy, ExternalLink, Eye } from 'lucide-react';
+import { Share2, Eye, MessageSquare, Send } from 'lucide-react';
 
 interface GameSidebarProps {
   roomState: any;
@@ -25,137 +25,118 @@ export function GameSidebar({
   setChatInput,
   handleSendMessage
 }: GameSidebarProps) {
+  const whiteName = roomState.white || 'Waiting...';
+  const blackName = roomState.black || 'Waiting...';
+
   return (
-    <div className="space-y-6">
-      {/* Game Status Card */}
-      <div className="glass p-8 rounded-[40px] border border-white/5 space-y-8 shadow-2xl">
-        <div className="flex items-center gap-3 text-xl font-bold">
-          <ShieldCheck className="text-indigo-500" size={24} />
-          Game Status
+    <aside className="flex flex-col border-l border-white/5 bg-[#131314] h-full min-h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+      {/* Header Actions */}
+      <div className="p-6 grid grid-cols-2 gap-3">
+        <button 
+          onClick={() => shareLink('play')}
+          className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-br from-[#a27cff] to-[#ba9eff] text-[#39008c] text-sm font-bold transition-transform active:scale-95 shadow-lg shadow-[#ba9eff]/10"
+        >
+          <Share2 size={18} />
+          Invite
+        </button>
+        <button 
+          onClick={() => shareLink('watch')}
+          className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-white/10 text-white text-sm font-bold hover:bg-[#201f21] transition-colors"
+        >
+          <Eye size={18} />
+          Watch
+        </button>
+      </div>
+
+      {/* Player Info Cards */}
+      <div className="px-6 flex flex-col gap-4 mb-8">
+        {/* Player Black (Opponent) */}
+        <div className={`p-4 rounded-xl bg-[#201f21] flex items-center justify-between border ${role === 'b' ? 'border-l-4 border-[#ba9eff]' : 'border-transparent'}`}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#262627] overflow-hidden shrink-0">
+              <img alt="Player" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150&auto=format&fit=crop" />
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-bold text-white tracking-tight truncate">{blackName}</p>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold truncate">Elo 2840 • Black</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end shrink-0 pl-2">
+            <span className="text-xs font-mono text-[#ba9eff]">10:00</span>
+            <span className="text-[10px] text-[#ba9eff]/60 uppercase font-black">{role === 'b' ? 'You' : 'Thinking'}</span>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <div className={`flex items-center justify-between p-5 rounded-3xl border transition-all ${
-            roomState.white
-              ? 'bg-white/5 border-white/10'
-              : 'bg-slate-900/30 border-dashed border-slate-800'
-          }`}>
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-lg ${
-                role === 'w'
-                  ? 'bg-indigo-600 text-white shadow-indigo-600/20'
-                  : 'bg-white text-black shadow-white/10'
-              }`}>W</div>
-              <div>
-                <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">White</div>
-                <div className={`font-bold text-lg ${!roomState.white ? 'text-slate-600 italic' : 'text-slate-100'}`}>
-                  {roomState.white || 'Waiting...'}
-                </div>
-              </div>
+        {/* Player White (You/Other) */}
+        <div className={`p-4 rounded-xl bg-[#262627] flex items-center justify-between border ${role === 'w' ? 'border-l-4 border-[#ba9eff]' : 'border-transparent'}`}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#131314] overflow-hidden shrink-0">
+              <img alt="Player" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop" />
             </div>
-            {role === 'w' && (
-              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest px-3 py-1 bg-indigo-500/10 rounded-full">You</span>
-            )}
+            <div className="overflow-hidden">
+              <p className="text-sm font-bold text-white tracking-tight truncate">{whiteName}</p>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold truncate">Elo 2450 • White</p>
+            </div>
           </div>
-
-          <div className={`flex items-center justify-between p-5 rounded-3xl border transition-all ${
-            roomState.black
-              ? 'bg-white/5 border-white/10'
-              : 'bg-slate-900/30 border-dashed border-slate-800'
-          }`}>
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-lg ${
-                role === 'b'
-                  ? 'bg-indigo-600 text-white shadow-indigo-600/20'
-                  : 'bg-slate-800 text-white border border-white/10'
-              }`}>B</div>
-              <div>
-                <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Black</div>
-                <div className={`font-bold text-lg ${!roomState.black ? 'text-slate-600 italic' : 'text-slate-100'}`}>
-                  {roomState.black || 'Waiting...'}
-                </div>
-              </div>
-            </div>
-            {role === 'b' && (
-              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest px-3 py-1 bg-indigo-500/10 rounded-full">You</span>
-            )}
+          <div className="flex flex-col items-end shrink-0 pl-2">
+            <span className="text-xs font-mono text-white">10:00</span>
+            <span className="text-[10px] text-slate-400 uppercase font-black">{role === 'w' ? 'You' : 'Waiting'}</span>
           </div>
         </div>
       </div>
 
-      {!gameOver && (
-        <div className="glass p-8 rounded-[40px] border border-white/5 space-y-6">
-          <div className="flex items-center gap-3 text-xl font-bold">
-            <Users className="text-purple-500" size={24} />
-            Share Game
-          </div>
-
-          <div className="grid grid-cols-1 gap-3">
-            <button
-              onClick={() => shareLink('play')}
-              className="w-full flex items-center justify-between p-4 bg-slate-900/50 hover:bg-slate-800 rounded-2xl text-sm font-semibold transition-all group border border-white/5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                  <Users size={16} />
-                </div>
-                Invite Friend
-              </div>
-              <Copy size={14} className="text-slate-600" />
-            </button>
-
-            <button
-              onClick={() => shareLink('watch')}
-              className="w-full flex items-center justify-between p-4 bg-slate-900/50 hover:bg-slate-800 rounded-2xl text-sm font-semibold transition-all group border border-white/5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                  <Eye size={16} />
-                </div>
-                Watch Link
-              </div>
-              <ExternalLink size={14} className="text-slate-600" />
-            </button>
-          </div>
-
-          <div className="p-4 bg-slate-900/80 rounded-2xl space-y-2 border border-white/5">
-            <div className="text-[10px] uppercase font-black tracking-widest text-slate-500">Room ID</div>
-            <div className="font-mono text-indigo-400 select-all font-bold tracking-wider">
-              #{roomId}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Minimal Chat UI */}
-      <div className="glass p-6 rounded-[40px] border border-white/5 space-y-4 shadow-2xl flex flex-col h-[300px]">
-        <div className="flex items-center gap-3 text-lg font-bold">
-          Room Chat {!session && <span className="text-xs font-normal text-slate-500">(Guest Mode)</span>}
+      {/* Chat Section */}
+      <div className="flex-grow flex flex-col overflow-hidden px-6 pb-6 h-64">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Live Room Chat</h3>
+          <MessageSquare size={14} className="text-slate-400" />
         </div>
         
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar flex flex-col justify-end">
-          {messages.length === 0 && <div className="text-slate-500 text-sm text-center">No messages yet.</div>}
+        <div className="flex-grow overflow-y-auto space-y-4 mb-4 pr-2 custom-scrollbar">
+          {messages.length === 0 && (
+            <div className="text-slate-500 text-xs italic text-center mt-4">
+              Welcome to the Grandmaster Arena.
+            </div>
+          )}
           {messages.map((m, i) => (
-            <div key={i} className={`text-sm ${m.isSystem ? 'text-indigo-400 italic font-medium' : 'text-slate-200'}`}>
-              {!m.isSystem && <span className={`font-bold mr-2 ${m.isAuth ? 'text-indigo-300' : 'text-slate-400'}`}>{m.author}:</span>}
-              {m.content}
+            <div key={i} className="flex gap-3">
+              <div className="w-6 h-6 rounded bg-[#262627] shrink-0 font-bold text-[10px] flex items-center justify-center text-[#ba9eff]">
+                {m.author.substring(0, 2).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <p className="text-[11px] leading-snug break-words">
+                  <span className={`font-bold mr-1 ${m.isSystem ? 'text-[#ba9eff]' : m.isAuth ? 'text-white' : 'text-slate-400'}`}>
+                    {m.author}
+                  </span> 
+                  <span className={m.isSystem ? 'text-[#ba9eff]/80 italic' : 'text-slate-300'}>
+                    {m.content}
+                  </span>
+                </p>
+              </div>
             </div>
           ))}
         </div>
 
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <input 
-            type="text" 
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            placeholder={session ? "Type a message..." : "Guest msg (no links allowed)..."}
-            className="flex-1 bg-slate-900/80 border border-white/5 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-          <button disabled={!chatInput.trim()} type="submit" className="bg-indigo-600 disabled:opacity-50 px-4 py-2 rounded-xl text-sm font-bold shadow-md">
-            Send
-          </button>
-        </form>
+        {/* Chat Input */}
+        <div className="mt-auto relative shrink-0">
+          <form onSubmit={handleSendMessage} className="w-full relative">
+            <input 
+              type="text" 
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder={session ? "Send a message..." : "Guest msg (no links)..."}
+              className="w-full bg-[#201f21] border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#ba9eff] transition-all pr-12"
+            />
+            <button 
+              type="submit" 
+              disabled={!chatInput.trim()}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ba9eff] hover:text-[#c08cf7] disabled:opacity-50 transition-colors"
+            >
+              <Send size={18} />
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </aside>
   );
 }

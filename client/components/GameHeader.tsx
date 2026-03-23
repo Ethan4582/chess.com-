@@ -1,69 +1,61 @@
-import { ArrowLeft, Share2, Eye } from 'lucide-react';
+'use client'
+
+import { Github, User, PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 
 interface GameHeaderProps {
-  router: any;
-  isSpectator: boolean;
-  isPlayer: boolean;
-  gameOver: any;
-  playerName: string;
-  roleLabel: string;
+  onStartGame: () => void;
   isConnected: boolean;
-  shareLink: (target: 'play' | 'watch') => void;
 }
 
-export function GameHeader({
-  router,
-  isSpectator,
-  isPlayer,
-  gameOver,
-  playerName,
-  roleLabel,
-  isConnected,
-  shareLink
-}: GameHeaderProps) {
+export function GameHeader({ onStartGame, isConnected }: GameHeaderProps) {
   return (
-    <div className="w-full max-w-5xl flex items-center justify-between mb-8 z-10">
-      <button
-        onClick={() => router.push('/')}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-100 transition-colors font-semibold group"
-      >
-        <div className="p-2 rounded-xl bg-slate-900 group-hover:bg-indigo-600/20 group-hover:text-indigo-400 transition-colors">
-          <ArrowLeft size={20} />
-        </div>
-        Exit
-      </button>
-
-      <div className="flex items-center gap-4">
-        <div className="px-5 py-2 glass rounded-2xl flex items-center gap-3">
-          {isSpectator ? (
-            <>
-              <Eye size={14} className="text-amber-500" />
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-500">Spectating</span>
-            </>
-          ) : isPlayer ? (
-            <>
-              <div className={`w-2 h-2 rounded-full ${gameOver ? 'bg-slate-500' : 'bg-green-500 animate-pulse'}`} />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                {playerName} ({roleLabel})
-              </span>
-            </>
-          ) : (
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              {isConnected ? 'Assigning Role...' : 'Connecting...'}
-            </span>
-          )}
-        </div>
-
-        {isPlayer && !gameOver && (
-          <button
-            onClick={() => shareLink('play')}
-            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-2xl flex items-center gap-2 font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
-          >
-            <Share2 size={16} />
-            Copy Invite Link
-          </button>
-        )}
+    <header className="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-16 bg-[#0e0e0f] border-b border-white/[0.05] backdrop-blur-md">
+      <div className="flex items-center gap-6">
+        <Link 
+          href="/dashboard"
+          className="text-2xl font-black tracking-tighter text-white font-headline flex items-center group transition-all"
+        >
+          <span className="text-[#ba9eff] group-hover:mr-2 transition-all">Obsidian</span>
+          <span className="opacity-0 group-hover:opacity-100 transition-all text-[#ba9eff]">Gambit</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#ba9eff] ml-2 group-hover:scale-150 transition-all shadow-[0_0_10px_#ba9eff]" />
+        </Link>
       </div>
-    </div>
+      
+      <div className="flex items-center gap-6">
+        {!isConnected && (
+          <span className="text-red-500 flex items-center gap-2 text-[10px] uppercase tracking-widest font-black bg-red-500/10 px-4 py-2 rounded-full border border-red-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+            Disconnected
+          </span>
+        )}
+        
+        <div className="flex items-center gap-3">
+          {/* Start Game Button (Desktop/Mobile hybrid) */}
+          <button 
+            onClick={onStartGame}
+            className="flex items-center gap-2.5 px-6 py-2.5 bg-[#ba9eff] text-black font-black text-xs uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#ba9eff]/10 hover:shadow-[#ba9eff]/20"
+          >
+            <PlusCircle size={14} strokeWidth={3} />
+            <span className="hidden md:block">Start Game</span>
+            <span className="md:hidden">Play</span>
+          </button>
+
+          <div className="w-px h-6 bg-white/10 mx-2 hidden sm:block" />
+
+          <a 
+            href="https://github.com/ashirwad" 
+            target="_blank"
+            className="text-slate-500 hover:text-white transition-colors p-2.5 bg-white/5 rounded-full hover:border-[#ba9eff]/30 border border-transparent" 
+            title="GitHub"
+          >
+            <Github size={18} />
+          </a>
+          <button className="text-slate-500 hover:text-white transition-colors p-2.5 bg-white/5 rounded-full hover:border-[#ba9eff]/30 border border-transparent">
+            <User size={18} />
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }
