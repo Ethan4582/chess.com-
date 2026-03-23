@@ -48,53 +48,123 @@ async def room_exists(room_id: str):
 async def connect(sid, environ):
     logger.info(f"DEBUG: Socket connect attempt: {sid}")
 
+import asyncio
+import time
+import re
+
+disconnect_timers = {} # Tracks forfeiture timeouts. Keyed by (room_id, role)
+guest_last_message = {} # Tracks rate limit. Keyed by (guest_id)
+
+async def handle_disconnect_timeout(room_id: str, role: str):
+    """Waits 30 seconds, then forfeits the game for the disconnected player."""
+    await asyncio.sleep(30)
+    
+    # Check if timer was cancelled (they reconnected)
+    timer_key = (room_id, role)
+    if timer_key not in disconnect_timers:
+        return
+
+    room = manager.get_room(room_id)
+    if room and not room.engine.is_game_over():
+        logger.info(f"DEBUG: Player {role} in {room_id} forfeited due to timeout.")
+        
+        # Broadcast forfeit chat message
+        await sio.emit("chatMessage", {
+            "author": "System",
+            "content": "Player forfeited. Game over.",
+            "isSystem": True
+        }, room=room_id)
+        
+        # Determine winner based on role that disconnected
+        loser = role
+        winner = 'b' if role == 'w' else 'w'
+        
+        # Update engine status (this is a simplifed forfeit in our hybrid engine)
+        # We manually update Supabase rooms table since python-chess doesn't have an inbuilt 'forfeit' status easily exposed like that
+        try:
+            from .core.supabase_client import supabase
+            supabase.table('rooms').update({
+                'status': 'finished',
+                'winner_id': room._white_user_id if winner == 'w' else room._black_user_id,
+                'updated_at': 'now()'
+            }).eq('id', room_id).execute()
+        except Exception as e:
+            logger.error(f"Failed to record forfeit: {e}")
+
+        # Broadcast game over
+        status = {"is_over": True, "winner": winner, "reason": "forfeit"}
+        await sio.emit("gameOver", status, room=room_id)
+        
+    # Cleanup timer
+    disconnect_timers.pop(timer_key, None)
+
 @sio.event
 async def disconnect(sid):
-    room_id = manager.remove_player_from_all(sid)
-    logger.info(f"DEBUG: Socket disconnected: {sid} from room {room_id}")
+    room_id, role = manager.remove_player_from_all(sid)
+    logger.info(f"DEBUG: Socket disconnected: {sid} from room {room_id} with role {role}")
+    
     if room_id:
         room = manager.get_room(room_id)
         if room:
             await sio.emit("roomState", room.get_room_state(), room=room_id)
+            
+            # Start forfeit timer if a player disconnected (not spectator)
+            if role in ['w', 'b'] and not room.engine.is_game_over():
+                await sio.emit("chatMessage", {
+                    "author": "System",
+                    "content": "Player disconnected, waiting 30s...",
+                    "isSystem": True
+                }, room=room_id)
+                timer_key = (room_id, role)
+                disconnect_timers[timer_key] = asyncio.create_task(handle_disconnect_timeout(room_id, role))
 
 @sio.on("joinRoom")
-async def handle_join(sid, room_id, name=None):
-    logger.info(f"DEBUG: handle_join called for sid={sid}, room_id={room_id}, name={name}")
+async def handle_join(sid, room_id, name=None, user_id=None):
+    logger.info(f"DEBUG: handle_join called for sid={sid}, room_id={room_id}, name={name}, user_id={user_id}")
     
     if not room_id:
         return
 
-    # Handle Next.js potential params object
     clean_room_id = room_id
     if isinstance(room_id, dict):
         clean_room_id = room_id.get('id') or room_id.get('roomId')
-    
     clean_room_id = str(clean_room_id)
     
-    # Forcefully clean up this SID from all rooms first to prevent double-occupancy
-    # and stale registrations on the same SID.
+    # 🔍 1. REHYDRATE FROM SUPABASE
+    room = await manager.get_or_create_room(clean_room_id)
+    if not room:
+        logger.error(f"Join Refused: Room {clean_room_id} does not exist in Supabase.")
+        await sio.emit("invalidRoom", "Error: Game session not found.", to=sid)
+        return
+
+    # Clean up old connections
     manager.remove_player_from_all(sid)
-
     await sio.enter_room(sid, clean_room_id)
-    room = manager.get_or_create_room(clean_room_id)
 
-    # Assign role and store name (defaults to Guest in manager if missing)
-    role = room.add_player(sid, name)
+    # 🎮 2. UPDATE IN-MEMORY STATE
+    role = room.add_player(sid, name, user_id)
     logger.info(f"DEBUG: Joined sid {sid} to {clean_room_id} as {role} (player: {name or 'Guest'})")
+
+    # Cancel disconnect timer if they reconnected
+    timer_key = (clean_room_id, role)
+    if timer_key in disconnect_timers:
+        disconnect_timers[timer_key].cancel()
+        del disconnect_timers[timer_key]
+        await sio.emit("chatMessage", {
+            "author": "System",
+            "content": "Player reconnected",
+            "isSystem": True
+        }, room=clean_room_id)
 
     async with sio.session(sid) as session:
         session['room_id'] = clean_room_id
         session['role'] = role
 
-    # Emit role to the connecting client
+    # 📡 3. BROADCAST TO CLIENTS
     await sio.emit("playerRole", role, to=sid)
     if role == "spectator":
         await sio.emit("spectatorRole", to=sid)
-
-    # Broadcast updated room state (names/roles) to everyone in the room
     await sio.emit("roomState", room.get_room_state(), room=clean_room_id)
-
-    # Send current board state
     await sio.emit("updateBoard", room.engine.get_fen(), to=sid)
 
 @sio.event
@@ -105,18 +175,10 @@ async def makeMove(sid, move_data):
 
     if not room_id:
         return
-    
     room = manager.get_room(room_id)
-    if not room:
-        return
-
-    # (Fix) Block moves if the game is already over
-    if room.engine.is_game_over():
-        logger.info(f"DEBUG: Move rejected - game is already over.")
-        return
-
-    if not room.is_player_turn(sid):
-        await sio.emit("invalidMove", "It's not your turn!", to=sid)
+    if not room or room.engine.is_game_over() or not room.is_player_turn(sid):
+        if not room.is_player_turn(sid) and not room.engine.is_game_over():
+            await sio.emit("invalidMove", "It's not your turn!", to=sid)
         return
 
     try:
@@ -125,20 +187,18 @@ async def makeMove(sid, move_data):
             await sio.emit("invalidMove", "Invalid move!", to=sid)
             return
 
-        # Broadcast move result
         await sio.emit("moveMade", {"move": result}, room=room_id)
         await sio.emit("updateBoard", room.engine.get_fen(), room=room_id)
+        
+        asyncio.create_task(room.save_to_db(move_data=result))
 
-        # (Fix) If move finished the game, emit gameOver
         status = room.engine.get_game_status()
         if status["is_over"]:
-            logger.info(f"DEBUG: Game Over emitted for {room_id}: {status}")
             await sio.emit("gameOver", status, room=room_id)
 
     except Exception as e:
-        logger.error(f"DEBUG: Move error: {e}")
+        logger.error(f"Move error: {e}")
         await sio.emit("invalidMove", "Move failed.", to=sid)
-        # Rollback
         last_fen = room.engine.get_last_fen()
         if last_fen:
             room.engine.load_fen(last_fen)
@@ -154,6 +214,80 @@ async def handle_history(sid, direction):
             new_fen = room.engine.step_history(direction)
             if new_fen:
                 await sio.emit("updateBoard", new_fen, room=room_id)
+
+@sio.on("chatMessage")
+async def handle_chat(sid, data):
+    """Handles chat messages with restrictions for guests."""
+    async with sio.session(sid) as session:
+        room_id = session.get('room_id')
+        role = session.get('role')
+        
+    if not room_id:
+        return
+        
+    content = data.get('content', '').strip()
+    if not content:
+        return
+        
+    is_auth = data.get('is_auth', False)
+    user_id = data.get('user_id')
+    guest_id = data.get('guest_id')
+    author_name = data.get('author_name', 'Anonymous')
+    
+    # ─── GUEST RESTRICTIONS ───
+    if not is_auth:
+        if not guest_id:
+            return
+            
+        # 1. Rate Limiting (20 seconds)
+        now = time.time()
+        last_time = guest_last_message.get(guest_id, 0)
+        if now - last_time < 20:
+            await sio.emit("chatError", "You are sending messages too fast. Wait 20 seconds.", to=sid)
+            return
+        guest_last_message[guest_id] = now
+        
+        # 2. Length Limit
+        if len(content) > 100:
+            content = content[:100] + "..."
+            
+        # 3. Link Filtering
+        if re.search(r"http[s]?://|www\.", content, re.IGNORECASE):
+            await sio.emit("chatError", "Links are not allowed for guests.", to=sid)
+            return
+
+    elif len(content) > 300: # Auth users limit
+        content = content[:300] + "..."
+
+    # ─── BROADCAST MESSAGE ───
+    message_payload = {
+        "author": author_name,
+        "content": content,
+        "isAuth": is_auth,
+        "isGuest": not is_auth,
+        "isSystem": False
+    }
+    await sio.emit("chatMessage", message_payload, room=room_id)
+    
+    # ─── PERSIST TO DATABASE ───
+    try:
+        from .core.supabase_client import supabase
+        asyncio.create_task(_save_chat_async(room_id, user_id if is_auth else None, guest_id if not is_auth else None, content))
+    except Exception as e:
+        logger.error(f"Error persisting chat: {e}")
+
+async def _save_chat_async(room_id, user_id, guest_id, content):
+    """Background task to save chat to Supabase."""
+    try:
+        from .core.supabase_client import supabase
+        supabase.table('messages').insert({
+            'room_id': room_id,
+            'user_id': user_id,
+            'guest_id': guest_id,
+            'content': content
+        }).execute()
+    except Exception as e:
+        logger.error(f"Async DB Insert failed for chat: {e}")
 
 # ─── Mount Socket.io app ───
 socket_app = socketio.ASGIApp(sio, app)

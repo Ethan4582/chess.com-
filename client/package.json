@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
     "@types/chess.js": "^0.13.7",
     "canvas-confetti": "^1.9.4",
     "chess.js": "^1.4.0",

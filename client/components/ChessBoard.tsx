@@ -20,6 +20,7 @@ interface ChessBoardProps {
   fen: string;
   onMove: (move: { from: string; to: string; promotion: string }) => void;
   playerRole: 'w' | 'b' | 'spectator' | null;
+  onSpectatorAttempt?: () => void;
 }
 
 // ─── Piece Unicode Map (exact copy from chessgame.js getPieceUnicode) ───
@@ -35,7 +36,7 @@ function getPieceUnicode(type: string, color: string): string {
   return pieces[type]?.[color] || '';
 }
 
-export default function ChessBoard({ fen, onMove, playerRole }: ChessBoardProps) {
+export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt }: ChessBoardProps) {
   const [dragSource, setDragSource] = useState<{ row: number; col: number } | null>(null);
 
   // Parse board from FEN (mirrors: const board = chess.board())
@@ -90,6 +91,11 @@ export default function ChessBoard({ fen, onMove, playerRole }: ChessBoardProps)
                   setDragSource(null);
                 }
               }}
+              onClick={() => {
+                if ((playerRole === 'spectator' || playerRole === null) && onSpectatorAttempt) {
+                  onSpectatorAttempt();
+                }
+              }}
             >
               {square && (
                 <div
@@ -100,6 +106,9 @@ export default function ChessBoard({ fen, onMove, playerRole }: ChessBoardProps)
                   onDragStart={(e) => {
                     if (playerRole !== square.color) {
                       e.preventDefault();
+                      if ((playerRole === 'spectator' || playerRole === null) && onSpectatorAttempt) {
+                        onSpectatorAttempt();
+                      }
                       return;
                     }
                     setDragSource({ row: rowIndex, col: colIndex });
