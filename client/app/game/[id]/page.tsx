@@ -8,7 +8,6 @@ import ChessBoard from '@/components/ChessBoard';
 import { AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import AuthModal from '@/components/AuthModal';
 
 import { GameHeader } from '@/components/GameHeader';
 import { GameSidebar } from '@/components/GameSidebar';
@@ -78,7 +77,6 @@ export default function GamePage() {
   const [gameOver, setGameOver] = useState<GameStatus | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
-  const [showAuth, setShowAuth] = useState(false);
 
   // ─── Toast System ───
   const addToast = useCallback((message: string) => {
@@ -309,7 +307,7 @@ export default function GamePage() {
               onMove={handleMove} 
               playerRole={role} 
               onSpectatorAttempt={() => {
-                if (!session) setShowAuth(true);
+                if (!session) router.push('/login');
               }}
             />
           </div>
@@ -364,11 +362,6 @@ export default function GamePage() {
         setGameOver={setGameOver}
       />
 
-      <AuthModal 
-        isOpen={showAuth}
-        onClose={() => setShowAuth(false)}
-        onSuccess={() => window.location.reload()}
-      />
     </div>
   );
 }

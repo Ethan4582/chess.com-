@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import AuthModal from '@/components/AuthModal';
 import LandingHero from '@/components/LandingHero';
 import LandingFeatures from '@/components/LandingFeatures';
 import LandingFooter from '@/components/LandingFooter';
@@ -13,7 +12,6 @@ import { LogOut, User, Github } from 'lucide-react';
 export default function Home() {
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const router = useRouter();
 
   // ─── Auth State Management ───
@@ -48,25 +46,13 @@ export default function Home() {
 
   const handlePlayFriend = async () => {
     if (!session) {
-      setIsAuthOpen(true);
+      router.push('/login');
       return;
     }
-
-    try {
-      const { data, error } = await supabase
-        .from('rooms')
-        .insert({
-          white_player_id: session.user.id,
-          status: 'waiting'
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      router.push(`/game/${data.id}?role=white`);
-    } catch (err: any) {
-      alert(`Failed to create room: ${err.message}`);
-    }
+    
+    // Instead of creating a room directly from landing page, 
+    // we now go to the dashboard / lobby where those actions live.
+    router.push('/dashboard');
   };
 
   const handleViewGame = () => {
@@ -76,8 +62,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#0e0e0f] text-white font-body selection:bg-indigo-500/30 overflow-x-hidden">
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
-
       {/* ─── Navigation ─── */}
       <nav className="fixed top-0 w-full z-50 bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/[0.05]">
         <div className="flex justify-between items-center w-full px-8 py-5 max-w-screen-2xl mx-auto">
@@ -120,7 +104,7 @@ export default function Home() {
               </div>
             ) : (
               <button 
-                onClick={() => setIsAuthOpen(true)}
+                onClick={() => router.push('/login')}
                 className="px-6 py-2.5 rounded-full bg-white text-black font-black text-sm transition-all hover:bg-slate-200 shadow-lg shadow-white/5"
               >
                 Log In / Sign Up
@@ -137,7 +121,7 @@ export default function Home() {
       <LandingFeatures />
 
       {/* ─── CTA Section ─── */}
-      <LandingCTA onSignUp={() => setIsAuthOpen(true)} />
+      <LandingCTA onSignUp={() => router.push('/login')} />
 
       {/* ─── Footer ─── */}
       <LandingFooter />
