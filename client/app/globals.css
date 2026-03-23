@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0b;
+  --foreground: #f8fafc;
+  --primary: #6366f1;
+  --secondary: #1e293b;
+  --muted: #64748b;
+  --accent: #8b5cf6;
+  --card: #111113;
+  --border: #1e293b;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(17, 17, 19, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ─── Chessboard Styles (exact copy from game.ejs) ─── */
+
+.chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  width: 540px;
+  height: 540px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.square.light { background-color: #f0d9b5; }
+.square.dark { background-color: #b58863; }
+
+.piece {
+  font-size: 36px;
+  cursor: pointer;
+}
+
+.piece.white {
+  color: white;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+}
+
+.piece.black {
+  color: #000 !important;
+  -webkit-text-stroke: 0px #000;
+  text-shadow: none;
+  font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'Noto Sans Symbols', 'DejaVu Sans', Arial, sans-serif;
+}
+
+/* Draggable piece shows grab cursor */
+.piece[draggable="true"] {
+  cursor: grab;
+}
+
+.piece[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Flipped board for black player (exact copy from game.ejs) */
+.flipped {
+  transform: rotate(180deg);
+}
+
+/* Rotate pieces inside flipped board so they stay upright (exact copy) */
+.flipped .piece {
+  transform: rotate(180deg);
+}
