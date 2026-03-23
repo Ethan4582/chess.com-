@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { getSocket } from '@/lib/socket';
+import { supabase } from '@/lib/supabaseClient';
 import ChessBoard from '@/components/ChessBoard';
 import {
   ArrowLeft, Share2, Users, ShieldCheck,
@@ -38,9 +39,26 @@ let toastCounter = 0;
 export default function GamePage() {
   const { id: roomId } = useParams();
   const searchParams = useSearchParams();
-  const name = searchParams.get('name') || 'Guest';
   const router = useRouter();
   const socket = getSocket();
+
+  // ─── Supabase Session ───
+  const [session, setSession] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) fetchProfile(session.user.id);
+    });
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (data) setProfile(data);
+  };
+
+  const playerName = profile?.username || session?.user.email?.split('@')[0] || 'Guest';
 
   // ─── State ───
   const [fen, setFen] = useState('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
@@ -94,7 +112,8 @@ export default function GamePage() {
       console.log('DEBUG: Socket connected', socket.id);
       setIsConnected(true);
       if (typeof roomId === 'string' && roomId.length > 0) {
-        socket.emit('joinRoom', roomId, name);
+        // Use the authenticated playerName
+        socket.emit('joinRoom', roomId, playerName);
       }
     };
 
@@ -123,7 +142,6 @@ export default function GamePage() {
     socket.on('roomState', (state: RoomState) => {
       console.log('DEBUG: Received roomState', state);
       setRoomState(state);
-      // If roomState reports game over, trigger it
       if (state.status?.is_over && !gameOver) {
         setGameOver(state.status);
       }
@@ -152,8 +170,7 @@ export default function GamePage() {
       socket.off('updateBoard');
       socket.off('invalidMove');
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, roomId, name, addToast]);
+  }, [socket, roomId, playerName, addToast, gameOver]);
 
   // ─── Trigger confetti when you WIN ───
   useEffect(() => {
@@ -164,7 +181,6 @@ export default function GamePage() {
 
   // ─── Handlers ───
   const handleMove = useCallback((move: { from: string; to: string; promotion: string }) => {
-    // Block moves if spectator, no role, or game is finished
     if (role === 'spectator' || !role || gameOver) return;
     socket.emit('makeMove', move);
   }, [socket, role, gameOver]);
@@ -174,14 +190,12 @@ export default function GamePage() {
   }, [socket]);
 
   const shareLink = (target: 'play' | 'watch') => {
-    // Always build a clean link WITHOUT the host's ?name= param
     const baseUrl = `${window.location.origin}/game/${roomId}`;
     navigator.clipboard.writeText(baseUrl);
     addToast(`${target === 'play' ? 'Invite' : 'Spectator'} link copied!`);
   };
 
   const handleReturnHome = () => {
-    // Clean disconnect from room
     socket.disconnect();
     router.push('/');
   };
@@ -252,7 +266,7 @@ export default function GamePage() {
               <>
                 <div className={`w-2 h-2 rounded-full ${gameOver ? 'bg-slate-500' : 'bg-green-500 animate-pulse'}`} />
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  {name} ({roleLabel})
+                  {playerName} ({roleLabel})
                 </span>
               </>
             ) : (
@@ -276,7 +290,6 @@ export default function GamePage() {
 
       {/* ─── Main Content ─── */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 items-start justify-center z-10">
-        {/* Board Section */}
         <div className="flex flex-col items-center">
           <div className="relative">
             {gameOver && (
@@ -318,7 +331,6 @@ export default function GamePage() {
             </div>
 
             <div className="space-y-4">
-              {/* White Slot */}
               <div className={`flex items-center justify-between p-5 rounded-3xl border transition-all ${
                 roomState.white
                   ? 'bg-white/5 border-white/10'
@@ -342,7 +354,6 @@ export default function GamePage() {
                 )}
               </div>
 
-              {/* Black Slot */}
               <div className={`flex items-center justify-between p-5 rounded-3xl border transition-all ${
                 roomState.black
                   ? 'bg-white/5 border-white/10'
@@ -368,7 +379,6 @@ export default function GamePage() {
             </div>
           </div>
 
-          {/* Share Card — only when game is active */}
           {!gameOver && (
             <div className="glass p-8 rounded-[40px] border border-white/5 space-y-6">
               <div className="flex items-center gap-3 text-xl font-bold">
@@ -430,10 +440,7 @@ export default function GamePage() {
               transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.1 }}
               className="w-full max-w-md glass rounded-[48px] p-10 text-center shadow-[0_0_80px_rgba(79,70,229,0.2)] border border-white/10 relative overflow-hidden"
             >
-              {/* Gradient top bar */}
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
-
-              {/* Icon */}
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -444,21 +451,17 @@ export default function GamePage() {
               >
                 <Trophy size={64} />
               </motion.div>
-
               <h2 className="text-5xl font-black mb-4 tracking-tight">
                 {gameOverTitle}
               </h2>
-
               <p className="text-slate-400 font-medium mb-3 leading-relaxed px-4">
                 {gameOverMessage}
               </p>
-
               {gameOverReason && (
                 <div className="inline-block px-4 py-2 bg-slate-900/80 rounded-full text-xs font-bold uppercase tracking-widest text-indigo-400 mb-8 border border-white/5">
                   {gameOverReason}
                 </div>
               )}
-
               <div className="space-y-4 mt-4">
                 <button
                   onClick={handleReturnHome}
@@ -467,7 +470,6 @@ export default function GamePage() {
                   <Home size={20} />
                   Return Home
                 </button>
-
                 <button
                   onClick={() => setGameOver(null)}
                   className="w-full py-5 glass hover:bg-white/10 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all text-slate-400 hover:text-white"

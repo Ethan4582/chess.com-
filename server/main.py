@@ -71,12 +71,16 @@ async def handle_join(sid, room_id, name=None):
     
     clean_room_id = str(clean_room_id)
     
+    # 🔍 Fetch room (checks Supabase if not in memory)
+    room = await manager.get_or_create_room(clean_room_id)
+    if not room:
+        await sio.emit("invalidRoom", "Room not found in Supabase.", to=sid)
+        return
+
     # Forcefully clean up this SID from all rooms first to prevent double-occupancy
-    # and stale registrations on the same SID.
     manager.remove_player_from_all(sid)
 
     await sio.enter_room(sid, clean_room_id)
-    room = manager.get_or_create_room(clean_room_id)
 
     # Assign role and store name (defaults to Guest in manager if missing)
     role = room.add_player(sid, name)
@@ -110,7 +114,7 @@ async def makeMove(sid, move_data):
     if not room:
         return
 
-    # (Fix) Block moves if the game is already over
+    # Block moves if the game is already over
     if room.engine.is_game_over():
         logger.info(f"DEBUG: Move rejected - game is already over.")
         return
@@ -125,11 +129,15 @@ async def makeMove(sid, move_data):
             await sio.emit("invalidMove", "Invalid move!", to=sid)
             return
 
+        # 🏆 SYNC TO SUPABASE (Persistence)
+        # We fire this asynchronously so it doesn't block the UI update
+        await room.save_to_db(move_data=result)
+
         # Broadcast move result
         await sio.emit("moveMade", {"move": result}, room=room_id)
         await sio.emit("updateBoard", room.engine.get_fen(), room=room_id)
 
-        # (Fix) If move finished the game, emit gameOver
+        # If move finished the game, emit gameOver
         status = room.engine.get_game_status()
         if status["is_over"]:
             logger.info(f"DEBUG: Game Over emitted for {room_id}: {status}")
@@ -138,7 +146,7 @@ async def makeMove(sid, move_data):
     except Exception as e:
         logger.error(f"DEBUG: Move error: {e}")
         await sio.emit("invalidMove", "Move failed.", to=sid)
-        # Rollback
+        # Rollback (checks last FEN)
         last_fen = room.engine.get_last_fen()
         if last_fen:
             room.engine.load_fen(last_fen)
