@@ -14,9 +14,10 @@ function cn(...inputs: ClassValue[]) {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +34,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        onSuccess?.();
         onClose();
       } else {
         const { error } = await supabase.auth.signUp({ email, password });

@@ -1,18 +1,26 @@
 from typing import Dict, Optional, List, Any
 import logging
+import asyncio
 from .engine import ChessEngine
 from .core.supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
 class GameRoom:
-    """Enhanced GameRoom with Supabase Persistence."""
+    """Hybrid GameRoom: High-speed in-memory state with async Supabase persistence and ELO tracking."""
 
-    def __init__(self, room_id: str, initial_fen: Optional[str] = None):
+    def __init__(self, room_id: str, initial_data: Optional[Dict] = None):
         self._room_id: str = room_id
         self._engine: ChessEngine = ChessEngine()
-        if initial_fen:
-            self._engine.load_fen(initial_fen)
+        
+        # Load persistent data if available
+        self._white_user_id: Optional[str] = None
+        self._black_user_id: Optional[str] = None
+        
+        if initial_data:
+            self._engine.load_fen(initial_data.get('fen', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'))
+            self._white_user_id = initial_data.get('white_player_id')
+            self._black_user_id = initial_data.get('black_player_id')
             
         self._players: Dict[str, Dict[str, str]] = {}  # {'white': {'sid': sid, 'name': name}, ...}
         self._spectators: List[str] = []
@@ -30,47 +38,101 @@ class GameRoom:
             'white': self._players.get('white', {}).get('name'),
             'black': self._players.get('black', {}).get('name'),
             'count': len(self._players),
-            'status': self._engine.get_game_status()
+            'status': self._engine.get_game_status(),
+            'player_ids': {
+                'white': self._white_user_id,
+                'black': self._black_user_id
+            }
         }
 
     async def save_to_db(self, move_data: Optional[Dict] = None):
-        """Persists the current board state and move to Supabase."""
+        """Async persistence with ELO awarding on game completion."""
         try:
-            # 1. Update the Room (Current FEN)
+            current_fen = self._engine.get_fen()
+            is_over = self._engine.is_game_over()
+            status = self._engine.get_game_status()
+            
+            # Identify winner if game is over
+            winner_role = status.get('winner') if is_over else None
+            winner_id = None
+            if winner_role == 'w': winner_id = self._white_user_id
+            if winner_role == 'b': winner_id = self._black_user_id
+
+            # 1. Update the Room State
             supabase.table('rooms').update({
-                'fen': self._engine.get_fen(),
-                'status': 'playing' if not self._engine.is_game_over() else 'finished',
+                'fen': current_fen,
+                'status': 'finished' if is_over else 'playing',
+                'winner_id': winner_id,
                 'updated_at': 'now()'
             }).eq('id', self._room_id).execute()
 
-            # 2. Log the Move (if provided)
+            # 2. Log History
             if move_data:
-                # We can refine this to track which player ID made the move in the future
                 supabase.table('moves').insert({
                     'room_id': self._room_id,
                     'move_notation': move_data.get('san', 'unknown'),
-                    'fen_after': self._engine.get_fen()
+                    'fen_after': current_fen
                 }).execute()
 
+            # 🏆 3. AWARD ELO POINTS
+            if is_over:
+                await self._handle_game_over_points(winner_role)
+
         except Exception as e:
-            logger.error(f"Failed to sync room {self._room_id} to Supabase: {e}")
+            logger.error(f"Supabase Sync Error: {e}")
 
-    def add_player(self, socket_id: str, name: str = "Guest") -> str:
-        if 'white' in self._players and self._players['white']['sid'] == socket_id:
-            return 'w'
-        if 'black' in self._players and self._players['black']['sid'] == socket_id:
-            return 'b'
+    async def _handle_game_over_points(self, winner_role: Optional[str]):
+        """Calculates and updates ELO for both players."""
+        if not winner_role:
+            return
 
-        if 'white' not in self._players:
+        winner_id = self._white_user_id if winner_role == 'w' else self._black_user_id
+        loser_id = self._black_user_id if winner_role == 'w' else self._white_user_id
+
+        if winner_id:
+            supabase.rpc('increment_points', {'user_id': winner_id, 'amount': 25}).execute()
+        
+        if loser_id:
+            supabase.rpc('increment_points', {'user_id': loser_id, 'amount': -15}).execute()
+            
+        logger.info(f"🏆 ELO Updated: Match {self._room_id} finished. Points awarded.")
+
+    def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None) -> str:
+        # 1. Re-joining logic (check memory sid first, or user_id)
+        if 'white' in self._players and (self._players['white']['sid'] == socket_id or (user_id and self._white_user_id == user_id)):
             self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
             return 'w'
-        elif 'black' not in self._players:
+        if 'black' in self._players and (self._players['black']['sid'] == socket_id or (user_id and self._black_user_id == user_id)):
             self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
+            return 'b'
+
+        # 2. Prevent unauthenticated users from taking player slots
+        if not user_id:
+            if socket_id not in self._spectators:
+                self._spectators.append(socket_id)
+            return 'spectator'
+
+        # 3. Assign to empty slots for authenticated users
+        if not self._white_user_id or self._white_user_id == user_id:
+            self._white_user_id = user_id
+            self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
+            asyncio.create_task(self._sync_player_id('white_player_id', user_id))
+            return 'w'
+        elif not self._black_user_id or self._black_user_id == user_id:
+            self._black_user_id = user_id
+            self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
+            asyncio.create_task(self._sync_player_id('black_player_id', user_id))
             return 'b'
         else:
             if socket_id not in self._spectators:
                 self._spectators.append(socket_id)
             return 'spectator'
+
+    async def _sync_player_id(self, column: str, user_id: str):
+        try:
+            supabase.table('rooms').update({column: user_id}).eq('id', self._room_id).execute()
+        except Exception as e:
+            logger.error(f"Failed to sync {column}: {e}")
 
     def remove_player(self, socket_id: str):
         if 'white' in self._players and self._players['white']['sid'] == socket_id:
@@ -91,38 +153,39 @@ class GameManager:
         self._rooms: Dict[str, GameRoom] = {}
 
     async def get_or_create_room(self, room_id: str) -> Optional[GameRoom]:
-        """Fetch from Supabase first if not in memory."""
         if room_id in self._rooms:
             return self._rooms[room_id]
 
-        # 🔍 CHECK SUPABASE FOR EXISTING GAME
         try:
             response = supabase.table('rooms').select('*').eq('id', room_id).execute()
-            if response.data and len(response.data) > 0:
+            if response.data:
                 room_data = response.data[0]
-                new_room = GameRoom(room_id, initial_fen=room_data.get('fen'))
-                self._rooms[room_id] = new_room
-                logger.info(f"Restored room {room_id} from Supabase.")
-                return new_room
-            else:
-                logger.warning(f"Room {room_id} not found in Supabase. Creating temporary local room.")
-                new_room = GameRoom(room_id)
+                new_room = GameRoom(room_id, initial_data=room_data)
                 self._rooms[room_id] = new_room
                 return new_room
+            return None
         except Exception as e:
-            logger.error(f"Error fetching room {room_id} from Supabase: {e}")
+            logger.error(f"Rehydration Error: {e}")
             return None
 
     def get_room(self, room_id: str) -> Optional[GameRoom]:
         return self._rooms.get(room_id)
 
-    def remove_player_from_all(self, socket_id: str) -> Optional[str]:
+    def remove_player_from_all(self, socket_id: str) -> tuple[Optional[str], Optional[str]]:
         for room_id, room in self._rooms.items():
             is_white = 'white' in room._players and room._players['white']['sid'] == socket_id
             is_black = 'black' in room._players and room._players['black']['sid'] == socket_id
             is_spectator = socket_id in room._spectators
             
-            if is_white or is_black or is_spectator:
+            role = None
+            if is_white:
+                role = 'w'
+            elif is_black:
+                role = 'b'
+            elif is_spectator:
+                role = 'spectator'
+                
+            if role:
                 room.remove_player(socket_id)
-                return room_id
-        return None
+                return room_id, role
+        return None, None

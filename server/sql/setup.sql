@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.messages (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   room_id UUID REFERENCES public.rooms(id) ON DELETE CASCADE,
   user_id UUID REFERENCES public.profiles(id),
+  guest_id TEXT,
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -70,23 +71,57 @@ ALTER TABLE public.moves ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 
 -- 8. Policies --
+-- 8. Policies (Re-runnable Safe)
 
--- Profiles: Anyone can view, only owner can edit
-CREATE POLICY "Public Read Profiles" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Profiles
+DROP POLICY IF EXISTS "Public Read Profiles" ON public.profiles;
+CREATE POLICY "Public Read Profiles"
+ON public.profiles FOR SELECT
+USING (true);
 
--- Rooms: Anyone can view, auth users can create, players can join empty slots
-CREATE POLICY "Anyone view rooms" ON public.rooms FOR SELECT USING (true);
-CREATE POLICY "Auth users create rooms" ON public.rooms FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Players join waiting rooms" ON public.rooms FOR UPDATE USING (status = 'waiting')
+DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
+CREATE POLICY "Users update own profile"
+ON public.profiles FOR UPDATE
+USING (auth.uid() = id);
+
+-- Rooms
+DROP POLICY IF EXISTS "Anyone view rooms" ON public.rooms;
+CREATE POLICY "Anyone view rooms"
+ON public.rooms FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Auth users create rooms" ON public.rooms;
+CREATE POLICY "Auth users create rooms"
+ON public.rooms FOR INSERT
+WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Players join waiting rooms" ON public.rooms;
+CREATE POLICY "Players join waiting rooms"
+ON public.rooms FOR UPDATE
+USING (status = 'waiting')
 WITH CHECK (
-  (white_player_id = auth.uid() AND (SELECT white_player_id FROM public.rooms WHERE id = rooms.id) IS NULL) OR
-  (black_player_id = auth.uid() AND (SELECT black_player_id FROM public.rooms WHERE id = rooms.id) IS NULL)
+(white_player_id IS NULL AND white_player_id = auth.uid()) OR
+(black_player_id IS NULL AND black_player_id = auth.uid())
 );
 
--- Moves: Anyone view history, No frontend insert (only backend via Service Role)
-CREATE POLICY "Anyone view moves" ON public.moves FOR SELECT USING (true);
+-- Moves
+DROP POLICY IF EXISTS "Anyone view moves" ON public.moves;
+CREATE POLICY "Anyone view moves"
+ON public.moves FOR SELECT
+USING (true);
 
--- Messages: Anyone view chat, authenticated users can send
-CREATE POLICY "Anyone view chat" ON public.messages FOR SELECT USING (true);
-CREATE POLICY "Auth users send messages" ON public.messages FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow move inserts" ON public.moves;
+CREATE POLICY "Allow move inserts"
+ON public.moves FOR INSERT
+WITH CHECK (true);
+
+-- Messages
+DROP POLICY IF EXISTS "Anyone view chat" ON public.messages;
+CREATE POLICY "Anyone view chat"
+ON public.messages FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Auth users send messages" ON public.messages;
+CREATE POLICY "Auth users send messages"
+ON public.messages FOR INSERT
+WITH CHECK (auth.role() = 'authenticated');
