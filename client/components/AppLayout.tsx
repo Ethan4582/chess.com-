@@ -66,21 +66,24 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
   };
 
   return (
-    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col selection:bg-[#ba9eff]/30 overflow-hidden h-screen font-body relative">
+    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col h-screen overflow-hidden selection:bg-[#ba9eff]/30 font-body relative">
       <Navbar 
         isConnected={isConnected}
         onStartGame={handleStartGame}
       />
 
-      <LeftSidebar 
-        isOpen={sidebarOpen} 
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        profile={profile}
-      />
+      <div className="flex flex-1 overflow-hidden pt-16">
+        {/* Sidebar as a flex child, no absolute/fixed if we want 3-column flow */}
+        <LeftSidebar 
+          isOpen={sidebarOpen} 
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          profile={profile}
+        />
 
-      <main className={`flex-grow flex mt-16 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'} relative overflow-hidden w-full border-l border-white/[0.05] bg-[#0c0c0d]`}>
-        {children}
-      </main>
+        <main className="flex-1 relative overflow-hidden bg-[#0c0c0d] flex flex-col">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -98,7 +98,7 @@ class GameRoom:
         logger.info(f"🏆 ELO Updated: Match {self._room_id} finished. Points awarded.")
 
     def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None) -> str:
-        # 1. Re-joining logic (check memory sid first, or user_id)
+        # 1. Re-joining logic
         if 'white' in self._players and (self._players['white']['sid'] == socket_id or (user_id and self._white_user_id == user_id)):
             self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
             return 'w'
@@ -106,13 +106,13 @@ class GameRoom:
             self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
             return 'b'
 
-        # 2. Prevent unauthenticated users from taking player slots
+        # 2. Prevent unauthenticated slots
         if not user_id:
             if socket_id not in self._spectators:
                 self._spectators.append(socket_id)
             return 'spectator'
 
-        # 3. Assign to empty slots for authenticated users
+        # 3. Assign slots
         if not self._white_user_id or self._white_user_id == user_id:
             self._white_user_id = user_id
             self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
@@ -152,6 +152,19 @@ class GameManager:
     def __init__(self):
         self._rooms: Dict[str, GameRoom] = {}
 
+    async def rehydrate_active_rooms(self):
+        """Startup rehydration for memory consistency."""
+        try:
+            response = supabase.table('rooms').select('*').in_('status', ['waiting', 'playing']).execute()
+            if response.data:
+                for data in response.data:
+                    rid = data['id']
+                    if rid not in self._rooms:
+                        self._rooms[rid] = GameRoom(rid, initial_data=data)
+                logger.info(f"🔄 Memory Hydrated: Loaded {len(response.data)} active sessions.")
+        except Exception as e:
+            logger.info(f"Hydration Error: {e}")
+
     async def get_or_create_room(self, room_id: str) -> Optional[GameRoom]:
         if room_id in self._rooms:
             return self._rooms[room_id]
@@ -175,15 +188,11 @@ class GameManager:
         for room_id, room in self._rooms.items():
             is_white = 'white' in room._players and room._players['white']['sid'] == socket_id
             is_black = 'black' in room._players and room._players['black']['sid'] == socket_id
-            is_spectator = socket_id in room._spectators
             
             role = None
-            if is_white:
-                role = 'w'
-            elif is_black:
-                role = 'b'
-            elif is_spectator:
-                role = 'spectator'
+            if is_white: role = 'w'
+            elif is_black: role = 'b'
+            elif socket_id in room._spectators: role = 'spectator'
                 
             if role:
                 room.remove_player(socket_id)

@@ -61,8 +61,12 @@ export default function LoginPage() {
         </div>
         
         {/* Brand */}
-        <Link href="/" className="absolute top-12 left-12 text-2xl font-black tracking-tighter text-white font-headline flex items-center gap-2 hover:opacity-80 transition-opacity">
-          Blitzr 
+        <Link href="/" className="absolute top-12 left-12 hover:opacity-80 transition-opacity">
+          <img 
+            src="/assets/logo1.png" 
+            alt="Blitzr Logo" 
+            className="h-10 w-auto object-contain" 
+          />
         </Link>
       </section>
 

@@ -1,4 +1,4 @@
-import { Share2, Eye, MessageSquare, Send } from 'lucide-react';
+import { Share2, Eye, MessageSquare, Send, Trophy } from 'lucide-react';
 
 interface GameSidebarProps {
   roomState: any;
@@ -27,88 +27,98 @@ export function GameSidebar({
 }: GameSidebarProps) {
   const whiteName = roomState.white || 'Waiting...';
   const blackName = roomState.black || 'Waiting...';
+  
+  // Dynamic Elo if we have them in the room state or profile data
+  // For now, if unknown, use 1200 as base
+  const whiteElo = roomState.player_ids?.white ? (roomState.white_elo || 1200) : '--';
+  const blackElo = roomState.player_ids?.black ? (roomState.black_elo || 1200) : '--';
 
   return (
-    <aside className="flex flex-col border-l border-white/5 bg-[#131314] h-full min-h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+    <aside className="flex flex-col bg-[#131314] h-full overflow-hidden shadow-2xl">
       {/* Header Actions */}
-      <div className="p-6 grid grid-cols-2 gap-3">
+      <div className="p-4 grid grid-cols-2 gap-2 border-b border-white/5">
         <button 
           onClick={() => shareLink('play')}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-br from-[#a27cff] to-[#ba9eff] text-[#39008c] text-sm font-bold transition-transform active:scale-95 shadow-lg shadow-[#ba9eff]/10"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-[#ba9eff] text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#ba9eff]/10 hover:bg-[#c0a6ff]"
         >
-          <Share2 size={18} />
+          <Share2 size={14} />
           Invite
         </button>
         <button 
           onClick={() => shareLink('watch')}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-white/10 text-white text-sm font-bold hover:bg-[#201f21] transition-colors"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
         >
-          <Eye size={18} />
+          <Eye size={14} />
           Watch
         </button>
       </div>
 
-      {/* Player Info Cards */}
-      <div className="px-6 flex flex-col gap-4 mb-8">
-        {/* Player Black (Opponent) */}
-        <div className={`p-4 rounded-xl bg-[#201f21] flex items-center justify-between border ${role === 'b' ? 'border-l-4 border-[#ba9eff]' : 'border-transparent'}`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#262627] overflow-hidden shrink-0">
-              <img alt="Player" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150&auto=format&fit=crop" />
+      {/* Player Section */}
+      <div className="p-4 flex flex-col gap-2 bg-[#1a1a1b]/50 border-b border-white/5">
+        {/* Opponent Row */}
+        <div className={`p-3 rounded-xl transition-all border ${role === 'b' ? 'bg-[#201f21] border-[#ba9eff]/20' : 'bg-transparent border-transparent opacity-80'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/10 text-[#ba9eff] font-black text-[10px]">
+                {blackName[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs font-black text-white truncate max-w-[120px]">{blackName}</p>
+                <div className="flex items-center gap-1.5 opacity-60">
+                   <Trophy size={8} className="text-[#ba9eff]" />
+                   <span className="text-[8px] font-black uppercase tracking-tighter">ELO {blackElo} • Black</span>
+                </div>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white tracking-tight truncate">{blackName}</p>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold truncate">Elo 2840 • Black</p>
+            <div className="text-right">
+              <span className="text-[10px] font-mono text-white opacity-40">10:00</span>
             </div>
-          </div>
-          <div className="flex flex-col items-end shrink-0 pl-2">
-            <span className="text-xs font-mono text-[#ba9eff]">10:00</span>
-            <span className="text-[10px] text-[#ba9eff]/60 uppercase font-black">{role === 'b' ? 'You' : 'Thinking'}</span>
           </div>
         </div>
 
-        {/* Player White (You/Other) */}
-        <div className={`p-4 rounded-xl bg-[#262627] flex items-center justify-between border ${role === 'w' ? 'border-l-4 border-[#ba9eff]' : 'border-transparent'}`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#131314] overflow-hidden shrink-0">
-              <img alt="Player" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop" />
+        {/* User Row (White/You) */}
+        <div className={`p-3 rounded-xl transition-all border ${role === 'w' ? 'bg-[#201f21] border-[#ba9eff]/20' : 'bg-transparent border-transparent opacity-80'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/10 text-[#ba9eff] font-black text-[10px]">
+                {whiteName[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs font-black text-white truncate max-w-[120px]">{whiteName}</p>
+                <div className="flex items-center gap-1.5 opacity-60">
+                   <Trophy size={8} className="text-[#ba9eff]" />
+                   <span className="text-[8px] font-black uppercase tracking-tighter">ELO {whiteElo} • White</span>
+                </div>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white tracking-tight truncate">{whiteName}</p>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold truncate">Elo 2450 • White</p>
+            <div className="text-right">
+              <span className="text-[10px] font-mono text-white">10:00</span>
             </div>
-          </div>
-          <div className="flex flex-col items-end shrink-0 pl-2">
-            <span className="text-xs font-mono text-white">10:00</span>
-            <span className="text-[10px] text-slate-400 uppercase font-black">{role === 'w' ? 'You' : 'Waiting'}</span>
           </div>
         </div>
       </div>
 
-      {/* Chat Section */}
-      <div className="flex-grow flex flex-col overflow-hidden px-6 pb-6 h-64">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Live Room Chat</h3>
-          <MessageSquare size={14} className="text-slate-400" />
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#131314]">
+        <div className="px-4 py-3 flex items-center justify-between bg-white/[0.02] border-b border-white/5 shrink-0">
+          <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Live Room Chat</h3>
+          <MessageSquare size={12} className="text-slate-500" />
         </div>
         
-        <div className="flex-grow overflow-y-auto space-y-4 mb-4 pr-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto space-y-3 p-4 custom-scrollbar bg-black/10">
           {messages.length === 0 && (
-            <div className="text-slate-500 text-xs italic text-center mt-4">
-              Welcome to the Grandmaster Arena.
+            <div className="text-slate-600 text-[10px] font-black uppercase tracking-widest text-center mt-8 opacity-40">
+              Grandmaster Arena ♟️
             </div>
           )}
           {messages.map((m, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="w-6 h-6 rounded bg-[#262627] shrink-0 font-bold text-[10px] flex items-center justify-center text-[#ba9eff]">
-                {m.author.substring(0, 2).toUpperCase()}
-              </div>
+            <div key={i} className="flex gap-2.5 animate-in fade-in slide-in-from-bottom-1 duration-300">
               <div className="flex-1">
-                <p className="text-[11px] leading-snug break-words">
-                  <span className={`font-bold mr-1 ${m.isSystem ? 'text-[#ba9eff]' : m.isAuth ? 'text-white' : 'text-slate-400'}`}>
-                    {m.author}
+                <p className="text-[11px] leading-relaxed">
+                  <span className={`font-black tracking-tight mr-1.5 ${m.isSystem ? 'text-[#ba9eff]' : 'text-white'}`}>
+                    {m.author.toUpperCase()}
                   </span> 
-                  <span className={m.isSystem ? 'text-[#ba9eff]/80 italic' : 'text-slate-300'}>
+                  <span className={`${m.isSystem ? 'text-[#ba9eff]/70 italic' : 'text-slate-400 font-medium'}`}>
                     {m.content}
                   </span>
                 </p>
@@ -117,22 +127,23 @@ export function GameSidebar({
           ))}
         </div>
 
-        {/* Chat Input */}
-        <div className="mt-auto relative shrink-0">
-          <form onSubmit={handleSendMessage} className="w-full relative">
+        {/* Input */}
+        <div className="p-4 bg-[#1a1a1b] border-t border-white/5 shrink-0">
+          <form onSubmit={handleSendMessage} className="relative group">
             <input 
               type="text" 
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder={session ? "Send a message..." : "Guest msg (no links)..."}
-              className="w-full bg-[#201f21] border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#ba9eff] transition-all pr-12"
+              placeholder={session ? "Message..." : "Login to chat..."}
+              disabled={!session}
+              className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-[#ba9eff]/40 transition-all pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button 
               type="submit" 
-              disabled={!chatInput.trim()}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ba9eff] hover:text-[#c08cf7] disabled:opacity-50 transition-colors"
+              disabled={!chatInput.trim() || !session}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#ba9eff] hover:scale-110 disabled:opacity-0 transition-all p-1"
             >
-              <Send size={18} />
+              <Send size={14} />
             </button>
           </form>
         </div>

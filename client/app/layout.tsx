@@ -13,8 +13,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chess Master | Premium Multiplayer Chess",
-  description: "Play real-time multiplayer chess with modern design and smooth animations.",
+  title: "Blitzr – Real-Time Chess Platform",
+  description: "Play real-time chess with friends, spectate games, and compete seamlessly.",
+  keywords: ["chess", "multiplayer", "online chess", "real-time chess", "blitzr"],
+  icons: {
+    icon: "/assets/logo.png",
+    apple: "/assets/logo.png",
+  },
+  openGraph: {
+    title: "Blitzr – Real-Time Chess Platform",
+    description: "Play real-time chess with friends, spectate games, and compete seamlessly.",
+    images: ["/assets/logo1.png"],
+    type: "website",
+    siteName: "Blitzr",
+  },
 };
 
 export default function RootLayout({

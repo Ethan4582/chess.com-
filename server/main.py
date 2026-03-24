@@ -34,11 +34,9 @@ sio = socketio.AsyncServer(
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 manager = GameManager()
 
-@app.get("/api/room-exists/{room_id}")
-async def room_exists(room_id: str):
-    exists = room_id in manager._rooms
-    return {"exists": exists}
-
+@app.on_event("startup")
+async def startup_event():
+    await manager.rehydrate_active_rooms()
 
 # ═══════════════════════════════════════════════════════════════
 # Socket.io Events

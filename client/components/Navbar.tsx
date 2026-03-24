@@ -66,9 +66,13 @@ export function Navbar({ onStartGame, isConnected = true }: NavbarProps) {
         {/* Left: Logo */}
         <Link 
           href={session ? "/dashboard" : "/"} 
-          className="text-2xl font-black tracking-tighter text-white font-headline flex items-center gap-2 group transition-all"
+          className="flex items-center gap-2 group transition-all"
         >
-          Blitzr 
+          <img 
+            src="/assets/logo1.png" 
+            alt="Blitzr Logo" 
+            className="h-8 md:h-10 w-auto object-contain" 
+          />
         </Link>
         
         {/* Right: Actions */}
