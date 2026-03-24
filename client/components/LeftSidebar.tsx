@@ -27,6 +27,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
     { label: 'Play', icon: Gamepad2, href: '/dashboard' },
     { label: 'Analysis', icon: BarChart2, href: '/analysis' },
     { label: 'Watch', icon: Eye, href: '/watch' },
+    { label: 'Leaderboard', icon: Trophy, href: '/leaderboard' },
     { label: 'History', icon: History, href: '/history' },
   ];
 
