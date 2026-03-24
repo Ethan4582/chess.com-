@@ -4,20 +4,24 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LeftSidebar } from './LeftSidebar';
-import { GameHeader } from './GameHeader';
+import { Navbar } from './Navbar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
   isConnected?: boolean;
+  role?: 'w' | 'b' | 'spectator' | null;
+  disconnectTimer?: number | null;
 }
 
-export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
+export function AppLayout({ children, isConnected = true, role, disconnectTimer }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
+    let profileSubscription: any = null;
+
     const fetchAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
@@ -26,11 +30,46 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
         if (data) setProfile(data);
+        
+        // Subscribe to real-time updates
+        profileSubscription = supabase
+          .channel(`profile-${session.user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'profiles',
+              filter: `id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              if (payload.new) setProfile(payload.new);
+            }
+          )
+          .subscribe();
       }
     };
     fetchAuth();
+
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        // Fetch and subscribe if not already
+        const fetchNew = async () => {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+          if (data) setProfile(data);
+        };
+        fetchNew();
+      } else {
+        setProfile(null);
+        if (profileSubscription) {
+          profileSubscription.unsubscribe();
+          profileSubscription = null;
+        }
+      }
+    });
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'k') {
@@ -39,7 +78,11 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      authSubscription.unsubscribe();
+      if (profileSubscription) profileSubscription.unsubscribe();
+    };
   }, []);
 
   const handleStartGame = async () => {
@@ -66,21 +109,28 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
   };
 
   return (
-    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col items-center selection:bg-[#ba9eff]/30 overflow-hidden h-screen font-body relative">
-      <GameHeader 
+    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col h-screen overflow-hidden selection:bg-[#ba9eff]/30 font-body relative">
+      <Navbar 
         isConnected={isConnected}
         onStartGame={handleStartGame}
-      />
-
-      <LeftSidebar 
-        isOpen={sidebarOpen} 
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        role={role}
+        disconnectTimer={disconnectTimer}
         profile={profile}
+        session={session}
       />
 
-      <main className={`flex-grow flex mt-16 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'} relative overflow-hidden w-full border-l border-white/[0.05] bg-[#0c0c0d]`}>
-        {children}
-      </main>
+      <div className="flex flex-1 overflow-hidden pt-16">
+        {/* Sidebar as a flex child, no absolute/fixed if we want 3-column flow */}
+        <LeftSidebar 
+          isOpen={sidebarOpen} 
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          profile={profile}
+        />
+
+        <main className="flex-1 relative overflow-hidden bg-[#0c0c0d] flex flex-col">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

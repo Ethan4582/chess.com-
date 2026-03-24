@@ -8,7 +8,7 @@ interface HeroSectionProps {
   onViewGame: () => void;
 }
 
-export default function LandingHero({ onPlayFriend }: HeroSectionProps) {
+export default function LandingHero({ onPlayFriend, onViewGame }: HeroSectionProps) {
   return (
     <section className="relative pt-[180px] pb-24 px-6 flex flex-col items-center text-center max-w-[1400px] mx-auto">
       <motion.div 
@@ -49,6 +49,13 @@ export default function LandingHero({ onPlayFriend }: HeroSectionProps) {
         >
           Start Playing
           <Play size={14} className="fill-black" />
+        </button>
+        <button 
+          onClick={onViewGame}
+          className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-white font-bold text-[15px] transition-all active:scale-95 flex items-center gap-3"
+        >
+          Watch Live Games
+          <Sparkles size={14} className="text-[#a47ff6]" />
         </button>
       </motion.div>
 

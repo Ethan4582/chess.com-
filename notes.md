@@ -3,11 +3,11 @@ ui improvements:
 deployment 
 readme 
 backens bug 
+lanidng page  improvements
 
 
-lot of ui chnages
+their are some bug on updateing the point and  win and loss count 
 
-make it better 
-make the frontend better 
-the game dashborad pages 
-if not authicnated they should not see  sidebard and not elo ratting to them 
+follow friend send notfication , challeges , UI improvement on several pages 
+
+

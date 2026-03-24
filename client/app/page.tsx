@@ -7,7 +7,7 @@ import LandingHero from '@/components/LandingHero';
 import LandingFeatures from '@/components/LandingFeatures';
 import LandingFooter from '@/components/LandingFooter';
 import LandingCTA from '@/components/LandingCTA';
-import { LogOut, User, Github } from 'lucide-react';
+import { Navbar } from '@/components/Navbar';
 
 export default function Home() {
   const [session, setSession] = useState<any>(null);
@@ -52,67 +52,16 @@ export default function Home() {
     
     // Instead of creating a room directly from landing page, 
     // we now go to the dashboard / lobby where those actions live.
-    router.push('/dashboard');
+    router.push('/lobby');
   };
 
   const handleViewGame = () => {
-    const id = prompt('Enter Game ID:');
-    if (id) router.push(`/game/${id}`);
+    router.push('/watch');
   };
 
   return (
     <main className="min-h-screen bg-[#0e0e0f] text-white font-body selection:bg-indigo-500/30 overflow-x-hidden">
-      {/* ─── Navigation ─── */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/[0.05]">
-        <div className="flex justify-between items-center w-full px-8 py-5 max-w-screen-2xl mx-auto">
-          <div className="text-2xl font-black tracking-tighter text-white font-headline flex items-center gap-2">
-            Blitzr <span className="w-2 h-2 rounded-full bg-[#b9a2ff]" />
-          </div>
-          
-          <div className="hidden md:flex items-center gap-x-6">
-            <a 
-              href="https://github.com/ashirwad" 
-              target="_blank" 
-              className="flex items-center gap-2 text-slate-400 hover:text-white transition-all text-sm font-semibold"
-            >
-              <Github size={18} />
-              Star on GitHub
-            </a>
-            <a 
-              href="https://portfolio.com" 
-              target="_blank" 
-              className="flex items-center gap-2 text-slate-400 hover:text-white transition-all text-sm font-semibold"
-            >
-              <User size={18} />
-              Creator
-            </a>
-
-            <div className="w-px h-6 bg-white/10 mx-2" />
-
-            {session ? (
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                  <User size={16} className="text-[#b9a2ff]" />
-                  <span className="text-sm font-bold text-white">{profile?.username || 'Player'}</span>
-                </div>
-                <button 
-                  onClick={handleSignOut}
-                  className="p-2.5 rounded-full bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20"
-                >
-                  <LogOut size={16} />
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={() => router.push('/login')}
-                className="px-6 py-2.5 rounded-full bg-white text-black font-black text-sm transition-all hover:bg-slate-200 shadow-lg shadow-white/5"
-              >
-                Log In / Sign Up
-              </button>
-            )}
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ─── Hero Section ─── */}
       <LandingHero onPlayFriend={handlePlayFriend} onViewGame={handleViewGame} />

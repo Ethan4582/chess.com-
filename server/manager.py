@@ -1,6 +1,7 @@
 from typing import Dict, Optional, List, Any
 import logging
 import asyncio
+import time
 from .engine import ChessEngine
 from .core.supabase_client import supabase
 
@@ -16,14 +17,26 @@ class GameRoom:
         # Load persistent data if available
         self._white_user_id: Optional[str] = None
         self._black_user_id: Optional[str] = None
+        self._white_elo: int = 1200
+        self._black_elo: int = 1200
         
         if initial_data:
             self._engine.load_fen(initial_data.get('fen', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'))
             self._white_user_id = initial_data.get('white_player_id')
             self._black_user_id = initial_data.get('black_player_id')
             
-        self._players: Dict[str, Dict[str, str]] = {}  # {'white': {'sid': sid, 'name': name}, ...}
+        self._players: Dict[str, Dict[str, Any]] = {}  # {'white': {'sid': sid, 'name': name, 'user_id': uid}, ...}
         self._spectators: List[str] = []
+        
+        # Forced Game Over State (Abort/Disconnect)
+        self._forced_over: bool = False
+        self._forced_winner: Optional[str] = None
+        self._forced_reason: Optional[str] = None
+        
+        # Disconnect Timers
+        self._disconnect_tasks: Dict[str, asyncio.Task] = {}
+        self._disconnect_start: Optional[float] = None
+        self._disconnected_role: Optional[str] = None
 
     @property
     def room_id(self) -> str:
@@ -34,26 +47,41 @@ class GameRoom:
         return self._engine
 
     def get_room_state(self) -> Dict:
+        status = self._engine.get_game_status()
+        if self._forced_over:
+            status = {
+                'is_over': True,
+                'winner': self._forced_winner,
+                'reason': self._forced_reason
+            }
+
         return {
             'white': self._players.get('white', {}).get('name'),
             'black': self._players.get('black', {}).get('name'),
+            'white_elo': self._white_elo,
+            'black_elo': self._black_elo,
             'count': len(self._players),
-            'status': self._engine.get_game_status(),
+            'status': status,
             'player_ids': {
                 'white': self._white_user_id,
                 'black': self._black_user_id
-            }
+            },
+            'disconnect_data': {
+                'role': self._disconnected_role,
+                'start_time': self._disconnect_start
+            } if self._disconnected_role else None
         }
 
     async def save_to_db(self, move_data: Optional[Dict] = None):
         """Async persistence with ELO awarding on game completion."""
         try:
             current_fen = self._engine.get_fen()
-            is_over = self._engine.is_game_over()
-            status = self._engine.get_game_status()
             
-            # Identify winner if game is over
-            winner_role = status.get('winner') if is_over else None
+            # Check if game is over (either engine or forced)
+            status = self.get_room_state()['status']
+            is_over = status['is_over']
+            winner_role = status['winner']
+
             winner_id = None
             if winner_role == 'w': winner_id = self._white_user_id
             if winner_role == 'b': winner_id = self._black_user_id
@@ -81,58 +109,158 @@ class GameRoom:
         except Exception as e:
             logger.error(f"Supabase Sync Error: {e}")
 
-    async def _handle_game_over_points(self, winner_role: Optional[str]):
-        """Calculates and updates ELO for both players."""
-        if not winner_role:
+    async def abort_game(self, aborter_role: str):
+        """Forces game over and awards points to the OTHER player."""
+        if self._engine.is_game_over() or self._forced_over:
+            return
+            
+        self._forced_over = True
+        self._forced_winner = 'b' if aborter_role == 'w' else 'w'
+        self._forced_reason = 'Game aborted by opponent'
+        await self.save_to_db()
+        logger.info(f"🚩 Game Aborted in Room {self._room_id} by {aborter_role}")
+
+    async def handle_disconnect_timeout(self, disconnected_role: str, io_emit_callback):
+        """Starts a 60s timer. If player doesn't reconnect, opponent wins. 5s buffer."""
+        if self._engine.is_game_over() or self._forced_over:
             return
 
-        winner_id = self._white_user_id if winner_role == 'w' else self._black_user_id
-        loser_id = self._black_user_id if winner_role == 'w' else self._white_user_id
+        # Cancel existing task if any
+        if disconnected_role in self._disconnect_tasks:
+            self._disconnect_tasks[disconnected_role].cancel()
 
-        if winner_id:
-            supabase.rpc('increment_points', {'user_id': winner_id, 'amount': 25}).execute()
+        logger.info(f"⏳ Disconnect detected for {disconnected_role} in {self._room_id}. Starting 5s buffer.")
         
-        if loser_id:
-            supabase.rpc('increment_points', {'user_id': loser_id, 'amount': -15}).execute()
+        async def timer():
+            await asyncio.sleep(5) # 5s buffer to avoid flicking on refreshes
             
-        logger.info(f"🏆 ELO Updated: Match {self._room_id} finished. Points awarded.")
+            if disconnected_role not in self._players:
+                # Mark real disconnect state
+                self._disconnected_role = disconnected_role
+                self._disconnect_start = time.time()
+                
+                # Broadast the state change so timer appears
+                await io_emit_callback("roomState", self.get_room_state(), room=self._room_id)
+                logger.info(f"⏳ Buffer passed. Starting remaining 55s forfeit timer for {disconnected_role}.")
 
-    def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None) -> str:
-        # 1. Re-joining logic (check memory sid first, or user_id)
+                await asyncio.sleep(55) # Give them rest of the 1 minute
+                
+                # If still not in self._players, force win
+                if disconnected_role not in self._players:
+                    self._forced_over = True
+                    self._forced_winner = 'b' if disconnected_role == 'w' else 'w'
+                    self._forced_reason = 'Opponent disconnected'
+                    await self.save_to_db()
+                    await io_emit_callback("gameOver", self.get_room_state()['status'], room=self._room_id)
+                    logger.info(f"⏰ Timeout reached for {disconnected_role} in {self._room_id}. Awarding win.")
+            
+            # Clear state regardless
+            self._disconnected_role = None
+            self._disconnect_start = None
+
+        self._disconnect_tasks[disconnected_role] = asyncio.create_task(timer())
+
+    def cancel_disconnect_timer(self, role: str):
+        if role in self._disconnect_tasks:
+            self._disconnect_tasks[role].cancel()
+            del self._disconnect_tasks[role]
+            logger.info(f"✅ Reconnect detected for {role} in {self._room_id}. Timer cancelled.")
+        
+        if self._disconnected_role == role:
+            self._disconnected_role = None
+            self._disconnect_start = None
+
+    async def _handle_game_over_points(self, winner_role: Optional[str]):
+        """Calculates and updates ELO and stats for both players."""
+        logger.info(f"🏁 Game Over Logic Started for Room {self._room_id}. Winner Role: {winner_role}")
+        
+        # PREVENT DOUBLE UPDATES: Check if rooms table already has 'finished' and winner_id
+        # Actually, if we are here, we are calling it from save_to_db.
+        # We should ensure this function only runs once by marking it as processed in memory if needed.
+        if hasattr(self, '_elo_awarded') and self._elo_awarded:
+            return
+        self._elo_awarded = True
+
+        try:
+            # Handle Draw Case
+            if winner_role is None:
+                if self._white_user_id:
+                    supabase.rpc('increment_draw', {'user_id': self._white_user_id}).execute()
+                if self._black_user_id:
+                    supabase.rpc('increment_draw', {'user_id': self._black_user_id}).execute()
+                return
+
+            winner_id = self._white_user_id if winner_role == 'w' else self._black_user_id
+            loser_id = self._black_user_id if winner_role == 'w' else self._white_user_id
+
+            if winner_id:
+                supabase.rpc('increment_win', {'user_id': winner_id}).execute()
+                supabase.rpc('increment_points', {'user_id': winner_id, 'amount': 25}).execute()
+
+            if loser_id:
+                supabase.rpc('increment_loss', {'user_id': loser_id}).execute()
+                supabase.rpc('increment_points', {'user_id': loser_id, 'amount': -15}).execute()
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to update stats: {e}")
+
+    def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None, callback=None) -> str:
+        # Re-joining logic
+        role = None
         if 'white' in self._players and (self._players['white']['sid'] == socket_id or (user_id and self._white_user_id == user_id)):
-            self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
-            return 'w'
-        if 'black' in self._players and (self._players['black']['sid'] == socket_id or (user_id and self._black_user_id == user_id)):
-            self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
-            return 'b'
+            role = 'w'
+        elif 'black' in self._players and (self._players['black']['sid'] == socket_id or (user_id and self._black_user_id == user_id)):
+            role = 'b'
 
-        # 2. Prevent unauthenticated users from taking player slots
+        if role:
+            self._players['white' if role == 'w' else 'black'] = {'sid': socket_id, 'name': name or "Guest"}
+            self.cancel_disconnect_timer(role) # Cancel timer if they were disconnected
+            return role
+
+        # Assign slots
         if not user_id:
             if socket_id not in self._spectators:
                 self._spectators.append(socket_id)
             return 'spectator'
 
-        # 3. Assign to empty slots for authenticated users
         if not self._white_user_id or self._white_user_id == user_id:
             self._white_user_id = user_id
             self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
-            asyncio.create_task(self._sync_player_id('white_player_id', user_id))
+            asyncio.create_task(self._sync_player_id('white_player_id', user_id, callback))
             return 'w'
         elif not self._black_user_id or self._black_user_id == user_id:
             self._black_user_id = user_id
             self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
-            asyncio.create_task(self._sync_player_id('black_player_id', user_id))
+            asyncio.create_task(self._sync_player_id('black_player_id', user_id, callback))
             return 'b'
         else:
             if socket_id not in self._spectators:
                 self._spectators.append(socket_id)
             return 'spectator'
 
-    async def _sync_player_id(self, column: str, user_id: str):
+    async def _sync_player_id(self, column: str, user_id: str, callback=None):
         try:
             supabase.table('rooms').update({column: user_id}).eq('id', self._room_id).execute()
+            # Also fetch and update local elo
+            await self._update_player_elo('w' if 'white' in column else 'b', user_id, callback)
         except Exception as e:
             logger.error(f"Failed to sync {column}: {e}")
+
+    async def _update_player_elo(self, role: str, user_id: str, callback=None):
+        """Fetches latest points from profiles and updates in-memory state."""
+        try:
+            res = supabase.table('profiles').select('points').eq('id', user_id).single().execute()
+            if res.data:
+                points = res.data.get('points', 1200)
+                if role == 'w':
+                    self._white_elo = points
+                else:
+                    self._black_elo = points
+                logger.info(f"🔄 Updated {role} ELO to {points} for {user_id}")
+                if callback:
+                    await callback("roomState", self.get_room_state(), room=self._room_id)
+        except Exception as e:
+            logger.error(f"Failed to fetch ELO for {user_id}: {e}")
 
     def remove_player(self, socket_id: str):
         if 'white' in self._players and self._players['white']['sid'] == socket_id:
@@ -147,15 +275,30 @@ class GameRoom:
         role = 'white' if turn == 'w' else 'black'
         return self._players.get(role, {}).get('sid') == socket_id
 
-
 class GameManager:
     def __init__(self):
         self._rooms: Dict[str, GameRoom] = {}
 
+    async def rehydrate_active_rooms(self):
+        try:
+            response = supabase.table('rooms').select('*').in_('status', ['waiting', 'playing']).execute()
+            if response.data:
+                for data in response.data:
+                    rid = data['id']
+                    if rid not in self._rooms:
+                        room = GameRoom(rid, initial_data=data)
+                        self._rooms[rid] = room
+                        # Async hydration for ELO
+                        if data.get('white_player_id'):
+                            asyncio.create_task(room._update_player_elo('w', data['white_player_id']))
+                        if data.get('black_player_id'):
+                            asyncio.create_task(room._update_player_elo('b', data['black_player_id']))
+        except Exception as e:
+            logger.info(f"Hydration Error: {e}")
+
     async def get_or_create_room(self, room_id: str) -> Optional[GameRoom]:
         if room_id in self._rooms:
             return self._rooms[room_id]
-
         try:
             response = supabase.table('rooms').select('*').eq('id', room_id).execute()
             if response.data:
@@ -175,15 +318,11 @@ class GameManager:
         for room_id, room in self._rooms.items():
             is_white = 'white' in room._players and room._players['white']['sid'] == socket_id
             is_black = 'black' in room._players and room._players['black']['sid'] == socket_id
-            is_spectator = socket_id in room._spectators
             
             role = None
-            if is_white:
-                role = 'w'
-            elif is_black:
-                role = 'b'
-            elif is_spectator:
-                role = 'spectator'
+            if is_white: role = 'w'
+            elif is_black: role = 'b'
+            elif socket_id in room._spectators: role = 'spectator'
                 
             if role:
                 room.remove_player(socket_id)

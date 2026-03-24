@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -13,8 +13,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chess Master | Premium Multiplayer Chess",
-  description: "Play real-time multiplayer chess with modern design and smooth animations.",
+  title: "Blitzr – Real-Time Chess Platform",
+  description: "Play real-time chess with friends, spectate games, and compete seamlessly.",
+  keywords: ["chess", "multiplayer", "online chess", "real-time chess", "blitzr"],
+  icons: {
+    icon: "/assets/l1.png",
+    apple: "/assets/l1.png",
+  },
+  openGraph: {
+    title: "Blitzr – Real-Time Chess Platform",
+    description: "Play real-time chess with friends, spectate games, and compete seamlessly.",
+    images: ["/assets/logo1.png"],
+    type: "website",
+    siteName: "Blitzr",
+  },
 };
 
 export default function RootLayout({
@@ -25,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${outfit.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

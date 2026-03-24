@@ -34,11 +34,9 @@ sio = socketio.AsyncServer(
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 manager = GameManager()
 
-@app.get("/api/room-exists/{room_id}")
-async def room_exists(room_id: str):
-    exists = room_id in manager._rooms
-    return {"exists": exists}
-
+@app.on_event("startup")
+async def startup_event():
+    await manager.rehydrate_active_rooms()
 
 # ═══════════════════════════════════════════════════════════════
 # Socket.io Events
@@ -52,51 +50,7 @@ import asyncio
 import time
 import re
 
-disconnect_timers = {} # Tracks forfeiture timeouts. Keyed by (room_id, role)
 guest_last_message = {} # Tracks rate limit. Keyed by (guest_id)
-
-async def handle_disconnect_timeout(room_id: str, role: str):
-    """Waits 30 seconds, then forfeits the game for the disconnected player."""
-    await asyncio.sleep(30)
-    
-    # Check if timer was cancelled (they reconnected)
-    timer_key = (room_id, role)
-    if timer_key not in disconnect_timers:
-        return
-
-    room = manager.get_room(room_id)
-    if room and not room.engine.is_game_over():
-        logger.info(f"DEBUG: Player {role} in {room_id} forfeited due to timeout.")
-        
-        # Broadcast forfeit chat message
-        await sio.emit("chatMessage", {
-            "author": "System",
-            "content": "Player forfeited. Game over.",
-            "isSystem": True
-        }, room=room_id)
-        
-        # Determine winner based on role that disconnected
-        loser = role
-        winner = 'b' if role == 'w' else 'w'
-        
-        # Update engine status (this is a simplifed forfeit in our hybrid engine)
-        # We manually update Supabase rooms table since python-chess doesn't have an inbuilt 'forfeit' status easily exposed like that
-        try:
-            from .core.supabase_client import supabase
-            supabase.table('rooms').update({
-                'status': 'finished',
-                'winner_id': room._white_user_id if winner == 'w' else room._black_user_id,
-                'updated_at': 'now()'
-            }).eq('id', room_id).execute()
-        except Exception as e:
-            logger.error(f"Failed to record forfeit: {e}")
-
-        # Broadcast game over
-        status = {"is_over": True, "winner": winner, "reason": "forfeit"}
-        await sio.emit("gameOver", status, room=room_id)
-        
-    # Cleanup timer
-    disconnect_timers.pop(timer_key, None)
 
 @sio.event
 async def disconnect(sid):
@@ -108,64 +62,50 @@ async def disconnect(sid):
         if room:
             await sio.emit("roomState", room.get_room_state(), room=room_id)
             
-            # Start forfeit timer if a player disconnected (not spectator)
-            if role in ['w', 'b'] and not room.engine.is_game_over():
-                await sio.emit("chatMessage", {
-                    "author": "System",
-                    "content": "Player disconnected, waiting 30s...",
-                    "isSystem": True
-                }, room=room_id)
-                timer_key = (room_id, role)
-                disconnect_timers[timer_key] = asyncio.create_task(handle_disconnect_timeout(room_id, role))
+            # Use GameRoom's disconnect handler
+            if role in ['w', 'b'] and not room.get_room_state()['status']['is_over']:
+                # Pass a callback to emit gameOver if timeout happens
+                await room.handle_disconnect_timeout(role, sio.emit)
+                await sio.emit("playerDisconnected", {"role": role, "timeout": 60}, room=room_id)
 
 @sio.on("joinRoom")
 async def handle_join(sid, room_id, name=None, user_id=None):
-    logger.info(f"DEBUG: handle_join called for sid={sid}, room_id={room_id}, name={name}, user_id={user_id}")
+    if not room_id: return
+    clean_id = str(room_id) if not isinstance(room_id, dict) else str(room_id.get('id', ''))
     
-    if not room_id:
-        return
+    room = await manager.get_or_create_room(clean_id)
+    if not room: return
 
-    clean_room_id = room_id
-    if isinstance(room_id, dict):
-        clean_room_id = room_id.get('id') or room_id.get('roomId')
-    clean_room_id = str(clean_room_id)
-    
-    # 🔍 1. REHYDRATE FROM SUPABASE
-    room = await manager.get_or_create_room(clean_room_id)
-    if not room:
-        logger.error(f"Join Refused: Room {clean_room_id} does not exist in Supabase.")
-        await sio.emit("invalidRoom", "Error: Game session not found.", to=sid)
-        return
-
-    # Clean up old connections
     manager.remove_player_from_all(sid)
-    await sio.enter_room(sid, clean_room_id)
+    await sio.enter_room(sid, clean_id)
 
-    # 🎮 2. UPDATE IN-MEMORY STATE
-    role = room.add_player(sid, name, user_id)
-    logger.info(f"DEBUG: Joined sid {sid} to {clean_room_id} as {role} (player: {name or 'Guest'})")
-
-    # Cancel disconnect timer if they reconnected
-    timer_key = (clean_room_id, role)
-    if timer_key in disconnect_timers:
-        disconnect_timers[timer_key].cancel()
-        del disconnect_timers[timer_key]
-        await sio.emit("chatMessage", {
-            "author": "System",
-            "content": "Player reconnected",
-            "isSystem": True
-        }, room=clean_room_id)
-
+    role = room.add_player(sid, name, user_id, callback=sio.emit)
+    
     async with sio.session(sid) as session:
-        session['room_id'] = clean_room_id
+        session['room_id'] = clean_id
         session['role'] = role
 
-    # 📡 3. BROADCAST TO CLIENTS
     await sio.emit("playerRole", role, to=sid)
-    if role == "spectator":
-        await sio.emit("spectatorRole", to=sid)
-    await sio.emit("roomState", room.get_room_state(), room=clean_room_id)
+    await sio.emit("roomState", room.get_room_state(), room=clean_id)
     await sio.emit("updateBoard", room.engine.get_fen(), to=sid)
+    
+    # Notify others if player reconnected
+    if role in ['w', 'b']:
+        await sio.emit("playerReconnected", {"role": role}, room=clean_id)
+
+@sio.on("abortGame")
+async def handle_abort(sid):
+    async with sio.session(sid) as session:
+        room_id = session.get('room_id')
+        role = session.get('role')
+        
+    if not room_id or role not in ['w', 'b']:
+        return
+        
+    room = manager.get_room(room_id)
+    if room:
+        await room.abort_game(role)
+        await sio.emit("gameOver", room.get_room_state()['status'], room=room_id)
 
 @sio.event
 async def makeMove(sid, move_data):
