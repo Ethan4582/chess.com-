@@ -20,6 +20,8 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
   const router = useRouter();
 
   useEffect(() => {
+    let profileSubscription: any = null;
+
     const fetchAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
@@ -28,11 +30,46 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
         if (data) setProfile(data);
+        
+        // Subscribe to real-time updates
+        profileSubscription = supabase
+          .channel(`profile-${session.user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'profiles',
+              filter: `id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              if (payload.new) setProfile(payload.new);
+            }
+          )
+          .subscribe();
       }
     };
     fetchAuth();
+
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        // Fetch and subscribe if not already
+        const fetchNew = async () => {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+          if (data) setProfile(data);
+        };
+        fetchNew();
+      } else {
+        setProfile(null);
+        if (profileSubscription) {
+          profileSubscription.unsubscribe();
+          profileSubscription = null;
+        }
+      }
+    });
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'k') {
@@ -41,7 +78,11 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      authSubscription.unsubscribe();
+      if (profileSubscription) profileSubscription.unsubscribe();
+    };
   }, []);
 
   const handleStartGame = async () => {
@@ -74,6 +115,8 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
         onStartGame={handleStartGame}
         role={role}
         disconnectTimer={disconnectTimer}
+        profile={profile}
+        session={session}
       />
 
       <div className="flex flex-1 overflow-hidden pt-16">

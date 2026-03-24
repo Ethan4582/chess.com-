@@ -38,7 +38,10 @@ interface Room {
   black_player?: { username: string; points: number };
 }
 
-export default function AnalysisPage({ params }: { params: { id: string } }) {
+export default function AnalysisPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = React.use(params);
+  const id = resolvedParams.id;
+
   const [room, setRoom] = useState<Room | null>(null);
   const [moves, setMoves] = useState<Move[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +56,7 @@ export default function AnalysisPage({ params }: { params: { id: string } }) {
       const { data: roomData, error: roomError } = await supabase
         .from('rooms')
         .select('*, white_player:profiles!white_player_id(username, points), black_player:profiles!black_player_id(username, points)')
-        .eq('id', params.id)
+        .eq('id', id)
         .single();
 
       if (roomError) throw new Error('Room not found');
@@ -63,7 +66,7 @@ export default function AnalysisPage({ params }: { params: { id: string } }) {
       const { data: movesData, error: movesError } = await supabase
         .from('moves')
         .select('*')
-        .eq('room_id', params.id)
+        .eq('room_id', id)
         .order('created_at', { ascending: true });
 
       if (movesError) throw movesError;
@@ -78,7 +81,7 @@ export default function AnalysisPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchData();
-  }, [params.id]);
+  }, [id]);
 
   const duration = useMemo(() => {
     if (!room || moves.length === 0) return '0m 0s';
@@ -160,7 +163,7 @@ export default function AnalysisPage({ params }: { params: { id: string } }) {
                    <h1 className="text-2xl font-black text-white italic uppercase tracking-tight">Game Archive</h1>
                    <div className="flex items-center gap-2 text-slate-500 text-[9px] font-black uppercase tracking-widest">
                      <BarChart2 size={12} className="text-[#ba9eff]" />
-                     ID: {params.id.slice(0, 8)}
+                     ID: {id.slice(0, 8)}
                    </div>
                  </div>
               </div>

@@ -52,7 +52,7 @@ export default function Home() {
     
     // Instead of creating a room directly from landing page, 
     // we now go to the dashboard / lobby where those actions live.
-    router.push('/dashboard');
+    router.push('/lobby');
   };
 
   const handleViewGame = () => {

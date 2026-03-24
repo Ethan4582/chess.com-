@@ -3,425 +3,328 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Obsidian Gambit | Chess Lobby</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "tertiary": "#ff97b5",
-                        "error": "#ff6e84",
-                        "on-secondary-fixed-variant": "#69379c",
-                        "primary": "#ba9eff",
-                        "on-surface": "#ffffff",
-                        "error-container": "#a70138",
-                        "surface-container-low": "#131314",
-                        "tertiary-container": "#fd81a8",
-                        "on-error": "#490013",
-                        "surface": "#0e0e0f",
-                        "on-surface-variant": "#adaaab",
-                        "on-primary-fixed": "#000000",
-                        "error-dim": "#d73357",
-                        "inverse-on-surface": "#565556",
-                        "primary-fixed-dim": "#a27cff",
-                        "outline": "#767576",
-                        "on-tertiary": "#6a0934",
-                        "on-secondary": "#390068",
-                        "outline-variant": "#484849",
-                        "background": "#0e0e0f",
-                        "tertiary-dim": "#f0779d",
-                        "inverse-surface": "#fcf8f9",
-                        "on-tertiary-fixed": "#380018",
-                        "primary-container": "#ae8dff",
-                        "surface-tint": "#ba9eff",
-                        "on-secondary-container": "#e3c4ff",
-                        "on-tertiary-fixed-variant": "#701039",
-                        "surface-bright": "#2c2c2d",
-                        "secondary-container": "#5e2c91",
-                        "on-background": "#ffffff",
-                        "surface-container": "#1a191b",
-                        "on-tertiary-container": "#59002a",
-                        "secondary": "#c08cf7",
-                        "surface-variant": "#262627",
-                        "on-secondary-fixed": "#4b147d",
-                        "surface-container-high": "#201f21",
-                        "secondary-dim": "#bb87f1",
-                        "primary-fixed": "#ae8dff",
-                        "on-error-container": "#ffb2b9",
-                        "secondary-fixed": "#e4c6ff",
-                        "surface-container-lowest": "#000000",
-                        "tertiary-fixed-dim": "#f67ca3",
-                        "on-primary-container": "#2b006e",
-                        "on-primary": "#39008c",
-                        "on-primary-fixed-variant": "#370086",
-                        "inverse-primary": "#6e39db",
-                        "tertiary-fixed": "#ff8eb0",
-                        "surface-container-highest": "#262627",
-                        "primary-dim": "#8553f3",
-                        "surface-dim": "#0e0e0f",
-                        "secondary-fixed-dim": "#dab4ff"
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Manrope"],
-                        "label": ["Manrope"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#0e0e0f",
+              "surface-container-highest": "#262627",
+              "inverse-primary": "#6e39db",
+              "background": "#0e0e0f",
+              "surface-container-lowest": "#000000",
+              "primary-fixed-dim": "#a27cff",
+              "primary-dim": "#8553f3",
+              "surface-container": "#1a191b",
+              "surface": "#0e0e0f",
+              "on-secondary-fixed": "#4b147d",
+              "outline-variant": "#484849",
+              "primary-container": "#ae8dff",
+              "on-secondary-container": "#e3c4ff",
+              "on-error-container": "#ffb2b9",
+              "on-primary-container": "#2b006e",
+              "surface-container-low": "#131314",
+              "surface-bright": "#2c2c2d",
+              "tertiary-fixed-dim": "#f67ca3",
+              "secondary-container": "#5e2c91",
+              "on-surface": "#ffffff",
+              "error-container": "#a70138",
+              "tertiary-container": "#fd81a8",
+              "on-primary": "#39008c",
+              "on-error": "#490013",
+              "on-secondary": "#390068",
+              "on-surface-variant": "#adaaab",
+              "on-tertiary": "#6a0934",
+              "tertiary-fixed": "#ff8eb0",
+              "surface-variant": "#262627",
+              "on-primary-fixed-variant": "#370086",
+              "surface-tint": "#ba9eff",
+              "inverse-on-surface": "#565556",
+              "on-primary-fixed": "#000000",
+              "tertiary-dim": "#f0779d",
+              "on-tertiary-fixed-variant": "#701039",
+              "error-dim": "#d73357",
+              "primary": "#ba9eff",
+              "inverse-surface": "#fcf8f9",
+              "secondary": "#c08cf7",
+              "on-tertiary-container": "#59002a",
+              "on-background": "#ffffff",
+              "outline": "#767576",
+              "primary-fixed": "#ae8dff",
+              "on-tertiary-fixed": "#380018",
+              "error": "#ff6e84",
+              "surface-container-high": "#201f21",
+              "on-secondary-fixed-variant": "#69379c",
+              "tertiary": "#ff97b5",
+              "secondary-fixed-dim": "#dab4ff",
+              "secondary-dim": "#bb87f1",
+              "secondary-fixed": "#e4c6ff"
             },
-        }
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
     </script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0e0e0f; }
-        ::-webkit-scrollbar-thumb { background: #484849; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #ba9eff; }
+        .glass-card {
+            background: rgba(32, 31, 33, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #484849;
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary-container">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 bg-[#0e0e0f] flex justify-between items-center px-6 h-16 w-full">
-<div class="flex items-center gap-4">
-<span class="text-2xl font-black tracking-tighter text-[#ba9eff] font-manrope">Grandmaster's Void</span>
-</div>
-<div class="flex items-center gap-6">
-<button class="text-[#adaaab] hover:text-[#c08cf7] transition-colors duration-300 scale-95 active:scale-90">
-<span class="material-symbols-outlined" data-icon="code">code</span>
-</button>
-<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant/15">
-<img alt="User Profile" data-alt="Close up portrait of a professional chess player with focused expression in dramatic low light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB924QzlXWq86-yXqIp43vjA2xra1h84MtO66ov3bttLRu_EiQ7z_KLo2UZ5MzbJwDo878qZL2Juvqucptu69mav9Xr_k7SyBvRWpXsuVy5KdApiV6J0q_Z6DjCjABBucGNkq07Vg78EbyNKOk091ysLpEC5REuDFwvilEBpGXJVozsUg761mGgL7vA46BiEIGe69Tq1V5YQBN5hLOZ5drWzr9NnaAJkZKv3dZu5H1x2s4xqdBPL1jTk5BxhoZCDAuMsdUy1pjikDSm"/>
-</div>
-</div>
-</header>
-<!-- SideNavBar -->
-<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#131314] border-r border-[#484849]/15 shadow-[40px_0_60px_-15px_rgba(139,92,246,0.06)] flex flex-col h-full py-8 px-4 gap-8 pt-24">
-<div class="flex flex-col items-center gap-2 mb-4 px-4">
-<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-primary-dim to-primary p-0.5">
-<div class="w-full h-full rounded-[10px] bg-surface overflow-hidden">
-<img alt="User Profile Avatar" data-alt="Minimalist avatar of a high-ranking grandmaster in stylized purple lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHMaT_G0aWVZ2hA_04uzY4n05XA0MdgMpN2s6PDBnbdRKzTEb3BMRQBosAokjZZMsnEnjtRQ_Ewle2r4uRfIuFg-NfVQUGekqtXyUGJ37PmvoauO_9B4QIhLwarNb3oRQLCb__O7siZ1eAzXGz_8F6XngJnBZxFR18XqyGta89-VgT-0VD2RtnrzlOeyrIpns-HMGt4HReDT7dwYUzAoTrBAV9SYS-sjqrmapQ5sRHttihe2mVN96J9oCAVMvY-iCz48AZWRu6MOh7"/>
-</div>
-</div>
-<div class="text-center">
-<h3 class="text-[#ba9eff] font-bold font-manrope">Grandmaster</h3>
-<p class="text-[#adaaab] text-[10px] uppercase tracking-[0.2em]">Elo 2450</p>
-</div>
-</div>
-<nav class="flex flex-col gap-1">
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#adaaab] hover:bg-[#201f21]/50 font-manrope text-sm font-medium uppercase tracking-wider active:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" data-icon="videogame_asset">videogame_asset</span>
-<span>Play</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#201f21] text-[#ba9eff] border-l-4 border-[#8B5CF6] font-manrope text-sm font-medium uppercase tracking-wider active:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
-<span>Watch Games</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#adaaab] hover:bg-[#201f21]/50 font-manrope text-sm font-medium uppercase tracking-wider active:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" data-icon="history">history</span>
-<span>History</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#adaaab] hover:bg-[#201f21]/50 font-manrope text-sm font-medium uppercase tracking-wider active:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
-<span>Analysis</span>
-</a>
-</nav>
-<div class="mt-4 px-4">
-<button class="w-full py-3 rounded-lg bg-gradient-to-r from-primary-dim to-primary text-on-primary-fixed font-bold text-sm tracking-wide shadow-lg shadow-primary/10 hover:scale-[1.02] active:scale-95 transition-all">
-                New Game
-            </button>
-</div>
-<div class="mt-auto flex flex-col gap-1 border-t border-outline-variant/10 pt-6">
-<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-[#adaaab] hover:text-[#f5f5f5] hover:bg-[#201f21] font-manrope text-sm font-medium uppercase tracking-wider transition-all" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span>Settings</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-[#adaaab] hover:text-[#f5f5f5] hover:bg-[#201f21] font-manrope text-sm font-medium uppercase tracking-wider transition-all" href="#">
-<span class="material-symbols-outlined" data-icon="help">help</span>
-<span>Support</span>
-</a>
-</div>
-</aside>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopAppBar Shell -->
+
 <!-- Main Content -->
-<main class="ml-64 pt-24 px-8 pb-12">
-<div class="max-w-7xl mx-auto flex flex-col gap-10">
-<!-- Featured Grandmaster Match Banner -->
-<section class="relative h-80 rounded-3xl overflow-hidden group">
-<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/60 to-transparent z-10"></div>
-<img alt="Chess background" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700" data-alt="Atmospheric wide shot of a high-end black and white chess board with dramatic violet studio lighting and bokeh particles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi2NM5ZASaD9WDL9pm5amO5ThhTXfdPxJPUdF43p_NVXam8hUi7WNscyMfOF0F5YSzqXjf67oPRLmm7dFN3HYq0Gn7EvL-5ntR0qzyMjoUHj_Qu4KFh_PiQZKZkKWAWYRxUDbd7EM2KHGt3w94k7gcxO9RxBmENz7qNL6GvXJTdJUh2zXdlamuUE-EvhQeO98bmlr1vRqHxEuDpok64hW0jS5jIcM3w9qxi4T3cvDgardTBWkE0yDFEKNLURku-a_nW3Wo-9WZalIi"/>
-<div class="relative z-20 h-full flex flex-col justify-center px-12 max-w-2xl gap-4">
-<div class="flex items-center gap-2">
-<span class="flex h-2 w-2 rounded-full bg-error animate-pulse"></span>
-<span class="text-error font-bold text-xs uppercase tracking-[0.3em]">Featured Live Match</span>
+<main class="lg:ml-64 pt-20 px-6 pb-12 min-h-screen">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Horizontal Stats Bar -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-4 rounded-xl border-none">
+<p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-1">Win Rate</p>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-black text-on-surface">64.2%</span>
+<span class="text-primary text-xs">+2.4%</span>
 </div>
-<h1 class="text-5xl font-extrabold tracking-tighter leading-tight text-on-surface font-manrope">
-                        Carlsen <span class="text-outline-variant">vs</span> Nakamura
-                    </h1>
-<p class="text-on-surface-variant text-lg leading-relaxed max-w-md">
-                        The Speed Chess Championship Finals. Move 42. Engines show +0.4 for White in an complex endgame.
-                    </p>
-<div class="flex items-center gap-4 mt-4">
-<button class="px-8 py-3 bg-primary text-on-primary-fixed rounded-xl font-bold hover:bg-secondary transition-colors flex items-center gap-2">
-<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-                            Watch Now
-                        </button>
-<div class="flex items-center gap-3 px-4 py-2 bg-surface-container-high/60 backdrop-blur-md rounded-xl border border-outline-variant/10">
-<span class="material-symbols-outlined text-primary text-sm" data-icon="person">person</span>
-<span class="text-on-surface font-medium">124.5k Viewing</span>
 </div>
+<div class="bg-surface-container-low p-4 rounded-xl border-none">
+<p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-1">Active Streak</p>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-black text-on-surface">12 Days</span>
+<span class="material-symbols-outlined text-secondary" data-icon="local_fire_department" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border-none">
+<p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-1">Global Rank</p>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-black text-on-surface">#412</span>
+<span class="text-on-surface-variant text-xs">Top 0.1%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border-none">
+<p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-1">Tactical Rating</p>
+<div class="flex items-end justify-between">
+<span class="text-2xl font-black text-on-surface">2940</span>
+<span class="text-primary text-xs">Peak</span>
 </div>
 </div>
 </section>
-<div class="grid grid-cols-12 gap-10">
-<!-- Live Matches Grid -->
-<div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
-<div class="flex justify-between items-end">
-<h2 class="text-3xl font-bold tracking-tight text-on-surface font-manrope">Live Matches</h2>
-<div class="flex gap-2">
-<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
-</button>
-<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
-</button>
+<!-- Hero Section: Initialize Command -->
+<section class="relative h-64 md:h-80 w-full overflow-hidden rounded-[2rem]">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="artistic macro shot of a black chess knight on a glossy surface with vibrant purple ambient lighting and deep shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNcqSfMn5VJRtjSZ90ubhW-xLUUBKNCmwibzlthyZuvUZbX1wdcnJc4t49JxIHOLtJNmD7kKmq1S8TptglzvXA79qjWvUZV4anT6i4kxyf2pIUVh08g131QLj-nwhjg3uy93f8rkRmJ_5HVBTeequ-njLZ_FY1J31OB5G_K6QVKS9IU6y7rQRUwCjR3iNJn3__LSTEVGZoPVFj7dCoXUMhE-mBAu9ZCtnnBSduvS_aI0qV8p9XkXr8uD3lFvSIonwux8mR6NyUKXns"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface-dim via-surface-dim/80 to-transparent"></div>
+<div class="relative h-full flex flex-col justify-center px-12 max-w-2xl">
+<span class="text-primary font-black uppercase tracking-[0.3em] text-xs mb-4">Tactical Nexus</span>
+<h1 class="text-4xl md:text-5xl font-black tracking-tighter text-on-surface mb-6 leading-none">Initialize Command</h1>
+<p class="text-on-surface-variant mb-8 text-lg leading-relaxed">The board is set. Challenge the engine or enter the arena against 4,209 active grandmasters worldwide.</p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-3 bg-gradient-to-r from-primary-dim to-primary text-on-primary font-bold rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Quick Match</button>
+<button class="px-8 py-3 bg-surface-container-high text-on-surface font-bold rounded-xl border border-outline-variant/15 hover:bg-surface-container-highest transition-colors">Custom Lobby</button>
 </div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+</section>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left: Live Engagements -->
+<div class="lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-black tracking-tight flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                            Live Engagements
+                        </h2>
+<button class="text-sm font-bold text-primary hover:underline">View Arena</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <!-- Match Card 1 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
+<div class="bg-surface-container-low p-6 rounded-2xl hover:bg-surface-container-high transition-colors group">
 <div class="flex justify-between items-start mb-6">
-<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">Blitz • 3+2</span>
-<div class="flex items-center gap-1 text-on-surface-variant text-xs">
-<span class="material-symbols-outlined text-xs" data-icon="schedule">schedule</span>
-<span>Move 28</span>
+<div class="space-y-1">
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Tournament Final</p>
+<h3 class="text-lg font-bold">DeepBlue_V2 vs Magnus_Bot</h3>
+</div>
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-full border border-secondary/20">LIVE</span>
+</div>
+<div class="flex items-center justify-between mb-6">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-full border-4 border-surface-container-low group-hover:border-surface-container-high transition-colors" data-alt="minimalist 3d character avatar of a male chess player with dark lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5aEKBkY15vOM9WccfA9sew_JBEjLjoCsyb4eBqFQqBRdVOh63xg-NBJBM4QN6G3V3La2JeGP5vEJrgLQbgZThhXWkV0COTrxmZb6yBJB_i-erFNef_oZut7zC-wvz9VAEDaG15xIniel2vWA2K6ZMn1T_4ZyCCTuV9cDQVtDzfPT7K3GfsrMAJ49Axmez024fZrB9y0n3cIHX0yQ6mLL54hawbccyqUvyQKELzX5zbDN3x37GKtlvl0ZOtaNTEvXC8mGVaJPqV6AB"/>
+<img class="w-12 h-12 rounded-full border-4 border-surface-container-low group-hover:border-surface-container-high transition-colors" data-alt="minimalist 3d character avatar of a female chess player with violet accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbeGd3tvSkqTLqDd6HadCl3MS3TtrpO0nNMF7LZJATx8YbyE-FpSa0uoUjOMx5ylu_XPLQVWd_dTfc2XiCa3VzOh-NvKipiZETu_4Z3vcsuZ5BT3DvpakR7SZqfsaZPsn0-JM9BcOnuET1qIAdA36_fSt86XKq-XN1XWXRfpV9sduyJppxrkPUAaf2-jfvpcZRRa8pC_hYGVTRII5GKz5W80WlAUu2LuVl81O9DyfOg1iG0j9GCvp63CPYFwQ7Z7l28mvZi7qA543h"/>
+</div>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant">Spectators</p>
+<p class="text-lg font-black">1.2k</p>
 </div>
 </div>
-<div class="flex flex-col gap-4 mb-6">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a professional chess player with determined expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRhJgrGa2BYLCJXrxTTG0Hmw0wUl5yvHeDQNm4_3eKxzKhGNJInlLbC94jQd-7FbJJrfSIQFGzXas23AG6TpOa5J2aF_AyAkFBx4AJUTdM_80TSA6ixMg2fddDAptCt28LtmRuoLTwDh9BRaxj3b4_YLkpflPhtn2zZCGW6MoEhg3SnmGddFhGerpROIBdWOw20z7y-eAWXHbTbbvAY5KqmZJ_c2X0YCB1bxPlXFM0iR2txKSsE-6lIoGZOQhlL2xMgQNmJ-paMne0"/>
-<div>
-<p class="font-bold text-on-surface leading-none">V. Anand</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2751</p>
-</div>
-</div>
-<span class="text-xs font-mono text-outline-variant">0:45</span>
-</div>
-<div class="h-[1px] bg-gradient-to-r from-transparent via-outline-variant/10 to-transparent"></div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of an international grandmaster chess player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg18mK1_I-wUa2IqOkbU1RAAhaSpALOY2iC6JQzeCy6GRF2bxabcPFBtokvPLZuO2qApMlYNp4IPuWrCmVe2JUYAD02bMAQbgUHdpINmpXLxvqZbCR11bgc17nhyBzyN0N0-mzVZyUgz8COUeBwSiVvWuDBvBnW6W57KV0X0BzkL_VgQgHlaAP_pLGxXITWNgAq5-DzkpN3PZnfQNN18RRCK5MY0Fd_rPuPAzh_bbEOhJb4ocQnaU2IjwSp2MBw_1h2POMaP8z7X--"/>
-<div>
-<p class="font-bold text-on-surface leading-none">Ding Liren</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2780</p>
-</div>
-</div>
-<span class="text-xs font-mono text-outline-variant">1:12</span>
-</div>
-</div>
-<button class="w-full py-3 rounded-xl bg-surface-container-highest text-on-surface font-semibold group-hover:bg-primary group-hover:text-on-primary-fixed transition-all flex justify-center items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
-                                Watch Live
-                            </button>
+<button class="w-full py-2 rounded-lg bg-surface-container-highest text-on-surface font-bold text-sm border border-outline-variant/10 group-hover:border-primary/30 transition-all">Watch Now</button>
 </div>
 <!-- Match Card 2 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
+<div class="bg-surface-container-low p-6 rounded-2xl hover:bg-surface-container-high transition-colors group">
 <div class="flex justify-between items-start mb-6">
-<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">Rapid • 10+5</span>
-<div class="flex items-center gap-1 text-on-surface-variant text-xs">
-<span class="material-symbols-outlined text-xs" data-icon="schedule">schedule</span>
-<span>Move 15</span>
+<div class="space-y-1">
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Blitz Arena</p>
+<h3 class="text-lg font-bold">ShadowGamer vs Zero_Cool</h3>
+</div>
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-full border border-secondary/20">LIVE</span>
+</div>
+<div class="flex items-center justify-between mb-6">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-full border-4 border-surface-container-low group-hover:border-surface-container-high transition-colors" data-alt="stylized gamer avatar with neon headset and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzYBpuqt3lufTjvfZLXwbcCBGi_SF-YhNpAKC1BLzigDUmgqSI4mKdhQikJ23L7Ky2n6YCFcR7Uo3D9QpwRaomx6hPKfX_IWXj7HuHG8z_lHAPasMzfWXqx1GLYDNBMHqSp3KOjAmAi2903RMkMoMydD3zGU4xxEb0eBgMsj6NW1OZ9s4GgiJ4gw263qxqhq6_mECq_d1uIA9lQoqiy-5kWe0FH4JjUxX5kdOZwZib-I0wUMcqpEu6tMk6C9AgmhAK4uQymrMGS-_h"/>
+<img class="w-12 h-12 rounded-full border-4 border-surface-container-low group-hover:border-surface-container-high transition-colors" data-alt="futuristic cybernetic avatar with purple glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6GiXxEgIjlQYQfvQinA8nvlahSxhQKPLALeC36bBEBSjL3xeFCRJp0ITfhx3CAP2hs_ZSB1BZKgcoE-B7Wztdn73ADpD2uIkMzhHXCTmkEQ93a-8pRPF4LwrqXWFbvYDlJgbw2uLsu37cGTWQyXht8f95kMLxkkGWZPoS14UZTAwz-dfDeLWGq4Lx6_Fhgw4TZrhHzMJHnKnD1k2aDmvThV4vGtksYF7rS0GVLs2AVrjkGbJZBfZsr0h6fmlcRPlbFJA-jzZZRhN3"/>
+</div>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant">Spectators</p>
+<p class="text-lg font-black">842</p>
 </div>
 </div>
-<div class="flex flex-col gap-4 mb-6">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a young prodigy chess player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl5a2rEbJfmrUjfAUFVSyEdpzTnSe4QAB041lv6-7i2Q5N9sDet89keYu-hQXCEsVbp-tqkBbFLfU-xGVGVhk4XTomiaMirx0yAnVP4YT2W1kI11cXl3QN2-275lL--8NwHxzAs4nZnrLni4tIhvpC9yFmbPh0jxHuDcK8_ak5AoToMMzveZkUWkZHrmavGNKnHaky1PozS49pwbfhBdhPZ9ibz7bWlhWw_eNjl1j9tpNfKv9BrjughVmWdeM8O4d3YBuzYRteFn9Q"/>
-<div>
-<p class="font-bold text-on-surface leading-none">A. Firouzja</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2774</p>
+<button class="w-full py-2 rounded-lg bg-surface-container-highest text-on-surface font-bold text-sm border border-outline-variant/10 group-hover:border-primary/30 transition-all">Watch Now</button>
 </div>
 </div>
-<span class="text-xs font-mono text-outline-variant">8:12</span>
-</div>
-<div class="h-[1px] bg-gradient-to-r from-transparent via-outline-variant/10 to-transparent"></div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of an elite grandmaster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjstTnd7U648FKx87wSm9poSmMYr63Gc5jew-3uIvzDFH00FHv-iMNZoJbQVsKoG3rCKA9xoxmJnWtGAVFqIihoP1Z5Cr-9vnsR0HA7IVDdv4qlPtjR_lx9yjoSoTv8d76FDSkT2dfcXdlEUVpC0eDoYVjVF4u2NIygBvL3no28WEtQxOuGDqEjGxO83O4_EW1BIgrH6PG9ncyMNGhA2u8-woiXPcKIeD4MOGPUyo8xkP4-CsQc4JiK6UFb-4Is4pAnl7ZRDesnWo0"/>
-<div>
-<p class="font-bold text-on-surface leading-none">F. Caruana</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2805</p>
-</div>
-</div>
-<span class="text-xs font-mono text-outline-variant">7:45</span>
-</div>
-</div>
-<button class="w-full py-3 rounded-xl bg-surface-container-highest text-on-surface font-semibold group-hover:bg-primary group-hover:text-on-primary-fixed transition-all flex justify-center items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
-                                Watch Live
-                            </button>
-</div>
-<!-- Match Card 3 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
-<div class="flex justify-between items-start mb-6">
-<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">Bullet • 1+0</span>
-<div class="flex items-center gap-1 text-on-surface-variant text-xs">
-<span class="material-symbols-outlined text-xs" data-icon="schedule">schedule</span>
-<span>Move 55</span>
-</div>
-</div>
-<div class="flex flex-col gap-4 mb-6">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a tactical chess master" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKBsiH3TvDX1LONc-oJZJm9PIeqhuwplNHUsK6R1otVkr4NG575TIrl-oE9Se4rL368E-O_IlGO7L5-houTOoEuvTTWMAL5mu7VzDUn0eBKn31TyrYs_v1DddYFeCcl7Jzi9mhgfLbhyQvuKu4Fg9O1_xIP30AC5P1FG_2GQNJrg839qbIWFfLLrmkA0xP3oODXWMCUSXTEIE-V9dnCGTqDa4D89ViPX5W6IC_4VHnHqa3fkPmyHzYaAyEgve88rTAz3CnJkIN8J2R"/>
-<div>
-<p class="font-bold text-on-surface leading-none">I. Nepo</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2795</p>
-</div>
-</div>
-<span class="text-xs font-mono text-error">0:04</span>
-</div>
-<div class="h-[1px] bg-gradient-to-r from-transparent via-outline-variant/10 to-transparent"></div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a grandmaster with calm demeanor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr1teQPx8XO3bfMSlWM2TftFDDhrYWLnuLbb6tmGBfzkwZp-GPDGc3sQwo2NbaK513dh7eoqC4myoksdVK93u5vN-Y8tqpt1BeHhyPYGW-EQwrVxe_QjmAsKHCxQX9WIFBaXiZanccTvjf-Zq3RW7YxPcBHmEkeQ3l11qUKzvSAzEeJlLj73QPpd437FjY5fTUlJbFfULtdvGr8LHR7N_Wii4ZlvaMdvDqGT3CIIrrO21Db8JODofY29LBrO1GzVkt4rnLYyhbK006"/>
-<div>
-<p class="font-bold text-on-surface leading-none">Wesley So</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2760</p>
-</div>
-</div>
-<span class="text-xs font-mono text-error">0:08</span>
-</div>
-</div>
-<button class="w-full py-3 rounded-xl bg-surface-container-highest text-on-surface font-semibold group-hover:bg-primary group-hover:text-on-primary-fixed transition-all flex justify-center items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
-                                Watch Live
-                            </button>
-</div>
-<!-- Match Card 4 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
-<div class="flex justify-between items-start mb-6">
-<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">Classical</span>
-<div class="flex items-center gap-1 text-on-surface-variant text-xs">
-<span class="material-symbols-outlined text-xs" data-icon="schedule">schedule</span>
-<span>Move 12</span>
-</div>
-</div>
-<div class="flex flex-col gap-4 mb-6">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a female grandmaster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFC7s4IxAh7p_trYRLD1zBL78BHBZV67iKjtKgsZWUD7N3DjJRt_eI83b1_JQvhEdmlCSUZOr8JhyulR6T_6ZFpTZAhvDPA9d4_bsF3QhVsPgJrgHeN4gt1bYewpY1AEACgpGDfMCrbE7r3Nz_C1ctWvT6s5t510UZb6sGVTAmbPX09Dt4SeakUYGCpRune0eStSKVkx_k7hN0i2hMRnbKbnkyXW44UV8TVDs5hdbmkDaToXBK82a-hf-jgNEybQ2uUWBwUQauMYqY"/>
-<div>
-<p class="font-bold text-on-surface leading-none">H. Koneru</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2567</p>
-</div>
-</div>
-<span class="text-xs font-mono text-outline-variant">1:45:00</span>
-</div>
-<div class="h-[1px] bg-gradient-to-r from-transparent via-outline-variant/10 to-transparent"></div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-lg" data-alt="Portrait of a rising chess star" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ1M9vzyYCCai9rXjlCIkPfcV6BR8sPESu6qZABYSFJGt4tzH6ONZuG-G1TcrmJzZ99h1n6219L4HoWmkqZuHEXV15FAs_AAZfQ7zlqAGZJyg1uw8bPpadz7WHDS9gbbBYJdL__a88GRimbPpTx8PWmrum4I_C6W42MVLOPKakfBKEa7yeGoX-5qD2ayx5ttNqB-nXhsGjmGDbjELaAD4WvVtf8Hq0fal9GNbhwohKEookuxgMdGR2GgFY61ZfS1_0C1OoTb2V1-iZ"/>
-<div>
-<p class="font-bold text-on-surface leading-none">J. Polgar</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo 2675</p>
-</div>
-</div>
-<span class="text-xs font-mono text-outline-variant">1:42:30</span>
-</div>
-</div>
-<button class="w-full py-3 rounded-xl bg-surface-container-highest text-on-surface font-semibold group-hover:bg-primary group-hover:text-on-primary-fixed transition-all flex justify-center items-center gap-2">
-<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
-                                Watch Live
-                            </button>
-</div>
-</div>
-</div>
-<!-- Sidebar Sections -->
-<div class="col-span-12 lg:col-span-4 flex flex-col gap-10">
-<!-- Tournament Finals -->
-<section class="flex flex-col gap-6">
-<h3 class="text-xl font-bold tracking-tight text-on-surface font-manrope flex items-center gap-2">
-<span class="material-symbols-outlined text-primary" data-icon="emoji_events">emoji_events</span>
-                            Tournament Finals
-                        </h3>
-<div class="space-y-4">
-<div class="bg-surface-container-low p-5 rounded-2xl border-l-4 border-primary">
-<div class="flex justify-between items-center mb-2">
-<h4 class="font-bold text-sm text-on-surface">Grand Chess Tour</h4>
-<span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/10 rounded">LIVE</span>
-</div>
-<p class="text-xs text-on-surface-variant mb-4">Round 9 - Final Day of Classical Games</p>
-<div class="flex -space-x-3 mb-4">
-<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Small avatar of tournament player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi7fxVgrlEAzjA4hcIf-2gbP1iOVpsCRvnmSx6Qw8QrlBVQ9pzzhGPzSOvBYNqnY7lRH2IxvPUW80HxB2DGXgUm7EUrxm9iO90rWOJNnKgZfmdOKMuEVoa-l7YCcaiVAwiHvhOyRphgR4ru_nvGukI7qHPru5pH8DD6AVblBAxWyh8An_HMdrgYE7shuwIVrx4INiBNVFnAL0YTmNPXvujIG5hf43a3OPGevTl_bNr0tFyqLZoAC_lZ6kVmpWsFJSzOOFtalKlx1LL"/>
-<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Small avatar of tournament player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAItEubWrXOQADGMPO74kKjK-FyD9SrYG-a-_N7ndjuB4YHwrp2QQ7zkZXwf5K8mPJALWvP_EH8h7P1Ix7xVmftipkdh-yAs-fT9FKQGXwK-DmvfmjFeLziEJfMShYbpd30f4SHEuTHbqwee0DeYXcaarmBCYPf3BouVus9Tknwn8AvJvowT70ALmZKu2OztFoWOLMq9IjF7iXOek-Q6jOsPwl2xhClPQkjlmYUhAeOSn_GCa2Hp_B4Q6o5cOHClslm8zlFQYNc1f6J"/>
-<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Small avatar of tournament player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ2-tWy3vphI6SCT_d1kylcXpSct2t2KezeTE4RGkjOE19qkZqIf0FJGNZTNDWwaXDlrSakyggcGKPaT7a1FbIjfYAQASvlcYFx8u8yrXjWldyXO5SpcYQPTp8fFS6D07W_ZMALFXT3Dsoi8N4pqORsXlXpu_Co-H3a9ZWfB4xO_kaBotG3FaiBzzH8E6rDAYRZb33soSOr8hHUHHMjUTYLJuUQzDA0428giCS8DUOQ5HcR4SszabcP4nYtOi9bs0K1GEcOEuVY_km"/>
-<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold">+5</div>
-</div>
-<button class="w-full py-2 bg-surface-container-highest hover:bg-surface-container-high text-on-surface text-xs font-bold rounded-lg transition-colors">View Bracket</button>
-</div>
-</div>
-</section>
-<!-- Top Spectated Games -->
-<section class="flex flex-col gap-6">
-<h3 class="text-xl font-bold tracking-tight text-on-surface font-manrope flex items-center gap-2">
-<span class="material-symbols-outlined text-primary" data-icon="trending_up">trending_up</span>
-                            Top Spectated
-                        </h3>
-<div class="flex flex-col gap-3">
-<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer group">
-<div class="text-2xl font-black text-outline-variant/30 group-hover:text-primary/40 transition-colors w-6">01</div>
-<div class="flex-1">
-<p class="text-sm font-bold text-on-surface">Pragg vs Gukesh</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">18.2k Spectators</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-sm group-hover:text-primary" data-icon="arrow_forward">arrow_forward</span>
-</div>
-<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer group">
-<div class="text-2xl font-black text-outline-variant/30 group-hover:text-primary/40 transition-colors w-6">02</div>
-<div class="flex-1">
-<p class="text-sm font-bold text-on-surface">Levy Rozman vs Stockfish</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">15.1k Spectators</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-sm group-hover:text-primary" data-icon="arrow_forward">arrow_forward</span>
-</div>
-<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer group">
-<div class="text-2xl font-black text-outline-variant/30 group-hover:text-primary/40 transition-colors w-6">03</div>
-<div class="flex-1">
-<p class="text-sm font-bold text-on-surface">Vidit vs Aronian</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">12.8k Spectators</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-sm group-hover:text-primary" data-icon="arrow_forward">arrow_forward</span>
-</div>
-</div>
-</section>
-<!-- Popular Streamers -->
-<section class="bg-gradient-to-br from-secondary-container/20 to-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
-<h3 class="text-lg font-bold text-on-surface mb-4">Creator Spotlight</h3>
+<!-- Recent Activity Section -->
+<div class="space-y-4 pt-4">
+<h2 class="text-2xl font-black tracking-tight">Recent Activity</h2>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-4 bg-surface-container-low/50 rounded-xl">
 <div class="flex items-center gap-4">
-<div class="relative">
-<img class="w-14 h-14 rounded-2xl border-2 border-primary" data-alt="Avatar of a famous chess streamer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz80vx8Z1PI8SVV2yAHdHBcnU0YCwLbUPIlUoGHF25KafOdYPv131gojC0RWP5WVmc-VG09Bhjc1Lr22kKN5J3J262YNJfuVLh-A8cJWFAg7028Y5SmObeYxJvboHWX23U-ivDqctZn5oHXt619umgLVSdFiogiFk77D17zQsccl-967je9fhc2pH9GAXNp93tnX2UtXX_TalJF_1OtCDUDeF5X7SSkhcF-rXjOORZ2-S-WfYL9DZZvahat8jNm0CsOqQ2rFK2WkG5"/>
-<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary-fixed text-[8px] font-black px-1.5 py-0.5 rounded uppercase">Live</span>
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="trophy">trophy</span>
 </div>
 <div>
-<p class="font-bold text-on-surface">GothamChess</p>
-<p class="text-xs text-on-surface-variant mb-2">Analyzing WCC Tiebreaks</p>
-<div class="flex items-center gap-2 text-[10px] text-primary">
-<span class="material-symbols-outlined text-xs" data-icon="podcasts">podcasts</span>
-                                    Watching Game 3
-                                </div>
+<p class="text-sm font-bold">Won against Hikaru_Bot</p>
+<p class="text-xs text-on-surface-variant">14 mins ago • +12 Elo</p>
 </div>
 </div>
-</section>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low/50 rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<p class="text-sm font-bold">Analyzed Master Game #4421</p>
+<p class="text-xs text-on-surface-variant">2 hours ago • Accuracy 98.2%</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Leaderboard -->
+<div class="lg:col-span-4">
+<div class="bg-surface-container-low rounded-[2rem] p-8 h-full">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-xl font-black tracking-tight uppercase">Leaderboard</h2>
+<span class="text-[10px] font-black text-on-surface-variant bg-surface-container-highest px-2 py-1 rounded">GLOBAL</span>
+</div>
+<div class="space-y-6">
+<!-- Rank 1 -->
+<div class="flex items-center gap-4 group">
+<span class="text-2xl font-black text-primary/40 group-hover:text-primary transition-colors italic">01</span>
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest border border-outline-variant/10 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional esports player avatar with high contrast purple lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCUunmTpdBBBxjIcnlHJDg1kpaWQv58HpzaaJKEEN3nvA1IF7q-seMg7CEvTOZCMq-vgOo-u8smD0F777LvOOiOC74hIHlDezTrdmydZ4oBlNedhSj3bCdbDDHrNM235IVd0999DauxXvaFxsGvMB61dsN2dXCaliuyKoLcoQv4OuIJgrhep7u9o0xRYUY53sP4AKNvl8PWS-z2sSEFozFeaiwBdukbkVw03TC1hypit2pmJuXAymEAlz2IwDOJC45_Ws4RIaAZFb4"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Zenith_Void</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo: 3120</p>
+</div>
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center gap-4 group">
+<span class="text-2xl font-black text-primary/40 group-hover:text-primary transition-colors italic">02</span>
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest border border-outline-variant/10 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="chess grandmaster digital avatar profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDId3dbdHXXYKGYY99VzMVedgO2lbJcx9xsvm6w0RXNGFA_cXi36zqt9RReLqzwBY8ziUNP0lxPXApWMrlXG4RmjTwbch21Q_203oSnzeFURl8NjBCtAO9oPWytUbfPZCWH7XTCFzn_RktIeDH-qKBTkpbEGpb433L0hJIa6kHAxUM3axkxUv-XQ4vxnBUQriRiQy6TwG0Vj82wCAJ_NJt-8jH7cHvmdC9w4dTur2RUyB6QY8QbbTdfdMlNngBW71Yb_Xxcnk37whGR"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">KingCheckmate</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo: 3095</p>
+</div>
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center gap-4 group">
+<span class="text-2xl font-black text-primary/40 group-hover:text-primary transition-colors italic">03</span>
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest border border-outline-variant/10 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="mysterious digital avatar with purple hooded cloak" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZvwOC2qyxRjTQ4Xszr3EkZ8NxRT6kX1Vo2JRYyN2JnHJcTzuPoSNQ-VecQH3W1nJHb3X5Dkesw7JsbV2umL53a1EFGKVf8rPToqIBF9MJY1Bn5Xz0BkzPxihc8-7CUGFbRdBnG3iF9r25kTf-DJvPoCvFWvz1VhN21K9_uWdpRJTCHBd8CAwRowyv0_4oOAQYIYZeLjsMCcf-Y2swANtemizPlwnDJOQg5WfLueYjifv4HfPaPwILkWdxE-KFDe242igBRaFKesLR"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Obsidian_Queen</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Elo: 3088</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="horizontal_rule">horizontal_rule</span>
+</div>
+<!-- User Rank -->
+<div class="mt-12 pt-8 border-t border-outline-variant/15">
+<p class="text-xs font-bold text-on-surface-variant mb-4 uppercase tracking-[0.2em]">Your Position</p>
+<div class="flex items-center gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+<span class="text-2xl font-black text-primary italic">412</span>
+<div class="w-12 h-12 rounded-xl bg-primary-container/20 border border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="user digital avatar profile with violet and black theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhtO_dl-eeRJVoAOXX5eZoiD7W-nPvGDqfEAo4O1VNTbkqs57fWiZXpNPLpVfXu_2LwqXj7Ytagu2Ky4S3I_1qNsDwQUXdorLKsNWD8UY9r7ceeWeK-xA6KB8VYPjEUOsSID1fri56FXbIeqID2JuWrFvrH6AKiCTin3W8G6ZSVHXZ_tha4o4bzKQniE_wSi_y_Q1TBIEQV4w7yp_xuSRzJxw27ansFxe7ZH290Z2ebkzRxJiOl1J9bPm06xALflSLRsTltYJtI7Wa"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Grandmaster</p>
+<p class="text-[10px] text-primary uppercase tracking-tighter">Elo: 2850</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors">
+                            View Full Standings
+                        </button>
+</div>
 </div>
 </div>
 </div>
 </main>
-<!-- FAB (Suppressed based on context: Settings/Details/Transactional hidden) -->
-<!-- Not rendering on Watch Games as it's a browsing screen -->
+<!-- BottomNavBar Shell (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#131314] flex justify-around items-center py-4 z-50 rounded-t-[1.5rem] shadow-2xl">
+<a class="flex flex-col items-center gap-1 text-[#adaaab]" href="#">
+<span class="material-symbols-outlined" data-icon="videogame_asset">videogame_asset</span>
+<span class="text-[10px] font-medium">Play</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#ba9eff] font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px] font-medium">Lobby</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#adaaab]" href="#">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+<span class="text-[10px] font-medium">Watch</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#adaaab]" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-[10px] font-medium">Social</span>
+</a>
+</nav>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-14 h-14 rounded-full bg-gradient-to-tr from-primary-dim to-primary text-on-primary shadow-2xl shadow-primary/40 flex items-center justify-center group active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl transition-transform group-hover:rotate-12" data-icon="add" style="font-variation-settings: 'wght' 600;">add</span>
+</button>
 </body></html>

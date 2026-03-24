@@ -24,7 +24,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
   const elo = profile?.points || 1000;
 
   const navItems = [
-    { label: 'Play', icon: Gamepad2, href: '/dashboard' },
+    { label: 'Lobby', icon: Gamepad2, href: '/lobby' },
     { label: 'Analysis', icon: BarChart2, href: '/analysis' },
     { label: 'Watch', icon: Eye, href: '/watch' },
     { label: 'Leaderboard', icon: Trophy, href: '/leaderboard' },

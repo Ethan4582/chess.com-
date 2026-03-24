@@ -338,7 +338,7 @@ export default function GamePage() {
         gameOverTitle={gameOver?.winner === (role === 'w' ? 'w' : 'b') ? 'Victory!' : 'Game Over'}
         gameOverMessage={gameOver?.reason || 'The match has concluded.'}
         gameOverReason={gameOver?.reason || ''}
-        handleReturnHome={() => router.push('/dashboard')}
+        handleReturnHome={() => router.push('/lobby')}
         onStartNewGame={handleStartNewGame}
         setGameOver={setGameOver}
         eloChange={25}

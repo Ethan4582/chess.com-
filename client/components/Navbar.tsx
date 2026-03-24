@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { getSocket } from '@/lib/socket';
-import { Github, User, Info, LogOut, LayoutDashboard, Flag, ShieldAlert } from 'lucide-react';
+import { Github, User, Info, LogOut, LayoutDashboard, Flag, ShieldAlert, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavbarProps {
@@ -13,11 +13,11 @@ interface NavbarProps {
   isConnected?: boolean;
   role?: 'w' | 'b' | 'spectator' | null;
   disconnectTimer?: number | null;
+  profile?: any;
+  session?: any;
 }
 
-export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer }: NavbarProps) {
-  const [session, setSession] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer, profile, session }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showAbortModal, setShowAbortModal] = useState(false);
   
@@ -29,34 +29,16 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer 
   const isInGame = pathname.startsWith('/game/');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-      else setProfile(null);
-    });
-
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
-      subscription.unsubscribe();
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) setProfile(data);
-  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -75,7 +57,7 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer 
         <div className="max-w-screen-2xl mx-auto flex justify-between items-center px-8 h-16">
           {/* Left: Logo */}
           <Link 
-            href={session ? "/dashboard" : "/"} 
+            href={session ? "/lobby" : "/"} 
             className="flex items-center gap-2 group transition-all"
           >
             <img 
@@ -137,17 +119,25 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer 
             {/* Auth Section */}
             <div className="flex items-center gap-3">
               {session ? (
-                <div className="relative" ref={dropdownRef}>
-                  <button 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden hover:border-[#ba9eff]/30 transition-all group"
-                  >
-                    <img
-                      alt="User"
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${profile?.username || session.user.email}`}
-                    />
-                  </button>
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex flex-col items-end mr-1">
+                    <span className="text-[10px] font-black text-white italic uppercase tracking-tighter leading-none">{profile?.username || 'GUEST'}</span>
+                    <span className="text-[9px] font-bold text-[#ba9eff] uppercase tracking-widest leading-none mt-1.5 flex items-center gap-1">
+                      <Zap size={8} fill="currentColor" /> {profile?.points || 0} ELO
+                    </span>
+                  </div>
+                  
+                  <div className="relative" ref={dropdownRef}>
+                    <button 
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden hover:border-[#ba9eff]/30 transition-all group"
+                    >
+                      <img
+                        alt="User"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${profile?.username || session.user.email}`}
+                      />
+                    </button>
 
                   <AnimatePresence>
                     {isDropdownOpen && (
@@ -161,7 +151,7 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer 
                           <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1.5">Account</p>
                           <p className="text-sm font-bold text-white truncate">{profile?.username || session.user.email}</p>
                         </div>
-                        <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-widest">
+                        <Link href="/lobby" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-widest">
                           <LayoutDashboard size={14} /> Lobby
                         </Link>
                         <Link href="/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-widest">
@@ -175,6 +165,7 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer 
                     )}
                   </AnimatePresence>
                 </div>
+              </div>
               ) : (
                 <div className="flex items-center gap-1">
                   <button onClick={() => router.push('/login')} className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-white transition-all uppercase tracking-widest">Login</button>
