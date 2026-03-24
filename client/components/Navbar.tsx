@@ -68,7 +68,7 @@ export function Navbar({ onStartGame, isConnected = true }: NavbarProps) {
           href={session ? "/dashboard" : "/"} 
           className="text-2xl font-black tracking-tighter text-white font-headline flex items-center gap-2 group transition-all"
         >
-          Blitzr <span className="w-1.5 h-1.5 rounded-full bg-[#ba9eff] group-hover:scale-150 transition-all shadow-[0_0_10px_#ba9eff]" />
+          Blitzr 
         </Link>
         
         {/* Right: Actions */}
@@ -88,20 +88,20 @@ export function Navbar({ onStartGame, isConnected = true }: NavbarProps) {
               </button>
             )}
             <a 
-              href="https://github.com/ashirwad" 
+              href="https://github.com/Ethan4582/Blitzr" 
               target="_blank"
               className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
-              title="GitHub"
+              title="Give it a star on GitHub"
             >
               <Github size={18} />
             </a>
             <a 
-              href="https://portfolio.com" 
+              href="https://ash-cv.vercel.app/" 
               target="_blank"
-              className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
-              title="Creator"
+              className="text-slate-400 hover:text-[#ba9eff] transition-all p-2 hover:bg-white/5 rounded-full"
+              title="Creator Portfolio"
             >
-              <Info size={18} />
+              <User size={18} strokeWidth={2.5} />
             </a>
           </div>
 

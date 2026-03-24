@@ -66,7 +66,7 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
   };
 
   return (
-    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col items-center selection:bg-[#ba9eff]/30 overflow-hidden h-screen font-body relative">
+    <div className="bg-[#0e0e0f] text-slate-100 flex flex-col selection:bg-[#ba9eff]/30 overflow-hidden h-screen font-body relative">
       <Navbar 
         isConnected={isConnected}
         onStartGame={handleStartGame}

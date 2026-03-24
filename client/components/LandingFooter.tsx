@@ -8,9 +8,9 @@ export default function LandingFooter() {
       <div className="max-w-screen-2xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
         {/* Brand & Credit */}
         <div className="flex flex-col gap-1 items-center md:items-start text-center md:text-left">
-          <div className="text-xl font-black text-white tracking-tight uppercase">OBSIDIAN GAMBIT</div>
+          <div className="text-xl font-black text-white tracking-tight uppercase">Blitzr</div>
           <div className="text-slate-500 text-[11px] font-medium tracking-wide">
-            © 2026 Created by Ashirwad. Obsidian Gambit.
+            © 2026 Created by Ashirwad. Blitzr.
           </div>
         </div>
 
@@ -19,10 +19,10 @@ export default function LandingFooter() {
         {/* Actions/Socials */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <a href="#" className="p-2.5 rounded-full bg-white/[0.03] border border-white/5 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+            <a href="https://x.com/SinghAshir65848" className="p-2.5 rounded-full bg-white/[0.03] border border-white/5 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
               <Twitter size={18} />
             </a>
-            <a href="#" className="p-2.5 rounded-full bg-white/[0.03] border border-white/5 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+            <a href="https://github.com/Ethan4582" className="p-2.5 rounded-full bg-white/[0.03] border border-white/5 text-slate-400 hover:text-white hover:bg-white/5 transition-all">
               <Github size={18} />
             </a>
           </div>
