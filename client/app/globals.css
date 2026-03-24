@@ -3,18 +3,18 @@
 :root {
   --background: #0a0a0b;
   --foreground: #f8fafc;
-  --primary: #6366f1;
-  --secondary: #1e293b;
+  --primary: #ba9eff;
+  --secondary: #131314;
   --muted: #64748b;
-  --accent: #8b5cf6;
-  --card: #111113;
-  --border: #1e293b;
+  --accent: #ba9eff;
+  --card: #131314;
+  --border: rgba(255, 255, 255, 0.05);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   overflow-x: hidden;
 }
 
@@ -22,7 +22,7 @@ body {
   .glass {
     background: rgba(17, 17, 19, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
   }
 }
 
@@ -72,7 +72,7 @@ body {
 }
 
 .piece[draggable="true"]:hover {
-  filter: drop-shadow(0 0 8px #ba9eff);
+  filter: drop-shadow(0 0 8px var(--primary));
   transform: scale(1.1);
 }
 

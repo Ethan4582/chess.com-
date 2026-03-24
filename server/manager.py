@@ -82,20 +82,38 @@ class GameRoom:
             logger.error(f"Supabase Sync Error: {e}")
 
     async def _handle_game_over_points(self, winner_role: Optional[str]):
-        """Calculates and updates ELO for both players."""
-        if not winner_role:
-            return
-
-        winner_id = self._white_user_id if winner_role == 'w' else self._black_user_id
-        loser_id = self._black_user_id if winner_role == 'w' else self._white_user_id
-
-        if winner_id:
-            supabase.rpc('increment_points', {'user_id': winner_id, 'amount': 25}).execute()
+        """Calculates and updates ELO and stats for both players."""
+        logger.info(f"🏁 Game Over Logic Started for Room {self._room_id}. Winner Role: {winner_role}")
         
-        if loser_id:
-            supabase.rpc('increment_points', {'user_id': loser_id, 'amount': -15}).execute()
-            
-        logger.info(f"🏆 ELO Updated: Match {self._room_id} finished. Points awarded.")
+        try:
+            # Handle Draw Case
+            if winner_role is None:
+                logger.info(f"🤝 Draw detected. Attempting to update stats for {self._white_user_id} and {self._black_user_id}")
+                if self._white_user_id:
+                    res = supabase.rpc('increment_draw', {'user_id': self._white_user_id}).execute()
+                    logger.info(f"White Draw RPC Response: {res.data if hasattr(res, 'data') else res}")
+                if self._black_user_id:
+                    res = supabase.rpc('increment_draw', {'user_id': self._black_user_id}).execute()
+                    logger.info(f"Black Draw RPC Response: {res.data if hasattr(res, 'data') else res}")
+                return
+
+            winner_id = self._white_user_id if winner_role == 'w' else self._black_user_id
+            loser_id = self._black_user_id if winner_role == 'w' else self._white_user_id
+
+            logger.info(f"🏆 Winner: {winner_id}, Loser: {loser_id}")
+
+            if winner_id:
+                res_w = supabase.rpc('increment_win', {'user_id': winner_id}).execute()
+                res_p = supabase.rpc('increment_points', {'user_id': winner_id, 'amount': 25}).execute()
+                logger.info(f"Winner Update Result: {res_w.data if hasattr(res_w, 'data') else res_w}")
+
+            if loser_id:
+                res_l = supabase.rpc('increment_loss', {'user_id': loser_id}).execute()
+                res_pl = supabase.rpc('increment_points', {'user_id': loser_id, 'amount': -15}).execute()
+                logger.info(f"Loser Update Result: {res_l.data if hasattr(res_l, 'data') else res_l}")
+                
+        except Exception as e:
+            logger.error(f"❌ CRITICAL: Failed to update stats in Supabase: {e}")
 
     def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None) -> str:
         # 1. Re-joining logic
