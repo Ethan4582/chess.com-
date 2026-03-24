@@ -56,8 +56,7 @@ export default function Home() {
   };
 
   const handleViewGame = () => {
-    const id = prompt('Enter Game ID:');
-    if (id) router.push(`/game/${id}`);
+    router.push('/watch');
   };
 
   return (

@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { supabase } from '@/lib/supabaseClient';
-import { Trophy, Gamepad2, History, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { Trophy, Gamepad2, History as HistoryIcon, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AuthGuard from '@/components/AuthGuard';
 
 interface GameRecord {
   id: string;
@@ -31,10 +32,7 @@ export default function HistoryPage() {
   const fetchData = async () => {
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setLoading(false);
-      return;
-    }
+    if (!session) return;
 
     const userId = session.user.id;
 
@@ -103,8 +101,9 @@ export default function HistoryPage() {
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <AppLayout>
-      <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0a0a0b] custom-scrollbar h-full">
+    <AuthGuard>
+      <AppLayout>
+        <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0a0a0b] custom-scrollbar h-full">
         <div className="max-w-5xl mx-auto space-y-6">
           
           {/* Header */}
@@ -115,26 +114,108 @@ export default function HistoryPage() {
             </p>
           </div>
 
-          {/* Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <StatsCard 
-              label="Success Ratio" 
-              value={`${winRate}%`} 
-              icon={<Trophy size={16} />} 
-              delay={0}
-            />
-            <StatsCard 
-              label="Battle Count" 
-              value={totalGamesDB.toString()} 
-              icon={<Gamepad2 size={16} />} 
-              delay={0.05}
-            />
-            <StatsCard 
-              label="Mastery Rating" 
-              value={(profile?.points || 1000).toString()} 
-              icon={<History size={16} />} 
-              delay={0.1}
-            />
+          {/* Premium Stats Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 h-fit">
+            
+            {/* 1. Primary Highlight (Mastery & Win Rate) - Span 4 */}
+            <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+               <motion.div 
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="group relative overflow-hidden bg-gradient-to-br from-[#1c1c1e] to-[#131314] border border-white/5 p-8 rounded-[32px] hover:border-[#ba9eff]/30 transition-all duration-500 shadow-2xl"
+               >
+                 <div className="relative z-10 flex justify-between items-start">
+                    <div className="space-y-1">
+                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                         Global Rating
+                       </span>
+                       <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase tabular-nums">
+                         {profile?.points || 1200}
+                       </h2>
+                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-[#ba9eff]/10 flex items-center justify-center border border-[#ba9eff]/20 text-[#ba9eff] group-hover:scale-110 transition-transform duration-700">
+                       <HistoryIcon size={28} />
+                    </div>
+                 </div>
+                 <div className="mt-8 pt-6 border-t border-white/5 flex items-center gap-4">
+                    <div className="flex -space-x-2">
+                       {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full bg-white/5 border border-black" />)}
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest leading-none">
+                       Top 4% relative to server
+                    </span>
+                 </div>
+               </motion.div>
+
+               <motion.div 
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.1 }}
+                 className="group relative overflow-hidden bg-[#131314] border border-white/5 p-8 rounded-[32px] hover:border-[#ba9eff]/30 transition-all duration-500"
+               >
+                 <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Success Ratio</span>
+                       <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase tabular-nums">
+                         {winRate}%
+                       </h2>
+                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 text-amber-500 group-hover:bg-[#ba9eff]/5 group-hover:text-[#ba9eff] transition-all duration-700">
+                       <Trophy size={28} />
+                    </div>
+                 </div>
+                 <div className="mt-8 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                       <motion.div 
+                         initial={{ width: 0 }}
+                         animate={{ width: `${winRate}%` }}
+                         transition={{ duration: 1.5, delay: 0.5 }}
+                         className="h-full bg-gradient-to-r from-amber-500 to-[#ba9eff]"
+                       />
+                    </div>
+                 </div>
+               </motion.div>
+            </div>
+
+            {/* 2. Secondary Breakdown Grid - Span 6 */}
+            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+               <StatsCard 
+                 label="Total Battles" 
+                 value={totalGamesDB.toString()} 
+                 icon={<Gamepad2 size={16} className="text-[#ba9eff]" />} 
+                 delay={0.2}
+               />
+               <StatsCard 
+                 label="Victories" 
+                 value={(profile?.wins || 0).toString()} 
+                 icon={<Trophy size={16} className="text-emerald-500" />} 
+                 delay={0.25}
+               />
+               <StatsCard 
+                 label="Defeats" 
+                 value={(profile?.losses || 0).toString()} 
+                 icon={<Trophy size={16} className="text-red-500 rotate-180" />} 
+                 delay={0.3}
+               />
+               <StatsCard 
+                 label="Stalemates" 
+                 value={(profile?.draws || 0).toString()} 
+                 icon={<HistoryIcon size={16} className="text-slate-500" />} 
+                 delay={0.35}
+               />
+               
+               {/* Decorative card placeholder to finalize grid if needed, or just leave as is */}
+               <div className="col-span-2 p-8 rounded-[32px] bg-gradient-to-r from-white/[0.01] to-transparent border border-white/5 flex items-center justify-between">
+                  <div className="space-y-1">
+                     <p className="text-[11px] font-black text-white italic uppercase tracking-tighter">Arena Badge: Elite Strategist</p>
+                     <p className="text-[9px] text-slate-600 uppercase tracking-widest">Achieved after 50 competitive wins.</p>
+                  </div>
+                  <div className="w-10 h-10 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center text-slate-700">
+                     <Trophy size={16} />
+                  </div>
+               </div>
+            </div>
           </div>
 
           {/* Table */}
@@ -147,12 +228,13 @@ export default function HistoryPage() {
                     <th className="px-5 py-4">Rival</th>
                     <th className="px-5 py-4">Rating Lift</th>
                     <th className="px-5 py-4">Timeline</th>
+                    <th className="px-5 py-4 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.02]">
                   {!loading && games.length === 0 && (
                      <tr>
-                        <td colSpan={4} className="py-24 text-center">
+                        <td colSpan={5} className="py-24 text-center">
                            <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest animate-pulse">Silence in the arena</p>
                         </td>
                      </tr>
@@ -187,6 +269,14 @@ export default function HistoryPage() {
                       </td>
                       <td className="px-5 py-3">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{game.date}</span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                         <button 
+                           onClick={() => window.location.href = `/analysis/${game.id}`}
+                           className="px-3 py-1.5 bg-white/[0.03] border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-[#ba9eff] hover:bg-[#ba9eff] hover:text-black transition-all"
+                         >
+                           View Battle
+                         </button>
                       </td>
                     </tr>
                   ))}
@@ -251,7 +341,8 @@ export default function HistoryPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+      </AppLayout>
+    </AuthGuard>
   );
 }
 

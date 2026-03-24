@@ -79,7 +79,7 @@ export function GameSidebar({
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-mono text-white opacity-40">10:00</span>
+              <span className="text-[10px] font-mono text-[#ba9eff]">{blackElo}</span>
             </div>
           </div>
         </div>
@@ -100,7 +100,7 @@ export function GameSidebar({
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-mono text-white">10:00</span>
+              <span className="text-[10px] font-mono text-[#ba9eff]">{whiteElo}</span>
             </div>
           </div>
         </div>

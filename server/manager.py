@@ -17,6 +17,8 @@ class GameRoom:
         # Load persistent data if available
         self._white_user_id: Optional[str] = None
         self._black_user_id: Optional[str] = None
+        self._white_elo: int = 1200
+        self._black_elo: int = 1200
         
         if initial_data:
             self._engine.load_fen(initial_data.get('fen', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'))
@@ -56,6 +58,8 @@ class GameRoom:
         return {
             'white': self._players.get('white', {}).get('name'),
             'black': self._players.get('black', {}).get('name'),
+            'white_elo': self._white_elo,
+            'black_elo': self._black_elo,
             'count': len(self._players),
             'status': status,
             'player_ids': {
@@ -200,7 +204,7 @@ class GameRoom:
         except Exception as e:
             logger.error(f"❌ Failed to update stats: {e}")
 
-    def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None) -> str:
+    def add_player(self, socket_id: str, name: str = "Guest", user_id: Optional[str] = None, callback=None) -> str:
         # Re-joining logic
         role = None
         if 'white' in self._players and (self._players['white']['sid'] == socket_id or (user_id and self._white_user_id == user_id)):
@@ -222,23 +226,41 @@ class GameRoom:
         if not self._white_user_id or self._white_user_id == user_id:
             self._white_user_id = user_id
             self._players['white'] = {'sid': socket_id, 'name': name or "Guest"}
-            asyncio.create_task(self._sync_player_id('white_player_id', user_id))
+            asyncio.create_task(self._sync_player_id('white_player_id', user_id, callback))
             return 'w'
         elif not self._black_user_id or self._black_user_id == user_id:
             self._black_user_id = user_id
             self._players['black'] = {'sid': socket_id, 'name': name or "Guest"}
-            asyncio.create_task(self._sync_player_id('black_player_id', user_id))
+            asyncio.create_task(self._sync_player_id('black_player_id', user_id, callback))
             return 'b'
         else:
             if socket_id not in self._spectators:
                 self._spectators.append(socket_id)
             return 'spectator'
 
-    async def _sync_player_id(self, column: str, user_id: str):
+    async def _sync_player_id(self, column: str, user_id: str, callback=None):
         try:
             supabase.table('rooms').update({column: user_id}).eq('id', self._room_id).execute()
+            # Also fetch and update local elo
+            await self._update_player_elo('w' if 'white' in column else 'b', user_id, callback)
         except Exception as e:
             logger.error(f"Failed to sync {column}: {e}")
+
+    async def _update_player_elo(self, role: str, user_id: str, callback=None):
+        """Fetches latest points from profiles and updates in-memory state."""
+        try:
+            res = supabase.table('profiles').select('points').eq('id', user_id).single().execute()
+            if res.data:
+                points = res.data.get('points', 1200)
+                if role == 'w':
+                    self._white_elo = points
+                else:
+                    self._black_elo = points
+                logger.info(f"🔄 Updated {role} ELO to {points} for {user_id}")
+                if callback:
+                    await callback("roomState", self.get_room_state(), room=self._room_id)
+        except Exception as e:
+            logger.error(f"Failed to fetch ELO for {user_id}: {e}")
 
     def remove_player(self, socket_id: str):
         if 'white' in self._players and self._players['white']['sid'] == socket_id:
@@ -264,7 +286,13 @@ class GameManager:
                 for data in response.data:
                     rid = data['id']
                     if rid not in self._rooms:
-                        self._rooms[rid] = GameRoom(rid, initial_data=data)
+                        room = GameRoom(rid, initial_data=data)
+                        self._rooms[rid] = room
+                        # Async hydration for ELO
+                        if data.get('white_player_id'):
+                            asyncio.create_task(room._update_player_elo('w', data['white_player_id']))
+                        if data.get('black_player_id'):
+                            asyncio.create_task(room._update_player_elo('b', data['black_player_id']))
         except Exception as e:
             logger.info(f"Hydration Error: {e}")
 

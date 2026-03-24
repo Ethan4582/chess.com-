@@ -79,7 +79,7 @@ async def handle_join(sid, room_id, name=None, user_id=None):
     manager.remove_player_from_all(sid)
     await sio.enter_room(sid, clean_id)
 
-    role = room.add_player(sid, name, user_id)
+    role = room.add_player(sid, name, user_id, callback=sio.emit)
     
     async with sio.session(sid) as session:
         session['room_id'] = clean_id
