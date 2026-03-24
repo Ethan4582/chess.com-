@@ -9,9 +9,11 @@ import { Navbar } from './Navbar';
 interface AppLayoutProps {
   children: React.ReactNode;
   isConnected?: boolean;
+  role?: 'w' | 'b' | 'spectator' | null;
+  disconnectTimer?: number | null;
 }
 
-export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
+export function AppLayout({ children, isConnected = true, role, disconnectTimer }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -70,6 +72,8 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
       <Navbar 
         isConnected={isConnected}
         onStartGame={handleStartGame}
+        role={role}
+        disconnectTimer={disconnectTimer}
       />
 
       <div className="flex flex-1 overflow-hidden pt-16">

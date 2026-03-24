@@ -36,21 +36,29 @@ export function GameSidebar({
   return (
     <aside className="flex flex-col bg-[#131314] h-full overflow-hidden shadow-2xl">
       {/* Header Actions */}
-      <div className="p-4 grid grid-cols-2 gap-2 border-b border-white/5">
-        <button 
-          onClick={() => shareLink('play')}
-          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-[#ba9eff] text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#ba9eff]/10 hover:bg-[#c0a6ff]"
-        >
-          <Share2 size={14} />
-          Invite
-        </button>
-        <button 
-          onClick={() => shareLink('watch')}
-          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
-        >
-          <Eye size={14} />
-          Watch
-        </button>
+      <div className="p-4 flex flex-col gap-3 border-b border-white/5">
+        {role === 'spectator' && (
+          <div className="flex items-center gap-3 px-3 py-2 bg-[#ba9eff]/10 border border-[#ba9eff]/20 rounded-lg">
+             <Eye size={12} className="text-[#ba9eff] animate-pulse" />
+             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#ba9eff]">Spectating Match</span>
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <button 
+            onClick={() => shareLink('play')}
+            className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-[#ba9eff] text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#ba9eff]/10 hover:bg-[#c0a6ff]"
+          >
+            <Share2 size={14} />
+            Invite
+          </button>
+          <button 
+            onClick={() => shareLink('watch')}
+            className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+          >
+            <Eye size={14} />
+            Watch
+          </button>
+        </div>
       </div>
 
       {/* Player Section */}
@@ -134,13 +142,12 @@ export function GameSidebar({
               type="text" 
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder={session ? "Message..." : "Login to chat..."}
-              disabled={!session}
-              className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-[#ba9eff]/40 transition-all pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Type a message..."
+              className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-[#ba9eff]/40 transition-all pr-10"
             />
             <button 
               type="submit" 
-              disabled={!chatInput.trim() || !session}
+              disabled={!chatInput.trim()}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#ba9eff] hover:scale-110 disabled:opacity-0 transition-all p-1"
             >
               <Send size={14} />
