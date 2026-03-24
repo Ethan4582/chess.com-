@@ -50,51 +50,7 @@ import asyncio
 import time
 import re
 
-disconnect_timers = {} # Tracks forfeiture timeouts. Keyed by (room_id, role)
 guest_last_message = {} # Tracks rate limit. Keyed by (guest_id)
-
-async def handle_disconnect_timeout(room_id: str, role: str):
-    """Waits 30 seconds, then forfeits the game for the disconnected player."""
-    await asyncio.sleep(30)
-    
-    # Check if timer was cancelled (they reconnected)
-    timer_key = (room_id, role)
-    if timer_key not in disconnect_timers:
-        return
-
-    room = manager.get_room(room_id)
-    if room and not room.engine.is_game_over():
-        logger.info(f"DEBUG: Player {role} in {room_id} forfeited due to timeout.")
-        
-        # Broadcast forfeit chat message
-        await sio.emit("chatMessage", {
-            "author": "System",
-            "content": "Player forfeited. Game over.",
-            "isSystem": True
-        }, room=room_id)
-        
-        # Determine winner based on role that disconnected
-        loser = role
-        winner = 'b' if role == 'w' else 'w'
-        
-        # Update engine status (this is a simplifed forfeit in our hybrid engine)
-        # We manually update Supabase rooms table since python-chess doesn't have an inbuilt 'forfeit' status easily exposed like that
-        try:
-            from .core.supabase_client import supabase
-            supabase.table('rooms').update({
-                'status': 'finished',
-                'winner_id': room._white_user_id if winner == 'w' else room._black_user_id,
-                'updated_at': 'now()'
-            }).eq('id', room_id).execute()
-        except Exception as e:
-            logger.error(f"Failed to record forfeit: {e}")
-
-        # Broadcast game over
-        status = {"is_over": True, "winner": winner, "reason": "forfeit"}
-        await sio.emit("gameOver", status, room=room_id)
-        
-    # Cleanup timer
-    disconnect_timers.pop(timer_key, None)
 
 @sio.event
 async def disconnect(sid):

@@ -1,6 +1,7 @@
 from typing import Dict, Optional, List, Any
 import logging
 import asyncio
+import time
 from .engine import ChessEngine
 from .core.supabase_client import supabase
 
@@ -32,6 +33,8 @@ class GameRoom:
         
         # Disconnect Timers
         self._disconnect_tasks: Dict[str, asyncio.Task] = {}
+        self._disconnect_start: Optional[float] = None
+        self._disconnected_role: Optional[str] = None
 
     @property
     def room_id(self) -> str:
@@ -58,7 +61,11 @@ class GameRoom:
             'player_ids': {
                 'white': self._white_user_id,
                 'black': self._black_user_id
-            }
+            },
+            'disconnect_data': {
+                'role': self._disconnected_role,
+                'start_time': self._disconnect_start
+            } if self._disconnected_role else None
         }
 
     async def save_to_db(self, move_data: Optional[Dict] = None):
@@ -110,7 +117,7 @@ class GameRoom:
         logger.info(f"🚩 Game Aborted in Room {self._room_id} by {aborter_role}")
 
     async def handle_disconnect_timeout(self, disconnected_role: str, io_emit_callback):
-        """Starts a 30s timer. If player doesn't reconnect, opponent wins."""
+        """Starts a 60s timer. If player doesn't reconnect, opponent wins. 5s buffer."""
         if self._engine.is_game_over() or self._forced_over:
             return
 
@@ -118,18 +125,34 @@ class GameRoom:
         if disconnected_role in self._disconnect_tasks:
             self._disconnect_tasks[disconnected_role].cancel()
 
-        logger.info(f"⏳ Disconnect detected for {disconnected_role} in {self._room_id}. Starting 60s timer.")
+        logger.info(f"⏳ Disconnect detected for {disconnected_role} in {self._room_id}. Starting 5s buffer.")
         
         async def timer():
-            await asyncio.sleep(60) # Give them 60 seconds
-            # If still not in self._players, force win
+            await asyncio.sleep(5) # 5s buffer to avoid flicking on refreshes
+            
             if disconnected_role not in self._players:
-                self._forced_over = True
-                self._forced_winner = 'b' if disconnected_role == 'w' else 'w'
-                self._forced_reason = 'Opponent disconnected'
-                await self.save_to_db()
-                await io_emit_callback("gameOver", self.get_room_state()['status'])
-                logger.info(f"⏰ Timeout reached for {disconnected_role} in {self._room_id}. Awarding win.")
+                # Mark real disconnect state
+                self._disconnected_role = disconnected_role
+                self._disconnect_start = time.time()
+                
+                # Broadast the state change so timer appears
+                await io_emit_callback("roomState", self.get_room_state(), room=self._room_id)
+                logger.info(f"⏳ Buffer passed. Starting remaining 55s forfeit timer for {disconnected_role}.")
+
+                await asyncio.sleep(55) # Give them rest of the 1 minute
+                
+                # If still not in self._players, force win
+                if disconnected_role not in self._players:
+                    self._forced_over = True
+                    self._forced_winner = 'b' if disconnected_role == 'w' else 'w'
+                    self._forced_reason = 'Opponent disconnected'
+                    await self.save_to_db()
+                    await io_emit_callback("gameOver", self.get_room_state()['status'], room=self._room_id)
+                    logger.info(f"⏰ Timeout reached for {disconnected_role} in {self._room_id}. Awarding win.")
+            
+            # Clear state regardless
+            self._disconnected_role = None
+            self._disconnect_start = None
 
         self._disconnect_tasks[disconnected_role] = asyncio.create_task(timer())
 
@@ -138,6 +161,10 @@ class GameRoom:
             self._disconnect_tasks[role].cancel()
             del self._disconnect_tasks[role]
             logger.info(f"✅ Reconnect detected for {role} in {self._room_id}. Timer cancelled.")
+        
+        if self._disconnected_role == role:
+            self._disconnected_role = None
+            self._disconnect_start = None
 
     async def _handle_game_over_points(self, winner_role: Optional[str]):
         """Calculates and updates ELO and stats for both players."""

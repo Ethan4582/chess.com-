@@ -27,6 +27,10 @@ interface RoomState {
   black: string | null;
   count: number;
   status?: GameStatus;
+  disconnect_data?: {
+    role: string;
+    start_time: number;
+  } | null;
 }
 
 interface ChatMessage {
@@ -153,11 +157,11 @@ export default function GamePage() {
     socket.on('invalidMove', (msg: string) => addToast(msg));
     socket.on('chatMessage', (msg: ChatMessage) => setMessages((prev) => [...prev.slice(-49), msg]));
 
-    socket.on('playerDisconnected', (data) => {
-        setDisconnectTimer(data.timeout);
+    socket.on('playerDisconnected', () => {
+        // We rely on roomState for the source of truth now
     });
-    socket.on('playerReconnected', (data) => {
-        setDisconnectTimer(null);
+    socket.on('playerReconnected', () => {
+        // We rely on roomState for the source of truth now
     });
 
     return () => {
@@ -173,19 +177,33 @@ export default function GamePage() {
     };
   }, [socket, roomId, playerName, session, gameOver, addToast, role]);
 
-  // Timer Countdown Logic
+  // ─── Timer Synchronization Logic ───
   useEffect(() => {
-    if (disconnectTimer !== null && disconnectTimer > 0) {
-        timerRef.current = setInterval(() => {
-            setDisconnectTimer(prev => (prev && prev > 0 ? prev - 1 : 0));
-        }, 1000);
-    } else if (disconnectTimer === 0) {
-        setDisconnectTimer(null);
+    const data = roomState.disconnect_data;
+    if (!data || gameOver) {
+      setDisconnectTimer(null);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
     }
+
+    const updateTimer = () => {
+      // Use raw Date.now() / 1000. NOTE: This assumes client and server clocks are roughly synced.
+      // A more robust way would be to send the server's 'now' alongside 'start_time'.
+      const now = Date.now() / 1000;
+      const elapsed = now - data.start_time;
+      const remaining = Math.max(0, Math.floor(60 - elapsed));
+      
+      setDisconnectTimer(remaining > 0 ? remaining : null);
+      if (remaining <= 0 && timerRef.current) clearInterval(timerRef.current);
+    };
+
+    updateTimer();
+    timerRef.current = setInterval(updateTimer, 1000);
+    
     return () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-    }
-  }, [disconnectTimer]);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [roomState.disconnect_data, gameOver]);
 
   useEffect(() => {
     const pRole = role === 'w' ? 'w' : 'b';
