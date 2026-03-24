@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LeftSidebar } from './LeftSidebar';
-import { GameHeader } from './GameHeader';
+import { Navbar } from './Navbar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -67,7 +67,7 @@ export function AppLayout({ children, isConnected = true }: AppLayoutProps) {
 
   return (
     <div className="bg-[#0e0e0f] text-slate-100 flex flex-col items-center selection:bg-[#ba9eff]/30 overflow-hidden h-screen font-body relative">
-      <GameHeader 
+      <Navbar 
         isConnected={isConnected}
         onStartGame={handleStartGame}
       />

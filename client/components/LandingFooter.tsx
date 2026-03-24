@@ -14,13 +14,7 @@ export default function LandingFooter() {
           </div>
         </div>
 
-        {/* Links */}
-        <div className="flex items-center gap-8 text-slate-400 text-[13px] font-medium">
-          <a href="#" className="hover:text-white transition-colors">GitHub Repository</a>
-          <a href="#" className="hover:text-white transition-colors">Star the Repo</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy</a>
-          <a href="#" className="hover:text-white transition-colors">Creator</a>
-        </div>
+       
 
         {/* Actions/Socials */}
         <div className="flex items-center gap-4">
