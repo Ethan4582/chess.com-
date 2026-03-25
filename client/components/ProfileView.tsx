@@ -186,8 +186,8 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
   };
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto bg-[#0a0a0b] custom-scrollbar h-full">
-      <div className="max-w-6xl mx-auto">
+    <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#0a0a0b] no-scrollbar h-full">
+      <div className="max-w-6xl mx-auto py-4 md:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT COLUMN: Sidebar Profile Card */}
@@ -195,13 +195,13 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-[#131314] border border-white/5 rounded-[40px] p-8 space-y-8 shadow-2xl relative overflow-hidden group"
+              className="bg-[#131314] border border-white/5 rounded-[32px] md:rounded-[40px] p-6 md:p-8 space-y-6 md:space-y-8 shadow-2xl relative overflow-hidden group"
             >
               {/* Avatar Section */}
-              <div className="flex flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-4 md:gap-6">
                 <div className="relative">
-                  <div className="w-48 h-48 rounded-[2.5rem] bg-gradient-to-br from-[#ba9eff]/20 to-transparent border border-white/10 p-1 group-hover:border-[#ba9eff]/30 transition-all duration-700">
-                    <div className="w-full h-full rounded-[2.2rem] overflow-hidden bg-black shadow-inner relative">
+                  <div className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#ba9eff]/20 to-transparent border border-white/10 p-1 group-hover:border-[#ba9eff]/30 transition-all duration-700">
+                    <div className="w-full h-full rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden bg-black shadow-inner relative">
                       {profile?.avatar_url ? (
                         <img 
                           src={profile.avatar_url} 
@@ -219,15 +219,15 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                     </div>
                   </div>
                   {/* Status Badge */}
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-[#ba9eff] border-4 border-[#131314] flex items-center justify-center text-black">
-                     <Star size={16} fill="black" />
+                  <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-[#ba9eff] border-2 md:border-4 border-[#131314] flex items-center justify-center text-black">
+                     <Star size={12} className="md:w-4 md:h-4" fill="black" />
                   </div>
                 </div>
 
                 <div className="text-center space-y-1">
-                  <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">{username}</h2>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
-                    Grandmaster • Rank #{currentRank}
+                  <h2 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter truncate max-w-[200px] md:max-w-none">{username}</h2>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                    Grandmaster League • #{currentRank}
                   </p>
                 </div>
               </div>
@@ -235,12 +235,12 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
               {/* Stats Inside Card */}
               <div className="grid grid-cols-2 gap-3">
                  <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 space-y-1">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Global Rating</span>
-                    <p className="text-xl font-black text-white italic tabular-nums">{points}</p>
+                    <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Rating</span>
+                    <p className="text-lg md:text-xl font-black text-white italic tabular-nums">{points}</p>
                  </div>
                  <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 space-y-1">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Success Ratio</span>
-                    <p className="text-xl font-black text-white italic tabular-nums">{winRate}%</p>
+                    <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Victory %</span>
+                    <p className="text-lg md:text-xl font-black text-white italic tabular-nums">{winRate}%</p>
                  </div>
               </div>
 
@@ -252,14 +252,14 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                     className="w-full py-4 bg-[#ba9eff] hover:bg-[#a686ff] text-black font-black uppercase text-xs tracking-[0.2em] rounded-2xl transition-all active:scale-95 shadow-lg shadow-[#ba9eff]/20 flex items-center justify-center gap-3"
                   >
                     <Swords size={18} />
-                    Challenge to Battle
+                    Challenge
                   </button>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    <button className="py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 group">
-                      Edit Profile
+                    <button className="py-3 md:py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2 group">
+                      Edit
                     </button>
-                    <button className="py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 group">
+                    <button className="py-3 md:py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-white font-black text-[9px] md:text-[10px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2 group">
                       Settings
                     </button>
                   </div>
@@ -268,10 +268,10 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
 
               {/* Specialities Labels */}
               <div className="pt-4 border-t border-white/5 space-y-3">
-                 <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Strategic Specialties</p>
+                 <p className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">Specialties</p>
                  <div className="flex flex-wrap gap-2">
-                    {['Sicilian Defense', 'Rapid Tactics', 'Endgame Pro', 'Void Gambit'].map(tag => (
-                      <span key={tag} className="px-3 py-1.5 bg-white/[0.03] border border-white/5 rounded-full text-[9px] font-black uppercase text-slate-400">
+                    {['Sicilian Defense', 'Endgame Pro', 'Rapid Tactics'].map(tag => (
+                      <span key={tag} className="px-3 py-1.5 bg-white/[0.03] border border-white/5 rounded-full text-[8px] font-black uppercase text-slate-400">
                         {tag}
                       </span>
                     ))}
@@ -285,74 +285,81 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
             
             {/* Top Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               <MiniStat label="Total Battles" value={totalGamesDB} icon={<Gamepad2 size={14}/>} />
-               <MiniStat label="Victories" value={profile?.wins || 0} icon={<Trophy size={14} className="text-emerald-500" />} />
-               <MiniStat label="Defeats" value={profile?.losses || 0} icon={<Trophy size={14} className="text-rose-500 rotate-180" />} />
-               <MiniStat label="Stalemates" value={profile?.draws || 0} icon={<HistoryIcon size={14} className="text-slate-500" />} />
+               <MiniStat label="Battles" value={totalGamesDB} icon={<Gamepad2 size={14}/>} />
+               <MiniStat label="Wins" value={profile?.wins || 0} icon={<Trophy size={14} className="text-emerald-500" />} />
+               <MiniStat label="Losses" value={profile?.losses || 0} icon={<Trophy size={14} className="text-rose-500 rotate-180" />} />
+               <MiniStat label="Draws" value={profile?.draws || 0} icon={<HistoryIcon size={14} className="text-slate-500" />} />
             </div>
 
             {/* Battle History Table */}
             <div className="bg-[#131314] rounded-[32px] border border-white/5 overflow-hidden shadow-xl">
-               <div className="p-6 pb-2 flex items-center justify-between">
-                  <h3 className="text-sm font-black text-white italic uppercase tracking-wider">Recent Battle History</h3>
+               <div className="p-6 pb-2 flex items-center justify-between border-b border-white/5 md:border-none">
+                  <h3 className="text-xs font-black text-white italic uppercase tracking-wider">Battle Records</h3>
                   <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 transition-all">
                      <TrendingUp size={16} />
                   </button>
                </div>
                
-               <div className="overflow-x-auto min-h-[350px]">
+               <div className="overflow-x-auto min-h-[300px] md:min-h-[350px]">
                  <table className="w-full text-left">
-                    <thead className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 border-b border-white/5">
+                    <thead className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 border-b border-white/5 bg-white/[0.01]">
                       <tr>
-                        <th className="px-6 py-4">Status</th>
-                        <th className="px-6 py-4">Rival</th>
-                        <th className="px-6 py-4">Rating Lift</th>
-                        <th className="px-6 py-4">Timeline</th>
+                        <th className="px-4 md:px-6 py-4">Status</th>
+                        <th className="px-4 md:px-6 py-4">Rival</th>
+                        <th className="px-4 md:px-6 py-4 text-center md:text-left">Delta</th>
+                        <th className="px-4 md:px-6 py-4 hidden sm:table-cell">Timeline</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.02]">
                        {games.map((game) => (
                          <tr key={game.id} className="group hover:bg-white/[0.01] transition-all">
-                            <td className="px-6 py-4">
+                            <td className="px-4 md:px-6 py-4">
                                <div className="flex items-center gap-2">
                                   <div className={`w-1.5 h-1.5 rounded-full ${
                                     game.result === 'WIN' ? 'bg-emerald-500' :
                                     game.result === 'LOSS' ? 'bg-rose-500' : 'bg-slate-500'
                                   }`} />
-                                  <span className={`text-[11px] font-bold ${
+                                  <span className={`text-[10px] md:text-[11px] font-bold ${
                                     game.result === 'WIN' ? 'text-emerald-500' :
                                     game.result === 'LOSS' ? 'text-rose-500' : 'text-slate-400'
                                   }`}>{game.result}</span>
                                </div>
                             </td>
-                            <td className="px-6 py-4">
-                               <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/5">
+                            <td className="px-4 md:px-6 py-4">
+                               <div className="flex items-center gap-2 md:gap-3">
+                                  <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg overflow-hidden border border-white/5 shrink-0">
                                      <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${game.opponent}`} alt="Rival" />
                                   </div>
-                                  <span className="text-xs font-bold text-white tracking-tight">{game.opponent}</span>
+                                  <span className="text-[11px] md:text-xs font-bold text-white tracking-tight truncate max-w-[80px] md:max-w-none">{game.opponent}</span>
                                </div>
                             </td>
-                            <td className="px-6 py-4 tabular-nums">
-                               <span className={`text-[11px] font-black font-mono tracking-tighter ${
+                            <td className="px-4 md:px-6 py-4 tabular-nums text-center md:text-left">
+                               <span className={`text-[10px] md:text-[11px] font-black font-mono tracking-tighter ${
                                  game.eloChange > 0 ? 'text-[#ba9eff]' : 
                                  game.eloChange < 0 ? 'text-rose-400' : 'text-slate-500'
-                               }`}>
-                                 {game.eloChange > 0 ? `+${game.eloChange.toFixed(1)}` : game.eloChange || '0.0'}
+                                }`}>
+                                 {game.eloChange > 0 ? `+${game.eloChange.toFixed(0)}` : game.eloChange || '0'}
                                </span>
                             </td>
-                            <td className="px-6 py-4">
-                               <span className="text-[10px] font-bold text-slate-600 tabular-nums">{game.date}</span>
+                            <td className="px-4 md:px-6 py-4 hidden sm:table-cell">
+                               <span className="text-[9px] md:text-[10px] font-bold text-slate-600 tabular-nums">{game.date}</span>
                             </td>
                          </tr>
                        ))}
+                       {games.length === 0 && !loading && (
+                         <tr>
+                            <td colSpan={4} className="py-20 text-center">
+                               <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">No archives detected</p>
+                            </td>
+                         </tr>
+                       )}
                     </tbody>
                  </table>
                </div>
 
                {/* Pagination Component */}
-               <div className="p-4 border-t border-white/5 flex items-center justify-between">
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest pl-2">Last Engagement Log</p>
+               <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-700 uppercase tracking-widest pl-2">Syncing Archives...</p>
                   <div className="flex items-center gap-2">
                      <button 
                        onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -361,10 +368,10 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                      >
                         <ChevronLeft size={16} />
                      </button>
-                     <span className="text-[10px] font-black text-[#ba9eff]">{page}</span>
+                     <span className="text-[10px] font-black text-[#ba9eff] italic tabular-nums">{page}</span>
                      <button 
                        onClick={() => setPage(p => p + 1)}
-                       className="p-1.5 rounded-lg bg-white/5 text-slate-500 hover:text-[#ba9eff] disabled:opacity-20 transition-all"
+                       className="p-1.5 rounded-lg bg-white/5 text-slate-500 hover:text-[#ba9eff] disabled:opacity-20 transition-all font-bold"
                        disabled={page >= totalPages}
                      >
                         <ChevronRight size={16} />
@@ -374,24 +381,24 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
             </div>
 
             {/* Bottom Chart: Rating Trajectory */}
-            <div className="bg-[#131314] rounded-[32px] border border-white/5 p-8 shadow-xl">
+            <div className="bg-[#131314] rounded-[32px] border border-white/5 p-6 md:p-8 shadow-xl">
                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Rating Trajectory (30D)</h3>
+                  <h3 className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Performance Metrics (30D)</h3>
                </div>
                
-               <div className="h-40 flex items-end justify-between gap-3 px-2">
+               <div className="h-32 md:h-40 flex items-end justify-between gap-1.5 md:gap-3 px-1 md:px-2">
                   {trajectoryData.map((d, i) => (
                     <motion.div 
                       key={i}
                       initial={{ height: 0 }}
-                      animate={{ height: `${d.value}%` }}
-                      transition={{ delay: i * 0.1, duration: 1 }}
-                      className={`flex-1 rounded-xl relative group ${
+                      animate={{ height: `${Math.max(5, d.value)}%` }}
+                      transition={{ delay: i * 0.05, duration: 0.8 }}
+                      className={`flex-1 rounded-md md:rounded-xl relative group ${
                         d.active ? 'bg-[#ba9eff]' : 'bg-[#ba9eff]/20'
                       }`}
                     >
-                       <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                          <span className="text-[9px] font-black text-white italic">{Math.round(d.actualPoints)} ELO</span>
+                       <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                          <span className="text-[8px] md:text-[9px] font-black text-[#ba9eff] italic bg-black/80 px-1.5 py-0.5 rounded border border-[#ba9eff]/20 shadow-xl">{Math.round(d.actualPoints)}</span>
                        </div>
                     </motion.div>
                   ))}
@@ -407,12 +414,12 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
 
 function MiniStat({ label, value, icon }: { label: string, value: string | number, icon: React.ReactNode }) {
   return (
-    <div className="bg-[#131314] border border-white/5 p-6 rounded-[28px] space-y-2 hover:border-[#ba9eff]/20 transition-all group">
+    <div className="bg-[#131314] border border-white/5 p-4 md:p-6 rounded-[24px] md:rounded-[28px] space-y-1.5 md:space-y-2 hover:border-[#ba9eff]/20 transition-all group overflow-hidden">
       <div className="flex items-center justify-between">
-         <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
-         <div className="text-slate-500 group-hover:text-[#ba9eff] transition-colors">{icon}</div>
+         <span className="text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
+         <div className="text-slate-600 group-hover:text-[#ba9eff] transition-colors">{icon}</div>
       </div>
-      <p className="text-4xl font-black text-white italic tracking-tighter tabular-nums group-hover:scale-105 origin-left transition-transform duration-500">{value}</p>
+      <p className="text-2xl md:text-4xl font-black text-white italic tracking-tighter tabular-nums group-hover:scale-105 origin-left transition-transform duration-500">{value}</p>
     </div>
   );
 }

@@ -70,7 +70,7 @@ function StatBox({ label, value, indicator, progress, color }: { label: string, 
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-[#131314] p-5 rounded-[2rem] flex flex-col justify-between border border-white/[0.03] transition-all hover:border-[#ba9eff]/20 group relative overflow-hidden"
+      className="bg-[#131314] p-4 md:p-5 rounded-[2rem] flex flex-col justify-between border border-white/[0.03] transition-all hover:border-[#ba9eff]/20 group relative overflow-hidden"
     >
       <div className={`absolute inset-0 bg-gradient-to-tr ${color} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
       
@@ -81,7 +81,7 @@ function StatBox({ label, value, indicator, progress, color }: { label: string, 
         </div>
         
         <div className="flex flex-col gap-2">
-          <span className="text-3xl font-black text-white italic tracking-tighter leading-none">{value}</span>
+          <span className="text-2xl sm:text-3xl font-black text-white italic tracking-tighter leading-none">{value}</span>
           <div className="h-1 w-12 bg-white/5 rounded-full overflow-hidden">
              <motion.div 
                initial={{ width: 0 }}

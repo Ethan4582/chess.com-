@@ -22,8 +22,9 @@ export function LobbyHero({ onStartGame, username }: LobbyHeroProps) {
       
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0b] via-[#0a0a0b]/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-transparent md:hidden" />
 
-      <div className="relative h-full flex flex-col justify-center px-10 max-w-2xl">
+      <div className="relative h-full flex flex-col justify-center px-6 md:px-10 max-w-2xl">
         <motion.span 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}

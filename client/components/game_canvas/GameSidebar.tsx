@@ -1,13 +1,14 @@
 import { Share2, Eye, MessageSquare, Send, Trophy } from 'lucide-react';
+import { RoomState, GameStatus, ChatMessage, PlayerRole } from '@/types/game';
 
 interface GameSidebarProps {
-  roomState: any;
-  role: string | null;
-  gameOver: any;
-  roomId: string | string[];
+  roomState: RoomState;
+  role: PlayerRole;
+  gameOver: GameStatus | null;
+  roomId: string;
   shareLink: (target: 'play' | 'watch') => void;
   session: any;
-  messages: any[];
+  messages: ChatMessage[];
   chatInput: string;
   setChatInput: (val: string) => void;
   handleSendMessage: (e: React.FormEvent) => void;
@@ -29,9 +30,8 @@ export function GameSidebar({
   const blackName = roomState.black || 'Waiting...';
   
   // Dynamic Elo if we have them in the room state or profile data
-  // For now, if unknown, use 1200 as base
-  const whiteElo = roomState.player_ids?.white ? (roomState.white_elo || 1200) : '--';
-  const blackElo = roomState.player_ids?.black ? (roomState.black_elo || 1200) : '--';
+  const whiteElo = roomState.white ? (roomState.white_elo || 1200) : '--';
+  const blackElo = roomState.black ? (roomState.black_elo || 1200) : '--';
 
   return (
     <aside className="flex flex-col bg-[#131314] h-full overflow-hidden shadow-2xl">

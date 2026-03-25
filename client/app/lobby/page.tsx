@@ -189,8 +189,8 @@ export default function LobbyPage() {
   return (
     <AuthGuard>
       <AppLayout>
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0a0a0b] custom-scrollbar h-full">
-           <div className="max-w-7xl mx-auto space-y-8 min-h-full">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#0a0a0b] no-scrollbar h-full">
+           <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 min-h-full">
               
               {/* Top Stats Bar */}
               <StatsCard stats={profile} loading={loading} />

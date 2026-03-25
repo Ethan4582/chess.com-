@@ -27,7 +27,7 @@ export function ActiveGameCard({ activeRoom, loading }: ActiveGameCardProps) {
     <motion.div 
        initial={{ opacity: 0, scale: 0.98 }}
        animate={{ opacity: 1, scale: 1 }}
-       className="relative h-40 rounded-[2rem] bg-gradient-to-br from-[#1a1a1b] to-[#131314] border border-[#ba9eff]/30 p-8 flex flex-col justify-between overflow-hidden shadow-2xl group transition-all hover:border-[#ba9eff]/60"
+       className="relative min-h-40 rounded-[2rem] bg-gradient-to-br from-[#1a1a1b] to-[#131314] border border-[#ba9eff]/30 p-5 md:p-8 flex flex-col justify-between overflow-hidden shadow-2xl group transition-all hover:border-[#ba9eff]/60"
     >
        <div className="absolute top-0 right-0 w-32 h-32 bg-[#ba9eff]/5 rounded-bl-full opacity-20 group-hover:opacity-40 transition-all pointer-events-none" />
        

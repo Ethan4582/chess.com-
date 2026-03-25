@@ -35,6 +35,7 @@ body {
   width: 100%;
   height: 100%;
   user-select: none;
+  touch-action: none; /* Prevents mobile scroll during moves */
 }
 
 .square {
@@ -48,6 +49,7 @@ body {
 
 .square.light { background-color: #f0d9b1; }
 .square.dark { background-color: #b58863; }
+.square.selected { background-color: rgba(186, 158, 255, 0.6) !important; }
 
 .piece {
   font-size: clamp(20px, 6vh, 48px);
@@ -83,6 +85,10 @@ body {
 
 .flipped .piece {
   transform: rotate(180deg);
+}
+
+.flipped .piece[draggable="true"]:hover {
+  transform: rotate(180deg) scale(1.1);
 }
 
 /* Smooth Sidebar Transitioning Utilities */

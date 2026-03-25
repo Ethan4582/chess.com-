@@ -33,9 +33,10 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
 
   return (
     <nav
-      className={`h-full flex flex-col p-4 bg-[#131314] transition-all duration-300 z-40 ${
-        isOpen ? 'w-64' : 'w-20'
-      } border-r border-white/5 shadow-2xl relative shrink-0 overflow-hidden`}
+      className={`h-full hidden md:flex flex-col p-4 bg-[#131314] transition-all duration-300 z-50 
+        ${isOpen ? 'w-64' : 'w-20'} 
+        border-r border-white/5 shadow-2xl relative shrink-0 overflow-hidden
+      `}
     >
       {/* Toggle Button for Open State */}
       {isOpen && (
