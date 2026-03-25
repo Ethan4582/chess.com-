@@ -103,13 +103,16 @@ export default function LobbyPage() {
          });
       }
 
-      // 3. Leaderboard Top 5
-      const { data: leaderboardData } = await supabase
-        .from('profiles')
-        .select('id, username, points')
-        .order('points', { ascending: false })
-        .limit(5);
+      // 3. Leaderboard Top 5 (And User's Rank)
+      const [{ data: leaderboardData }, { data: userRank }] = await Promise.all([
+        supabase.from('profiles').select('id, username, points').order('points', { ascending: false }).limit(5),
+        supabase.rpc('get_user_rank', { target_user_id: userId })
+      ]);
+
       setTopProfiles(leaderboardData || []);
+      if (profileData) {
+        setProfile({ ...profileData, rank: userRank });
+      }
 
       // 4. Live Games
       const { data: playingRooms } = await supabase

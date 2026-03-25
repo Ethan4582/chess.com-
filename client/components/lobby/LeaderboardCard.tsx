@@ -9,6 +9,7 @@ interface Profile {
   id: string;
   username: string;
   points: number;
+  rank?: number;
 }
 
 interface LeaderboardCardProps {
@@ -64,7 +65,7 @@ export function LeaderboardCard({ topProfiles, profile, loading }: LeaderboardCa
         <div className="pt-8 border-t border-white/5">
           <p className="text-[10px] font-bold text-slate-500 mb-4 uppercase tracking-[0.2em]">Your Position</p>
           <div className="flex items-center gap-4 p-4 bg-[#ba9eff]/5 rounded-2xl border border-[#ba9eff]/10">
-            <span className="text-2xl font-black text-[#ba9eff] italic">412</span>
+            <span className="text-2xl font-black text-[#ba9eff] italic">#{profile.rank || '---'}</span>
             <div className="w-12 h-12 rounded-xl bg-[#ba9eff]/10 border border-[#ba9eff]/20 overflow-hidden shrink-0">
               <img 
                 src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.username}`} 

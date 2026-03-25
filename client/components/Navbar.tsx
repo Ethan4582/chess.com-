@@ -122,8 +122,10 @@ export function Navbar({ onStartGame, isConnected = true, role, disconnectTimer,
                 <div className="flex items-center gap-3">
                   <div className="hidden md:flex flex-col items-end mr-1">
                     <span className="text-[10px] font-black text-white italic uppercase tracking-tighter leading-none">{profile?.username || 'GUEST'}</span>
-                    <span className="text-[9px] font-bold text-[#ba9eff] uppercase tracking-widest leading-none mt-1.5 flex items-center gap-1">
-                      <Zap size={8} fill="currentColor" /> {profile?.points || 0} ELO
+                    <span className="text-[9px] font-bold text-[#ba9eff] uppercase tracking-widest leading-none mt-1.5 flex items-center gap-2">
+                       <span className="flex items-center gap-1 opacity-80"><Zap size={8} fill="currentColor" /> {profile?.points || 0} ELO</span>
+                       {profile?.rank && <span className="w-1 h-1 rounded-full bg-white/20" />}
+                       {profile?.rank && <span className="text-white/40">#{profile.rank}</span>}
                     </span>
                   </div>
                   

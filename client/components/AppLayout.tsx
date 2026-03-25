@@ -26,12 +26,11 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        if (data) setProfile(data);
+        const [{ data }, { data: rank }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle(),
+          supabase.rpc('get_user_rank', { target_user_id: session.user.id })
+        ]);
+        if (data) setProfile({ ...data, rank });
         
         // Subscribe to real-time updates
         profileSubscription = supabase
@@ -58,8 +57,11 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
       if (session) {
         // Fetch and subscribe if not already
         const fetchNew = async () => {
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-          if (data) setProfile(data);
+          const [{ data }, { data: rank }] = await Promise.all([
+            supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle(),
+            supabase.rpc('get_user_rank', { target_user_id: session.user.id })
+          ]);
+          if (data) setProfile({ ...data, rank });
         };
         fetchNew();
       } else {

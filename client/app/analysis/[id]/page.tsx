@@ -130,7 +130,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
                <h2 className="text-2xl font-black text-white italic uppercase">{error || 'Invalid Room'}</h2>
                <p className="text-slate-600 text-sm">This room ID does not exist or has been archived.</p>
              </div>
-             <Link href="/dashboard" className="px-6 py-2.5 bg-white/5 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">
+             <Link href="/lobby" className="px-6 py-2.5 bg-white/5 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">
                Return Home
              </Link>
           </div>

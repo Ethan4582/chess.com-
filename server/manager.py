@@ -17,8 +17,8 @@ class GameRoom:
         # Load persistent data if available
         self._white_user_id: Optional[str] = None
         self._black_user_id: Optional[str] = None
-        self._white_elo: int = 1200
-        self._black_elo: int = 1200
+        self._white_elo: int = 1000
+        self._black_elo: int = 1000
         
         if initial_data:
             self._engine.load_fen(initial_data.get('fen', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'))

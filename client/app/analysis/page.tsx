@@ -78,7 +78,7 @@ export default function AnalysisRootPage() {
                 <div className="bg-[#131314] border border-white/5 p-12 rounded-[32px] text-center space-y-4">
                   <BookOpen className="mx-auto text-slate-700" size={40} />
                   <p className="text-slate-400 text-sm font-medium">No finished games found in your archive yet.</p>
-                  <Link href="/dashboard" className="inline-block px-8 py-3 bg-[#ba9eff] text-black font-black text-xs uppercase tracking-widest rounded-xl hover:bg-white transition-all">
+                  <Link href="/lobby" className="inline-block px-8 py-3 bg-[#ba9eff] text-black font-black text-xs uppercase tracking-widest rounded-xl hover:bg-white transition-all">
                     Start a New Battle
                   </Link>
                 </div>
