@@ -1,0 +1,17 @@
+# Core Frameworks
+fastapi
+uvicorn[standard]
+python-socketio
+python-chess
+
+# Database & Auth
+supabase
+pydantic
+pydantic-settings
+python-dotenv
+
+# Utilities
+httpx
+typing-extensions
+asyncio
+logging
