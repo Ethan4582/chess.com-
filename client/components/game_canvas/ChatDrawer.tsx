@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Send, X, ShieldAlert } from 'lucide-react';
-import { ChatMessage } from '../../app/game/[id]/page'; // Need to export this type or redefine it
+import { ChatMessage } from '@/types/game';
 
 interface ChatDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  messages: any[];
+  messages: ChatMessage[];
   chatInput: string;
   setChatInput: (val: string) => void;
   onSend: (e: React.FormEvent) => void;

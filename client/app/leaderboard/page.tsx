@@ -20,6 +20,23 @@ export default function LeaderboardPage() {
   }, [page]);
 
   const fetchLeaderboard = async () => {
+    const cacheKey = `leaderboard_page_${page}`;
+    const CACHE_TTL = 3 * 60 * 1000; // 3 minutes
+
+    // Show cached data immediately
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (raw) {
+        const { data: cached, count: cachedCount, timestamp } = JSON.parse(raw);
+        if (Date.now() - timestamp < CACHE_TTL) {
+          setUsers(cached);
+          setTotalCount(cachedCount);
+          setLoading(false);
+          return; // Use cache, skip network
+        }
+      }
+    } catch {}
+
     setLoading(true);
     const from = (page - 1) * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
@@ -28,7 +45,7 @@ export default function LeaderboardPage() {
       .from('profiles')
       .select('*', { count: 'exact' })
       .order('points', { ascending: false })
-      .order('created_at', { ascending: true }) // Stable tie-breaking
+      .order('created_at', { ascending: true })
       .range(from, to);
 
     if (error) {
@@ -36,6 +53,15 @@ export default function LeaderboardPage() {
     } else {
       setUsers(data || []);
       if (count !== null) setTotalCount(count);
+
+      // Update cache
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data: data || [],
+          count: count,
+          timestamp: Date.now()
+        }));
+      } catch {}
     }
     setLoading(false);
   };

@@ -1,75 +1,105 @@
-﻿# Chess Master
+# Blitzr ♟️ a production-grade, real-time multiplayer chess platform.
 
-A real-time multiplayer chess platform with modern UI, move history, and spectator mode.
+## 🎥 Demo Preview
 
----
-
-## Demo Video
-
-[![Demo Video](https://img.youtube.com/vi/tKic7dz63Xs/0.jpg)](https://www.youtube.com/watch?v=tKic7dz63Xs)
-
-## Features
-
-- Real-time multiplayer chess with Socket.IO
-- Unique room links for instant game sharing
-- Automatic color assignment (White/Black), others join as spectators
-- Live move history with piece symbols and coordinates
-- Username and role selection via modal dialogs (no alerts)
-- Responsive, mobile-friendly UI with Tailwind CSS
-- Light/Dark mode with custom backgrounds
-- Spectator mode: watch any ongoing game live
-- Forward and backward feature 
+[![Blitzr Demo Preview](client/public/assets/hero.png)](https://pub-4b0a8f18a97e4b44914872dd0d22870b.r2.dev/blog_demo/chess_demo_compress.mp4)
 
 ---
 
-## Tech Stack
+## ✨ Key Features
 
-- **Backend:** Node.js, Express, Socket.IO, chess.js
-- **Frontend:** EJS templates, Tailwind CSS, vanilla JS
-- **Live Chess Logic:** chess.js for move validation and board state
-- **Real-Time Communication:** Socket.IO for instant updates
+### ⚔️ Real-Time Multiplayer & Instant Room Sharing
+![Multiplayer Gameplay](client/public/assets/p1.png)
+
+
+### 📈 Global Elo Rating System
+![Multiplayer Gameplay](client/public/assets/p2.png)
+
+### 👁️ Live Spectator Mode
+![Multiplayer Gameplay](client/public/assets/p1.png)
+
+### 📜 Match Archives & Game History
+![Multiplayer Gameplay](client/public/assets/p3.png)
+
+### 🔍 Precision Analysis
+![Multiplayer Gameplay](client/public/assets/p4.png)
+
+### 📱 Fully Responsive UI & Chat 
+![Multiplayer Gameplay](client/public/assets/p5.png)
+
+![Multiplayer Gameplay](client/public/assets/p7.png)
+
+### Profile Page
+![Multiplayer Gameplay](client/public/assets/p6.png)
 
 ---
 
-## Getting Started
+## 🛠️ Tech Stack
+
+### **Frontend**
+- Next.js 16 (App Router)
+- Tailwind CSS 4
+- Framer Motion
+- Lucide React
+
+### **Backend & Real-Time**
+- Python 3.10+ (Core Engine)
+- FastAPI (High-performance API)
+- Python-Chess (Move validation & PGN)
+- Python-SocketIO (ASGI Real-time server)
+- Node.js & Socket.IO (Signal handling)
+- Supabase (PostgreSQL, Auth & Real-time)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (Latest LTS)
+- Python 3.10+
+- pnpm or npm
+
+### Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/chess-master.git
-   cd chess-master
+   git clone https://github.com/Ethan4582/chess.com-blitzr.git
+   cd blitzr
    ```
 
-2. **Install dependencies:**
+2. **Install Client:**
    ```bash
-   npm install
+   cd client
+   pnpm install
    ```
 
-3. **Run the server:**
+3. **Install Backend:**
    ```bash
-   npm start
+   cd server
+   pip install -r requirements.txt
    ```
-   The app will be available at `http://localhost:3000`.
+
+4. **Start Blitzr:**
+   ```bash
+   # Terminal 1 (Client)
+   pnpm dev
+   
+   # Terminal 2 (Server)
+   python main.py
+   ```
 
 ---
 
-## License
+## 👨‍💻 Developer & Community
 
+**Developed by:** [@Ethan4582](https://github.com/Ethan4582)  
+**Stay Updated:** [@SinghAshir65848](https://x.com/SinghAshir65848)
+
+### ☕ Support the Evolution
+If you find Blitzr useful and want to support its development:
+[**Buy Me a Coffee**](https://buymeacoffee.com/ashirwad05)
+
+---
+
+## 📄 License
 MIT License
-
-
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## Contact
-
-- Email: singhashirwad2003@gmail.com
-- [LinkedIn](https://www.linkedin.com/in/ashirwad08singh)
-- [GitHub](https://github.com/ashirwad08singh)
-- [Twitter](https://twitter.com/singhashir65848)
-
----
-
-**Enjoy playing Chess Master!**
