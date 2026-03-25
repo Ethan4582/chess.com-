@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import LandingHero from '@/components/landing_page/LandingHero';
-import LandingFeatures from '@/components/landing_page/LandingFeatures';
 import LandingFooter from '@/components/landing_page/LandingFooter';
-import LandingCTA from '@/components/landing_page/LandingCTA';
 import { Navbar } from '@/components/Navbar';
 
 export default function Home() {
@@ -65,12 +63,7 @@ export default function Home() {
       <LandingHero onPlayFriend={handlePlayFriend} onViewGame={handleViewGame} />
 
     
-      <LandingFeatures />
-
-   
-      <LandingCTA onSignUp={() => router.push('/login')} />
-
-    
+      
       <LandingFooter />
     </main>
   );

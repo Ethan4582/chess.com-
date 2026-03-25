@@ -79,7 +79,7 @@ export default function LoginPage() {
       <section className="hidden lg:flex relative flex-col justify-end p-12 overflow-hidden border-r border-white/5 bg-[#070708]">
         <div className="absolute inset-0 z-0">
           <img 
-             src="/assets/sidebar_chess.png" 
+             src="/assets/chess_login_sidebar_1774335726334.png" 
              alt="Chess Theme" 
              className="w-full h-full object-cover opacity-60 grayscale scale-110"
              onError={(e) => {

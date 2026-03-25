@@ -18,7 +18,6 @@ export default function LandingFooter() {
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-6">
               <img src="/assets/logo1.png" alt="Blitzr Logo" className="h-8 w-auto opacity-90" />
-              <span className="text-xl font-headline font-black text-white tracking-tighter uppercase italic">Blitzr</span>
             </div>
             <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs mb-8">
               The world's most advanced real-time chess arena. Built for grandmasters, accessible to everyone.
