@@ -29,7 +29,7 @@ export function MobileGameView({
       />
 
       
-      <div className="w-full aspect-square relative drop-shadow-2xl mx-auto touch-none">
+      <div className="w-full aspect-square relative drop-shadow-2xl mx-auto" style={{ touchAction: 'manipulation' }}>
         <AnimatePresence>
           {disconnectTimer !== null && (
             <motion.div
@@ -46,7 +46,7 @@ export function MobileGameView({
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="w-full h-full bg-[#1e1e20] rounded-2xl overflow-hidden border border-white/5 relative z-10 shadow-board">
+        <div className="w-full h-full bg-[#1e1e20] rounded-2xl overflow-hidden border border-white/5 relative z-20 shadow-board">
           <ChessBoard fen={fen} onMove={handleMove} playerRole={role} />
         </div>
       </div>

@@ -35,7 +35,9 @@ body {
   width: 100%;
   height: 100%;
   user-select: none;
-  touch-action: none; /* Prevents mobile scroll during moves */
+  -webkit-user-select: none;
+  touch-action: manipulation; /* Allow taps but prevent zoom/scroll */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .square {
@@ -45,6 +47,8 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
 .square.light { background-color: #f0d9b1; }
@@ -60,7 +64,10 @@ body {
   width: 100%;
   height: 100%;
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   transition: transform 0.1s ease-out;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .piece.white {

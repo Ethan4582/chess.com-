@@ -63,16 +63,35 @@ export default function LobbyPage() {
       if (!session) return;
 
       const userId = session.user.id;
+      const cacheKey = `lobby_data_${userId}`;
+      const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
-      // 1. Profile & Stats
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      setProfile(profileData);
+      // Check cache for non-critical data
+      let cachedData: any = null;
+      try {
+        const raw = localStorage.getItem(cacheKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Date.now() - parsed.timestamp < CACHE_TTL) {
+            cachedData = parsed;
+            // Show cached data immediately while fetching fresh
+            setTopProfiles(parsed.topProfiles || []);
+            setRecentMatches(parsed.recentMatches || []);
+          }
+        }
+      } catch {}
 
-      // 2. Active Room
+      // 1. Profile & Stats — Always fetch fresh (ELO is real-time critical)
+      const [{ data: profileData }, { data: userRank }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.rpc('get_user_rank', { target_user_id: userId })
+      ]);
+
+      if (profileData) {
+        setProfile({ ...profileData, rank: userRank });
+      }
+
+      // 2. Active Room — Always fetch fresh (game state critical)
       const { data: activeData } = await supabase
         .from('rooms')
         .select('id, white_player_id, black_player_id, status')
@@ -101,20 +120,11 @@ export default function LobbyPage() {
             opponent: opponentName,
             status: activeData.status
          });
+      } else {
+        setActiveRoom(null);
       }
 
-      // 3. Leaderboard Top 5 (And User's Rank)
-      const [{ data: leaderboardData }, { data: userRank }] = await Promise.all([
-        supabase.from('profiles').select('id, username, points').order('points', { ascending: false }).limit(5),
-        supabase.rpc('get_user_rank', { target_user_id: userId })
-      ]);
-
-      setTopProfiles(leaderboardData || []);
-      if (profileData) {
-        setProfile({ ...profileData, rank: userRank });
-      }
-
-      // 4. Live Games
+      // 3. Live Games — Always fetch fresh (real-time)
       const { data: playingRooms } = await supabase
         .from('rooms')
         .select(`
@@ -128,36 +138,59 @@ export default function LobbyPage() {
         .limit(3);
       setLiveGames(playingRooms || []);
 
-      // 5. Recent Matches
-      const { data: pastRooms } = await supabase
-        .from('rooms')
-        .select(`
-          id, created_at, winner_id,
-          white_player:profiles!white_player_id(username, id),
-          black_player:profiles!black_player_id(username, id)
-        `)
-        .or(`white_player_id.eq.${userId},black_player_id.eq.${userId}`)
-        .eq('status', 'finished')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (pastRooms) {
-         const formatted = pastRooms.map((room: any) => {
-            const isWhite = room.white_player?.id === userId;
-            const opponent = (isWhite ? room.black_player?.username : room.white_player?.username) || 'Guest';
-            let result: 'WIN' | 'LOSS' | 'DRAW' = 'DRAW';
-            if (room.winner_id === userId) result = 'WIN';
-            else if (room.winner_id) result = 'LOSS';
-            
-            return {
-               id: room.id,
-               opponent: opponent,
-               result,
-               date: new Date(room.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-            };
-         });
-         setRecentMatches(formatted);
+      // 4. Leaderboard Top 5 — Use cache or fetch
+      if (!cachedData) {
+        const { data: leaderboardData } = await supabase
+          .from('profiles')
+          .select('id, username, points')
+          .order('points', { ascending: false })
+          .limit(5);
+        setTopProfiles(leaderboardData || []);
       }
+
+      // 5. Recent Matches — Use cache or fetch
+      let formattedMatches = cachedData?.recentMatches;
+      if (!cachedData) {
+        const { data: pastRooms } = await supabase
+          .from('rooms')
+          .select(`
+            id, created_at, winner_id,
+            white_player:profiles!white_player_id(username, id),
+            black_player:profiles!black_player_id(username, id)
+          `)
+          .or(`white_player_id.eq.${userId},black_player_id.eq.${userId}`)
+          .eq('status', 'finished')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (pastRooms) {
+           formattedMatches = pastRooms.map((room: any) => {
+              const isWhite = room.white_player?.id === userId;
+              const opponent = (isWhite ? room.black_player?.username : room.white_player?.username) || 'Guest';
+              let result: 'WIN' | 'LOSS' | 'DRAW' = 'DRAW';
+              if (room.winner_id === userId) result = 'WIN';
+              else if (room.winner_id) result = 'LOSS';
+              
+              return {
+                 id: room.id,
+                 opponent: opponent,
+                 result,
+                 date: new Date(room.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+              };
+           });
+           setRecentMatches(formattedMatches || []);
+        }
+      }
+
+      // Update cache
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          topProfiles: cachedData ? cachedData.topProfiles : (topProfiles.length ? topProfiles : []),
+          recentMatches: formattedMatches || [],
+          timestamp: Date.now()
+        }));
+      } catch {}
+
     } catch (err) {
       console.error('Lobby Fetch Error:', err);
     } finally {

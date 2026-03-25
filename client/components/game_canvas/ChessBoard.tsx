@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Chess } from 'chess.js';
 
 /**
@@ -38,6 +38,8 @@ function getPieceUnicode(type: string, color: string): string {
 
 export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt }: ChessBoardProps) {
   const [dragSource, setDragSource] = useState<{ row: number; col: number } | null>(null);
+  const isTouchDevice = useRef(false);
+  const touchMoved = useRef(false);
 
   // Parse board from FEN (mirrors: const board = chess.board())
   const chess = new Chess(fen);
@@ -73,7 +75,7 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
   /**
    * handleSquareClick - implements Click-to-Move for mobile & ease of use
    */
-  const handleSquareClick = (row: number, col: number) => {
+  const handleSquareInteraction = (row: number, col: number) => {
     // If not player's turn or spectator, show login prompt if provided
     if ((playerRole === 'spectator' || !playerRole) && onSpectatorAttempt) {
       onSpectatorAttempt();
@@ -100,6 +102,28 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
     }
   };
 
+  // Touch handlers for mobile
+  const handleTouchStart = (row: number, col: number) => (e: React.TouchEvent) => {
+    isTouchDevice.current = true;
+    touchMoved.current = false;
+  };
+
+  const handleTouchMove = () => {
+    touchMoved.current = true;
+  };
+
+  const handleTouchEnd = (row: number, col: number) => (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent ghost click
+    if (touchMoved.current) return; // Ignore if user was scrolling
+    handleSquareInteraction(row, col);
+  };
+
+  const handleClick = (row: number, col: number) => () => {
+    // Skip if this was a touch interaction (handled by touchEnd)
+    if (isTouchDevice.current) return;
+    handleSquareInteraction(row, col);
+  };
+
   // Board is flipped when player is black (mirrors: if (playerRole === "b") boardElement.classList.add("flipped"))
   const isFlipped = playerRole === 'b';
 
@@ -116,7 +140,10 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
               className={`square ${isLight ? 'light' : 'dark'} ${isSelected ? 'selected' : ''}`}
               data-row={rowIndex}
               data-col={colIndex}
-              onClick={() => handleSquareClick(rowIndex, colIndex)}
+              onClick={handleClick(rowIndex, colIndex)}
+              onTouchStart={handleTouchStart(rowIndex, colIndex)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd(rowIndex, colIndex)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -129,9 +156,9 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
               {square && (
                 <div
                   className={`piece ${square.color === 'w' ? 'white' : 'black'}`}
-                  draggable={playerRole === square.color}
+                  draggable={playerRole === square.color && !isTouchDevice.current}
                   onDragStart={(e) => {
-                    if (playerRole !== square.color) {
+                    if (playerRole !== square.color || isTouchDevice.current) {
                       e.preventDefault();
                       return;
                     }
