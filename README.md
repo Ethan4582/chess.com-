@@ -2,7 +2,7 @@
 
 ## 🎥 Demo Preview
 
-![Blitzr Demo Preview](client/public/assets/hero.png)[https://pub-4b0a8f18a97e4b44914872dd0d22870b.r2.dev/blog_demo/chess_demo_compress.mp4]
+[![Blitzr Demo Preview](client/public/assets/hero.png)](https://pub-4b0a8f18a97e4b44914872dd0d22870b.r2.dev/blog_demo/chess_demo_compress.mp4)
 
 ---
 
