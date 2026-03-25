@@ -144,7 +144,7 @@ export default function GamePage() {
         <SidebarDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} playerName={playerName} />
         <AbortModal isOpen={isAbortModalOpen} onClose={() => setIsAbortModalOpen(false)} onConfirm={() => { socket.emit('abortGame'); setIsAbortModalOpen(false); }} />
 
-        {/* Toasts */}
+      
         <div className="fixed top-20 right-6 z-[110] flex flex-col items-end gap-3 pointer-events-none">
           <AnimatePresence>
             {toasts.map((t) => (

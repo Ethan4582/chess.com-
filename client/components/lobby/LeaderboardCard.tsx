@@ -60,7 +60,7 @@ export function LeaderboardCard({ topProfiles, profile, loading }: LeaderboardCa
         )}
       </div>
 
-      {/* Your Position */}
+      
       {!loading && profile && (
         <div className="pt-8 border-t border-white/5">
           <p className="text-[10px] font-bold text-slate-500 mb-4 uppercase tracking-[0.2em]">Your Position</p>

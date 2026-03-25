@@ -20,7 +20,7 @@ export function AbortModal({ isOpen, onClose, onConfirm }: AbortModalProps) {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="w-full max-w-sm bg-[#131314] rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden"
           >
-            {/* Background design */}
+          
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
             
             <div className="p-10 flex flex-col items-center text-center space-y-8 relative z-10">

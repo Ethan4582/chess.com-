@@ -131,7 +131,7 @@ export function AppLayout({
       />
 
       <div className="flex flex-1 overflow-hidden pt-16">
-        {/* Mobile Sidebar Overlay - COMPLTELY REMOVED ON MOBILE AS PER REQUEST */}
+        
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div

@@ -59,7 +59,7 @@ export default function LandingHero({ onPlayFriend, onViewGame }: HeroSectionPro
         </button>
       </motion.div>
 
-      {/* Cinematic Visual Element */}
+      
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

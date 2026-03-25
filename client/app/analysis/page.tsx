@@ -40,7 +40,7 @@ export default function AnalysisRootPage() {
         <div className="flex-1 p-4 md:p-8 bg-[#0a0a0b] overflow-y-auto no-scrollbar">
           <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 py-12 md:py-12">
             
-            {/* Hero Header */}
+         
             <div className="text-center space-y-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -55,7 +55,7 @@ export default function AnalysisRootPage() {
               </p>
             </div>
 
-            {/* Recent Games Grid */}
+          
             <section className="space-y-6">
               <div className="flex items-center justify-between border-b border-white/5 pb-4 px-2 md:px-0">
                 <h3 className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function AnalysisRootPage() {
               )}
             </section>
 
-            {/* Manual Entry */}
+           
             <div className="bg-gradient-to-r from-[#ba9eff]/5 to-transparent border border-white/5 p-6 md:p-8 rounded-[28px] md:rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-6 mx-2 md:mx-0">
                <div className="text-center md:text-left space-y-1">
                  <h4 className="text-sm md:text-base text-white font-black italic uppercase tracking-tight">Direct Inspection</h4>

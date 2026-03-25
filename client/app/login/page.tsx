@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#0e0e0f] grid lg:grid-cols-2 text-white overflow-hidden">
-      {/* Left Side: Cinematic Chess Image */}
+      
       <section className="hidden lg:flex relative flex-col justify-end p-12 overflow-hidden border-r border-white/5 bg-[#070708]">
         <div className="absolute inset-0 z-0">
           <img 
@@ -63,7 +63,7 @@ export default function LoginPage() {
           </blockquote>
         </div>
         
-        {/* Brand */}
+        
         <Link href="/" className="absolute top-12 left-12 hover:opacity-80 transition-opacity">
           <img 
             src="/assets/logo1.png" 
@@ -73,7 +73,7 @@ export default function LoginPage() {
         </Link>
       </section>
 
-      {/* Right Side: Clean Auth Card */}
+      
       <section className="flex items-center justify-center p-8 bg-[#0e0e0f] relative">
         <div className="w-full max-w-xs relative z-10">
           <div className="mb-10 text-center">

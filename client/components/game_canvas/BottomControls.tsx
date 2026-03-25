@@ -18,7 +18,7 @@ export function BottomControls({ onChatToggle, onAbort, onMenuToggle, onInvite, 
 
   return (
     <>
-      {/* Share Sub-menu Overlay */}
+      
       <AnimatePresence>
         {isShareOpen && (
           <motion.div 
@@ -50,7 +50,7 @@ export function BottomControls({ onChatToggle, onAbort, onMenuToggle, onInvite, 
       </AnimatePresence>
 
       <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-5 pt-3 bg-[#0e0e0f]/95 backdrop-blur-3xl border-t border-white/5 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.6)] md:hidden">
-        {/* Chat */}
+       
         <button 
           onClick={onChatToggle}
           className={`flex flex-col items-center justify-center transition-all duration-200 gap-1 ${isChatOpen ? 'text-[#ba9eff]' : 'text-slate-500'}`}
@@ -61,7 +61,7 @@ export function BottomControls({ onChatToggle, onAbort, onMenuToggle, onInvite, 
           <span className="text-[9px] font-black uppercase tracking-widest">Chat</span>
         </button>
 
-        {/* Share Button (New) */}
+       
         <button 
           onClick={() => setIsShareOpen(!isShareOpen)}
           className={`flex flex-col items-center justify-center transition-all duration-200 gap-1 ${isShareOpen ? 'text-[#ba9eff]' : 'text-slate-500'}`}
@@ -72,7 +72,7 @@ export function BottomControls({ onChatToggle, onAbort, onMenuToggle, onInvite, 
           <span className="text-[9px] font-black uppercase tracking-widest">Share</span>
         </button>
 
-        {/* Abort - Only for players */}
+      
         {!isSpectator && (
           <button 
             onClick={onAbort}

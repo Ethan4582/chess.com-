@@ -13,14 +13,14 @@ interface LobbyHeroProps {
 export function LobbyHero({ onStartGame, username }: LobbyHeroProps) {
   return (
     <div className="relative h-64 md:h-80 w-full overflow-hidden rounded-[2rem] bg-[#131314]">
-      {/* Background Image */}
+      
       <img 
         src="/assets/lobby_bg.png" 
         alt="Lobby Background" 
         className="absolute inset-0 w-full h-full object-cover opacity-60"
       />
       
-      {/* Gradient Overlay */}
+      
       <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0b] via-[#0a0a0b]/80 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-transparent md:hidden" />
 

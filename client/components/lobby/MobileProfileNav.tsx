@@ -30,7 +30,7 @@ export function MobileProfileNav({ profile }: MobileProfileNavProps) {
 
   return (
     <div className="md:hidden w-full space-y-4 mb-8">
-      {/* Profile Info Row (Mobile Sidebar content) */}
+        
       <div className="flex items-center justify-between bg-[#131314] p-4 rounded-3xl border border-white/5 shadow-xl">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
@@ -56,7 +56,6 @@ export function MobileProfileNav({ profile }: MobileProfileNavProps) {
         </button>
       </div>
 
-      {/* Navigation Grid (Mobile Sidebar content) */}
       <div className="grid grid-cols-5 gap-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;

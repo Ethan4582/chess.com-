@@ -19,7 +19,7 @@ export function MobileGameView({
 }: MobileGameViewProps) {
   return (
     <div className="flex md:hidden flex-col w-full h-full pb-32 overflow-y-auto no-scrollbar pt-4 px-4 gap-6 max-w-md mx-auto">
-      {/* Black Player (Top) */}
+      
       <PlayerInfo 
         name={roomState.black || 'Waiting...'} 
         elo={roomState.black_elo || 1200} 
@@ -28,7 +28,7 @@ export function MobileGameView({
         isCompact
       />
 
-      {/* Board Area */}
+      
       <div className="w-full aspect-square relative drop-shadow-2xl mx-auto touch-none">
         <AnimatePresence>
           {disconnectTimer !== null && (
@@ -51,7 +51,7 @@ export function MobileGameView({
         </div>
       </div>
 
-      {/* White Player (Bottom) */}
+      
       <PlayerInfo 
         name={roomState.white || 'Waiting...'} 
         elo={roomState.white_elo || 1200} 

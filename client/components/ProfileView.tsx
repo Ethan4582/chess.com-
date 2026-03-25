@@ -181,7 +181,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
   const currentRank = userRank || 0;
 
   const handleChallenge = () => {
-     // Logic for challenge could go here
+     
      alert(`Challenge sent to ${username}!`);
   };
 
@@ -190,14 +190,13 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
       <div className="max-w-6xl mx-auto py-4 md:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT COLUMN: Sidebar Profile Card */}
+         
           <div className="lg:col-span-4 space-y-6">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="bg-[#131314] border border-white/5 rounded-[32px] md:rounded-[40px] p-6 md:p-8 space-y-6 md:space-y-8 shadow-2xl relative overflow-hidden group"
-            >
-              {/* Avatar Section */}
+            >  
               <div className="flex flex-col items-center gap-4 md:gap-6">
                 <div className="relative">
                   <div className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#ba9eff]/20 to-transparent border border-white/10 p-1 group-hover:border-[#ba9eff]/30 transition-all duration-700">
@@ -218,7 +217,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>
                   </div>
-                  {/* Status Badge */}
+                 
                   <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-[#ba9eff] border-2 md:border-4 border-[#131314] flex items-center justify-center text-black">
                      <Star size={12} className="md:w-4 md:h-4" fill="black" />
                   </div>
@@ -232,7 +231,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                 </div>
               </div>
 
-              {/* Stats Inside Card */}
+             
               <div className="grid grid-cols-2 gap-3">
                  <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 space-y-1">
                     <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Rating</span>
@@ -244,7 +243,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                  </div>
               </div>
 
-              {/* Action Buttons */}
+             
               <div className="space-y-3">
                 {!isOwnProfile ? (
                   <button 
@@ -266,7 +265,6 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                 )}
               </div>
 
-              {/* Specialities Labels */}
               <div className="pt-4 border-t border-white/5 space-y-3">
                  <p className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">Specialties</p>
                  <div className="flex flex-wrap gap-2">
@@ -280,10 +278,10 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
             </motion.div>
           </div>
 
-          {/* RIGHT COLUMN: Dashboard Content */}
+          
           <div className="lg:col-span-8 space-y-6">
             
-            {/* Top Stats Row */}
+            
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <MiniStat label="Battles" value={totalGamesDB} icon={<Gamepad2 size={14}/>} />
                <MiniStat label="Wins" value={profile?.wins || 0} icon={<Trophy size={14} className="text-emerald-500" />} />
@@ -291,7 +289,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                <MiniStat label="Draws" value={profile?.draws || 0} icon={<HistoryIcon size={14} className="text-slate-500" />} />
             </div>
 
-            {/* Battle History Table */}
+          
             <div className="bg-[#131314] rounded-[32px] border border-white/5 overflow-hidden shadow-xl">
                <div className="p-6 pb-2 flex items-center justify-between border-b border-white/5 md:border-none">
                   <h3 className="text-xs font-black text-white italic uppercase tracking-wider">Battle Records</h3>
@@ -357,7 +355,6 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                  </table>
                </div>
 
-               {/* Pagination Component */}
                <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-700 uppercase tracking-widest pl-2">Syncing Archives...</p>
                   <div className="flex items-center gap-2">
@@ -380,7 +377,7 @@ export function ProfileView({ targetUserId, isOwnProfile = false }: ProfileViewP
                </div>
             </div>
 
-            {/* Bottom Chart: Rating Trajectory */}
+           
             <div className="bg-[#131314] rounded-[32px] border border-white/5 p-6 md:p-8 shadow-xl">
                <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Performance Metrics (30D)</h3>

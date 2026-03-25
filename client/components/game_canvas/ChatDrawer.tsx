@@ -42,13 +42,13 @@ export function ChatDrawer({ isOpen, onClose, messages, chatInput, setChatInput,
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         className="fixed bottom-0 left-0 right-0 z-[70] h-[75vh] bg-[#1a1a1b] border-t border-white/5 rounded-t-[2.5rem] flex flex-col shadow-2xl overflow-hidden md:hidden"
       >
-        {/* Pull handle */}
+      
         <div className="flex flex-col items-center gap-1.5 py-4 cursor-pointer" onClick={onClose}>
           <div className="w-12 h-1.5 bg-white/10 rounded-full" />
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Live Match Chat</span>
         </div>
 
-        {/* Message area */}
+        
         <div 
           ref={scrollRef}
           className="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar bg-black/10"
@@ -74,7 +74,7 @@ export function ChatDrawer({ isOpen, onClose, messages, chatInput, setChatInput,
           )}
         </div>
 
-        {/* Input */}
+      
         <div className="p-6 bg-[#0e0e0f] border-t border-white/5">
           <form onSubmit={onSend} className="relative group">
             <input 

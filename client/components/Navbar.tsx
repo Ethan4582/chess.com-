@@ -62,7 +62,7 @@ export function Navbar({
     <>
       <header className="fixed top-0 w-full z-[100] bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/[0.05]">
         <div className="max-w-screen-2xl mx-auto flex justify-between items-center px-8 h-16">
-          {/* Left: Logo & Mobile Toggle (Menu REMOVED) */}
+          
           <div className="flex items-center gap-3">
             <Link 
               href={session ? "/lobby" : "/"} 
@@ -83,10 +83,10 @@ export function Navbar({
               </button>
             )}
           </div>
-          
-          {/* Center/Right: Actions */}
-          <div className="flex items-center gap-3 md:gap-5">
-            {/* Global Disconnect Warning */}
+            
+            
+            <div className="flex items-center gap-3 md:gap-5">
+            
             {isInGame && disconnectTimer !== null && (
                <div className="flex items-center gap-3 px-4 py-1.5 bg-rose-600 rounded-lg animate-pulse shadow-lg shadow-rose-600/20 border border-rose-400/30">
                   <ShieldAlert size={14} className="text-white" />
@@ -94,7 +94,7 @@ export function Navbar({
                </div>
             )}
 
-            {/* Gameplay Specific Section: ONLY FOR PLAYERS */}
+            
             {isInGame && role && role !== 'spectator' && (
               <div className="flex items-center gap-6">
                  {!disconnectTimer && (
@@ -113,7 +113,7 @@ export function Navbar({
               </div>
             )}
 
-            {/* Non-Gameplay OR Spectator: Show StartGame/GitHub/etc. */}
+            
             {(!isInGame || role === 'spectator') && (
               <div className="flex items-center gap-3">
                 {onStartGame && !isInGame && (
@@ -133,7 +133,6 @@ export function Navbar({
 
             <div className="w-px h-6 bg-white/5 mx-1" />
 
-            {/* Auth Section */}
             <div className="flex items-center gap-3">
               {session ? (
                 <div className="flex items-center gap-3">
@@ -174,7 +173,7 @@ export function Navbar({
                           <LayoutDashboard size={14} /> Lobby
                         </Link>
                         
-                        {/* Mobile-Only Navigation Items */}
+                        
                         <div className="md:hidden contents">
                           <Link href="/analysis" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-widest">
                             <BarChart2 size={14} /> Analysis
@@ -213,7 +212,6 @@ export function Navbar({
         </div>
       </header>
 
-      {/* Abort Confirmation Modal */}
       <AnimatePresence>
         {showAbortModal && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">

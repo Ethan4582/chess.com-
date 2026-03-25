@@ -38,7 +38,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
         border-r border-white/5 shadow-2xl relative shrink-0 overflow-hidden
       `}
     >
-      {/* Toggle Button for Open State */}
+      
       {isOpen && (
         <div className="absolute top-6 right-4 transition-opacity duration-200">
           <button 
@@ -51,7 +51,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
         </div>
       )}
 
-      {/* Profile Section */}
+      
       <div className={`mb-10 flex flex-col items-center ${isOpen ? 'items-start px-2' : 'items-center pt-2'}`}>
         <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/5 mb-4 border border-white/10 shrink-0 group hover:border-[#ba9eff]/30 transition-all shadow-xl">
           <img
@@ -70,7 +70,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
             </p>
           </div>
         ) : (
-          /* Toggle Button for Closed State */
+          
           <button 
             onClick={onToggle}
             className="mt-2 w-8 h-8 rounded-lg bg-[#ba9eff] text-black flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-[#ba9eff]/20 border-4 border-[#131314]"
@@ -81,7 +81,7 @@ export function LeftSidebar({ isOpen, onToggle, profile }: LeftSidebarProps) {
         )}
       </div>
 
-      {/* Navigation items */}
+      
       <div className="flex flex-col gap-1.5 flex-grow overflow-x-hidden pt-6 border-t border-white/5">
         {navItems.map((item) => {
           const isActive = pathname === item.href;

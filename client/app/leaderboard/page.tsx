@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
       <div className="h-full flex flex-col p-4 md:p-8 bg-[#0a0a0b] overflow-y-auto custom-scrollbar">
         <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col space-y-6 md:space-y-8">
 
-          {/* Header */}
+          
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 shrink-0 pt-4 md:pt-0">
             <div className="space-y-2">
               <motion.div
@@ -65,7 +65,7 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Ranking List/Table */}
+            
           <div className="bg-[#131314] rounded-2xl md:rounded-xl border border-white/5 shadow-2xl overflow-hidden relative flex-1 flex flex-col min-h-0">
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-left border-collapse">
@@ -158,7 +158,7 @@ export default function LeaderboardPage() {
               )}
             </div>
 
-            {/* Pagination */}
+            
             <div className="px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 bg-white/[0.01] shrink-0">
               <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                 Displaying TOP {totalCount} Strategists

@@ -192,12 +192,12 @@ export default function LobbyPage() {
         <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#0a0a0b] no-scrollbar h-full">
            <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 min-h-full">
               
-              {/* Top Stats Bar */}
+                
               <StatsCard stats={profile} loading={loading} />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                  
-                 {/* Main Content (Left) */}
+                
                  <div className="lg:col-span-8 space-y-10">
                     
                     <LobbyHero 
@@ -215,7 +215,7 @@ export default function LobbyPage() {
 
                  </div>
 
-                 {/* Sidebar (Right) */}
+                 
                  <div className="lg:col-span-4 space-y-8">
                     <LeaderboardCard topProfiles={topProfiles} profile={profile} loading={loading} />
                  </div>

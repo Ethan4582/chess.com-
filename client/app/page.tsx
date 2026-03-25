@@ -14,7 +14,6 @@ export default function Home() {
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
 
-  // ─── Auth State Management ───
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -50,8 +49,7 @@ export default function Home() {
       return;
     }
     
-    // Instead of creating a room directly from landing page, 
-    // we now go to the dashboard / lobby where those actions live.
+   
     router.push('/lobby');
   };
 
@@ -63,16 +61,16 @@ export default function Home() {
     <main className="min-h-screen bg-[#0e0e0f] text-white font-body selection:bg-indigo-500/30 overflow-x-hidden">
       <Navbar />
 
-      {/* ─── Hero Section ─── */}
+    
       <LandingHero onPlayFriend={handlePlayFriend} onViewGame={handleViewGame} />
 
-      {/* ─── Features Grid ─── */}
+    
       <LandingFeatures />
 
-      {/* ─── CTA Section ─── */}
+   
       <LandingCTA onSignUp={() => router.push('/login')} />
 
-      {/* ─── Footer ─── */}
+    
       <LandingFooter />
     </main>
   );

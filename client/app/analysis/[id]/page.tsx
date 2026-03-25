@@ -150,10 +150,10 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
       <AppLayout>
         <div className="flex-1 flex flex-col lg:flex-row bg-[#0a0a0b] overflow-hidden">
 
-          {/* Left Side: Board & Info */}
+          
           <div className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto no-scrollbar gap-6 md:gap-8">
 
-            {/* Header */}
+            
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4 min-w-0">
                 <Link href="/analysis" className="p-2 hover:bg-white/5 rounded-lg transition-all text-slate-500 border border-transparent hover:border-white/5 shrink-0">
@@ -177,7 +177,6 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
               </button>
             </div>
 
-            {/* In Progress Warning */}
             {room.status !== 'finished' && (
               <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3 md:gap-4 animate-in fade-in slide-in-from-top-2">
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-amber-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -190,10 +189,10 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
               </div>
             )}
 
-            {/* The Arena Layout */}
+            
             <div className="flex flex-col xl:flex-row gap-6 md:gap-8 items-start justify-center">
 
-              {/* Actual Board */}
+              
               <div className="w-full max-w-[500px] shrink-0 mx-auto xl:mx-0">
                 <div className="relative group bg-[#131314] p-2 md:p-3 rounded-2xl border border-white/5 shadow-2xl">
                   <div className="aspect-square">
@@ -206,9 +205,9 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
                 </div>
               </div>
 
-              {/* Side Stats Container */}
+              
               <div className="flex-1 w-full space-y-4 md:space-y-6">
-                {/* Summary Card */}
+                
                 <div className="bg-[#131314] border border-white/5 p-5 md:p-6 rounded-3xl space-y-4 md:space-y-5">
                   <div className="flex items-center justify-between text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 border-b border-white/5 pb-3">
                     <span className="leading-none">Battle Summary</span>
@@ -233,7 +232,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
                   </div>
                 </div>
 
-                {/* Player Profile Rows */}
+                
                 <div className="space-y-2 md:space-y-3">
                    <PlayerMiniCard 
                      label="Black" 
@@ -250,7 +249,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
 
-          {/* Sidebar: Move List & Replay System */}
+          
           <div className="w-full lg:w-96 bg-[#131314] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col shadow-2xl h-[400px] lg:h-auto overflow-hidden shrink-0">
             <div className="p-5 md:p-6 border-b border-white/5 flex items-center justify-between">
               <h3 className="text-[10px] md:text-xs font-black text-white uppercase italic tracking-widest flex items-center gap-2 leading-none">
@@ -260,7 +259,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
               <span className="text-[8px] font-black text-[#ba9eff] uppercase tracking-widest px-2 py-0.5 bg-[#ba9eff]/10 rounded border border-[#ba9eff]/20">Archive</span>
             </div>
 
-            {/* Sequential Move List */}
+            
             <div className="flex-1 overflow-y-auto p-4 md:p-5 custom-scrollbar bg-black/10">
               {moves.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-40">
@@ -286,7 +285,7 @@ export default function AnalysisPage({ params }: { params: Promise<{ id: string 
               )}
             </div>
 
-            {/* Timeline Integration Controls */}
+            
             <div className="p-5 md:p-6 bg-[#1a1a1b]/50 border-t border-white/5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 shrink-0">
