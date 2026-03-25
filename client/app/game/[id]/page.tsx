@@ -14,7 +14,7 @@ import { DesktopGameView } from '@/components/game_canvas/DesktopGameView';
 import { useToast } from '@/hooks/useToast';
 import { useChessGame } from '@/hooks/useChessGame';
 import { PlayerRole, RoomState, GameStatus, ChatMessage } from '@/types/game';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -69,6 +69,19 @@ export default function GamePage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAbortModalOpen, setIsAbortModalOpen] = useState(false);
+  const [showColdStart, setShowColdStart] = useState(false);
+
+  // Engine Cold Start logic (Render takes ~30s on free tier)
+  useEffect(() => {
+    if (!isConnected && isMounted) {
+      const timer = setTimeout(() => {
+        if (!isConnected) setShowColdStart(true);
+      }, 1500); // 1.5s delay before showing warning to avoid flicker
+      return () => clearTimeout(timer);
+    } else {
+      setShowColdStart(false);
+    }
+  }, [isConnected, isMounted]);
 
   // ─── Chat Logic ───
   const handleSendMessage = (e: React.FormEvent) => {
@@ -144,7 +157,40 @@ export default function GamePage() {
         <SidebarDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} playerName={playerName} />
         <AbortModal isOpen={isAbortModalOpen} onClose={() => setIsAbortModalOpen(false)} onConfirm={() => { socket.emit('abortGame'); setIsAbortModalOpen(false); }} />
 
-      
+        {/* Engine Wake-up Popover (Only shows if Render is Cold Starting) */}
+        <AnimatePresence>
+          {showColdStart && (
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.9, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.9, y: 20 }}
+               className="fixed inset-0 z-[200] flex items-center justify-center p-6 pointer-events-none"
+            >
+               <div className="bg-[#131314]/95 backdrop-blur-xl border border-[#ba9eff]/20 p-8 rounded-[32px] shadow-[0_0_100px_rgba(0,0,0,0.8)] max-w-sm w-full text-center space-y-6 pointer-events-auto shadow-2xl shadow-[#ba9eff]/5">
+                  <div className="w-16 h-16 bg-[#ba9eff]/10 rounded-2xl flex items-center justify-center mx-auto border border-[#ba9eff]/20">
+                     <RefreshCw className="text-[#ba9eff] animate-spin" size={28} />
+                  </div>
+                  <div className="space-y-2">
+                     <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Engines Activating</h3>
+                     <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
+                        Establishing secure connection... <br />
+                        <span className="text-[#ba9eff]/80">Render cold start (est. 30s)</span>
+                     </p>
+                  </div>
+                  <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                     <motion.div 
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 30, ease: "linear" }}
+                        className="bg-[#ba9eff] h-full"
+                     />
+                  </div>
+                  <p className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Waking grandmaster-alpha engine...</p>
+               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="fixed top-20 right-6 z-[110] flex flex-col items-end gap-3 pointer-events-none">
           <AnimatePresence>
             {toasts.map((t) => (
