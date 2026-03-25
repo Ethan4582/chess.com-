@@ -103,13 +103,16 @@ export default function LobbyPage() {
          });
       }
 
-      // 3. Leaderboard Top 5
-      const { data: leaderboardData } = await supabase
-        .from('profiles')
-        .select('id, username, points')
-        .order('points', { ascending: false })
-        .limit(5);
+      // 3. Leaderboard Top 5 (And User's Rank)
+      const [{ data: leaderboardData }, { data: userRank }] = await Promise.all([
+        supabase.from('profiles').select('id, username, points').order('points', { ascending: false }).limit(5),
+        supabase.rpc('get_user_rank', { target_user_id: userId })
+      ]);
+
       setTopProfiles(leaderboardData || []);
+      if (profileData) {
+        setProfile({ ...profileData, rank: userRank });
+      }
 
       // 4. Live Games
       const { data: playingRooms } = await supabase
@@ -186,15 +189,15 @@ export default function LobbyPage() {
   return (
     <AuthGuard>
       <AppLayout>
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0a0a0b] custom-scrollbar h-full">
-           <div className="max-w-7xl mx-auto space-y-8 min-h-full">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#0a0a0b] no-scrollbar h-full">
+           <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 min-h-full">
               
-              {/* Top Stats Bar */}
+                
               <StatsCard stats={profile} loading={loading} />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                  
-                 {/* Main Content (Left) */}
+                
                  <div className="lg:col-span-8 space-y-10">
                     
                     <LobbyHero 
@@ -212,7 +215,7 @@ export default function LobbyPage() {
 
                  </div>
 
-                 {/* Sidebar (Right) */}
+                 
                  <div className="lg:col-span-4 space-y-8">
                     <LeaderboardCard topProfiles={topProfiles} profile={profile} loading={loading} />
                  </div>

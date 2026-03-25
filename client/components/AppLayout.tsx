@@ -5,63 +5,70 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { LeftSidebar } from './LeftSidebar';
 import { Navbar } from './Navbar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 interface AppLayoutProps {
   children: React.ReactNode;
   isConnected?: boolean;
   role?: 'w' | 'b' | 'spectator' | null;
   disconnectTimer?: number | null;
+  onInvite?: () => void;
+  onWatch?: () => void;
+  roomName?: string;
 }
 
-export function AppLayout({ children, isConnected = true, role, disconnectTimer }: AppLayoutProps) {
+export function AppLayout({ 
+  children, isConnected = true, role, disconnectTimer, onInvite, onWatch, roomName 
+}: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    }
+  }, []);
+
   const [profile, setProfile] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
     let profileSubscription: any = null;
+    let isFetching = false;
 
-    const fetchAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (session) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        if (data) setProfile(data);
-        
-        // Subscribe to real-time updates
-        profileSubscription = supabase
-          .channel(`profile-${session.user.id}`)
-          .on(
-            'postgres_changes',
-            {
-              event: '*',
-              schema: 'public',
-              table: 'profiles',
-              filter: `id=eq.${session.user.id}`,
-            },
-            (payload) => {
-              if (payload.new) setProfile(payload.new);
-            }
-          )
-          .subscribe();
+    const fetchProfileData = async (userId: string) => {
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        const [{ data }, { data: rank }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
+          supabase.rpc('get_user_rank', { target_user_id: userId })
+        ]);
+        if (data) setProfile({ ...data, rank });
+      } finally {
+        isFetching = false;
       }
     };
-    fetchAuth();
 
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      
       if (session) {
-        // Fetch and subscribe if not already
-        const fetchNew = async () => {
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-          if (data) setProfile(data);
-        };
-        fetchNew();
+        fetchProfileData(session.user.id);
+        
+        if (!profileSubscription) {
+          profileSubscription = supabase
+            .channel(`profile-${session.user.id}`)
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${session.user.id}` },
+              (payload) => { if (payload.new) setProfile(payload.new); }
+            )
+            .subscribe();
+        }
       } else {
         setProfile(null);
         if (profileSubscription) {
@@ -117,10 +124,26 @@ export function AppLayout({ children, isConnected = true, role, disconnectTimer 
         disconnectTimer={disconnectTimer}
         profile={profile}
         session={session}
+        onInvite={onInvite}
+        onWatch={onWatch}
+        roomName={roomName}
+        onToggleSidebar={() => setSidebarOpen(prev => !prev)}
       />
 
       <div className="flex flex-1 overflow-hidden pt-16">
-        {/* Sidebar as a flex child, no absolute/fixed if we want 3-column flow */}
+        
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="hidden md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            />
+          )}
+        </AnimatePresence>
+
         <LeftSidebar 
           isOpen={sidebarOpen} 
           onToggle={() => setSidebarOpen(!sidebarOpen)}

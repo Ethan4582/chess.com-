@@ -1,13 +1,14 @@
 import { Share2, Eye, MessageSquare, Send, Trophy } from 'lucide-react';
+import { RoomState, GameStatus, ChatMessage, PlayerRole } from '@/types/game';
 
 interface GameSidebarProps {
-  roomState: any;
-  role: string | null;
-  gameOver: any;
-  roomId: string | string[];
+  roomState: RoomState;
+  role: PlayerRole;
+  gameOver: GameStatus | null;
+  roomId: string;
   shareLink: (target: 'play' | 'watch') => void;
   session: any;
-  messages: any[];
+  messages: ChatMessage[];
   chatInput: string;
   setChatInput: (val: string) => void;
   handleSendMessage: (e: React.FormEvent) => void;
@@ -28,14 +29,13 @@ export function GameSidebar({
   const whiteName = roomState.white || 'Waiting...';
   const blackName = roomState.black || 'Waiting...';
   
-  // Dynamic Elo if we have them in the room state or profile data
-  // For now, if unknown, use 1200 as base
-  const whiteElo = roomState.player_ids?.white ? (roomState.white_elo || 1200) : '--';
-  const blackElo = roomState.player_ids?.black ? (roomState.black_elo || 1200) : '--';
+
+  const whiteElo = roomState.white ? (roomState.white_elo || 1200) : '--';
+  const blackElo = roomState.black ? (roomState.black_elo || 1200) : '--';
 
   return (
     <aside className="flex flex-col bg-[#131314] h-full overflow-hidden shadow-2xl">
-      {/* Header Actions */}
+    
       <div className="p-4 flex flex-col gap-3 border-b border-white/5">
         {role === 'spectator' && (
           <div className="flex items-center gap-3 px-3 py-2 bg-[#ba9eff]/10 border border-[#ba9eff]/20 rounded-lg">
@@ -61,9 +61,9 @@ export function GameSidebar({
         </div>
       </div>
 
-      {/* Player Section */}
+     
       <div className="p-4 flex flex-col gap-2 bg-[#1a1a1b]/50 border-b border-white/5">
-        {/* Opponent Row */}
+       
         <div className={`p-3 rounded-xl transition-all border ${role === 'b' ? 'bg-[#201f21] border-[#ba9eff]/20' : 'bg-transparent border-transparent opacity-80'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export function GameSidebar({
           </div>
         </div>
 
-        {/* User Row (White/You) */}
+        
         <div className={`p-3 rounded-xl transition-all border ${role === 'w' ? 'bg-[#201f21] border-[#ba9eff]/20' : 'bg-transparent border-transparent opacity-80'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -106,7 +106,7 @@ export function GameSidebar({
         </div>
       </div>
 
-      {/* Chat Area */}
+   
       <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#131314]">
         <div className="px-4 py-3 flex items-center justify-between bg-white/[0.02] border-b border-white/5 shrink-0">
           <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Live Room Chat</h3>
@@ -135,7 +135,7 @@ export function GameSidebar({
           ))}
         </div>
 
-        {/* Input */}
+      
         <div className="p-4 bg-[#1a1a1b] border-t border-white/5 shrink-0">
           <form onSubmit={handleSendMessage} className="relative group">
             <input 

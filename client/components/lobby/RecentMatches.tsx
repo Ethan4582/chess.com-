@@ -50,8 +50,8 @@ export function RecentMatches({ games, loading }: RecentMatchesProps) {
                     {game.result === 'WIN' ? <Trophy size={20} className="fill-[#ba9eff]/20" /> : <Swords size={20} />}
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white italic uppercase">{game.result === 'WIN' ? 'Victory over' : game.result === 'LOSS' ? 'Defeat by' : 'Stalemate with'} {game.opponent}</h4>
-                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">{game.date} • {game.result === 'WIN' ? '+12 Elo' : game.result === 'LOSS' ? '-10 Elo' : '0 Elo'}</p>
+                    <h4 className="text-xs md:text-sm font-black text-white italic uppercase truncate max-w-[150px] md:max-w-none">{game.result === 'WIN' ? 'Victory over' : game.result === 'LOSS' ? 'Defeat by' : 'Stalemate with'} {game.opponent}</h4>
+                    <p className="text-[9px] md:text-[10px] text-slate-600 font-bold uppercase tracking-widest leading-tight">{game.date} • {game.result === 'WIN' ? '+12 Elo' : game.result === 'LOSS' ? '-10 Elo' : '0 Elo'}</p>
                   </div>
                </div>
                

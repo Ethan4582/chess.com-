@@ -51,7 +51,7 @@ export function GameOverModal({
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
             className="w-full max-w-sm bg-[#131314] rounded-2xl p-10 text-center shadow-2xl border border-white/5 relative overflow-hidden"
           >
-            {/* Visual Header Decoration */}
+            
             <div className={`absolute top-0 left-0 w-full h-1.5 ${isWinner ? 'bg-emerald-500' : isSpectator ? 'bg-[#ba9eff]' : 'bg-rose-500'}`} />
             
             <motion.div

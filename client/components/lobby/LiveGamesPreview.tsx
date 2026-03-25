@@ -48,7 +48,7 @@ export function LiveGamesPreview({ games, loading }: LiveGamesPreviewProps) {
                initial={{ opacity: 0, scale: 0.98 }}
                animate={{ opacity: 1, scale: 1 }}
                transition={{ delay: i * 0.1 }}
-               className="bg-[#131314] p-6 rounded-[2rem] hover:bg-[#1a1a1b] transition-all group flex flex-col justify-between h-48 border border-white/[0.03]"
+               className="bg-[#131314] p-5 md:p-6 rounded-[2rem] hover:bg-[#1a1a1b] transition-all group flex flex-col justify-between h-52 md:h-48 border border-white/[0.03]"
             >
                <div className="flex justify-between items-start mb-6">
                   <div className="space-y-1">

@@ -1,76 +1,39 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getSocket } from '@/lib/socket';
 import { supabase } from '@/lib/supabaseClient';
-import ChessBoard from '@/components/ChessBoard';
-import { AlertCircle, WifiOff, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
-import { Chess } from 'chess.js';
-
-import { GameSidebar } from '@/components/GameSidebar';
-import { GameOverModal } from '@/components/GameOverModal';
 import { AppLayout } from '@/components/AppLayout';
-
-type PlayerRole = 'w' | 'b' | 'spectator' | null;
-
-interface GameStatus {
-  is_over: boolean;
-  winner: string | null;
-  reason: string | null;
-}
-
-interface RoomState {
-  white: string | null;
-  black: string | null;
-  count: number;
-  status?: GameStatus;
-  disconnect_data?: {
-    role: string;
-    start_time: number;
-  } | null;
-}
-
-interface ChatMessage {
-  author: string;
-  content: string;
-  isAuth: boolean;
-  isGuest: boolean;
-  isSystem: boolean;
-}
-
-interface Toast {
-  id: number;
-  message: string;
-}
-
-let toastCounter = 0;
+import { GameOverModal } from '@/components/game_canvas/GameOverModal';
+import { BottomControls } from '@/components/game_canvas/BottomControls';
+import { ChatDrawer } from '@/components/game_canvas/ChatDrawer';
+import { SidebarDrawer } from '@/components/game_canvas/SidebarDrawer';
+import { AbortModal } from '@/components/game_canvas/AbortModal';
+import { MobileGameView } from '@/components/game_canvas/MobileGameView';
+import { DesktopGameView } from '@/components/game_canvas/DesktopGameView';
+import { useToast } from '@/hooks/useToast';
+import { useChessGame } from '@/hooks/useChessGame';
+import { PlayerRole, RoomState, GameStatus, ChatMessage } from '@/types/game';
+import { AlertCircle } from 'lucide-react';
+import { getSocket } from '@/lib/socket';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function GamePage() {
   const { id: roomId } = useParams();
   const router = useRouter();
   const socket = getSocket();
+  const { toasts, addToast } = useToast();
 
   // ─── Auth State ───
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [guestSuffix, setGuestSuffix] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-    });
+    setIsMounted(true);
+    setGuestSuffix(Math.floor(1000 + Math.random() * 9000));
   }, []);
-
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) setProfile(data);
-  };
-
-  // ─── Guest Persistence ───
-  const [guestSuffix] = useState(() => Math.floor(1000 + Math.random() * 9000));
   const [guestId] = useState(() => {
     if (typeof window !== 'undefined') {
       let id = localStorage.getItem('blitzr_guest_id');
@@ -83,147 +46,31 @@ export default function GamePage() {
     return '';
   });
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        supabase.from('profiles').select('*').eq('id', session.user.id).single()
+          .then(({ data }) => data && setProfile(data));
+      }
+    });
+  }, []);
+
   const playerName = profile?.username || session?.user.email?.split('@')[0] || `Guest-${guestSuffix}`;
 
-  // ─── Game State ───
-  const [fen, setFen] = useState('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-  const [role, setRole] = useState<PlayerRole>(null);
-  const [roomState, setRoomState] = useState<RoomState>({ white: null, black: null, count: 0 });
-  const [isConnected, setIsConnected] = useState(false);
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const [gameOver, setGameOver] = useState<GameStatus | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // ─── Game Hook ───
+  const {
+    fen, role, roomState, isConnected, gameOver, messages, 
+    disconnectTimer, handleMove, setGameOver, setFen
+  } = useChessGame(roomId as string, playerName, session, addToast);
+
+  // ─── Local UI State ───
   const [chatInput, setChatInput] = useState('');
-  
-  // Disconnect Handling
-  const [disconnectTimer, setDisconnectTimer] = useState<number | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAbortModalOpen, setIsAbortModalOpen] = useState(false);
 
-  // ─── Toast System ───
-  const addToast = useCallback((message: string) => {
-    const id = ++toastCounter;
-    setToasts(prev => [...prev.slice(-4), { id, message }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
-  }, []);
-
-  const fireConfetti = useCallback(() => {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#ba9eff', '#6366f1', '#ffffff']
-    });
-  }, []);
-
-  // ─── Navigation Guard ───
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!gameOver && role && role !== 'spectator') {
-        e.preventDefault();
-        e.returnValue = 'In battle! Abandoning now will forfeit ELO points.';
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [gameOver, role]);
-
-  // ─── Socket / Persistence ───
-  useEffect(() => {
-    if (!socket.connected) socket.connect();
-
-    const onConnect = () => {
-      setIsConnected(true);
-      socket.emit('joinRoom', roomId, playerName, session?.user?.id || null);
-    };
-
-    const onDisconnect = () => setIsConnected(false);
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    if (socket.connected) onConnect();
-
-    socket.on('playerRole', (r: string) => setRole(r as PlayerRole));
-    socket.on('roomState', (state: RoomState) => {
-      setRoomState(state);
-      if (state.status?.is_over && !gameOver) setGameOver(state.status);
-    });
-    socket.on('gameOver', (status: GameStatus) => {
-      setGameOver(status);
-      setDisconnectTimer(null); // Clear timer on game over
-    });
-    socket.on('updateBoard', (newFen: string) => setFen(newFen));
-    socket.on('invalidMove', (msg: string) => addToast(msg));
-    socket.on('chatMessage', (msg: ChatMessage) => setMessages((prev) => [...prev.slice(-49), msg]));
-
-    socket.on('playerDisconnected', () => {
-        // We rely on roomState for the source of truth now
-    });
-    socket.on('playerReconnected', () => {
-        // We rely on roomState for the source of truth now
-    });
-
-    return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('playerRole');
-      socket.off('roomState');
-      socket.off('gameOver');
-      socket.off('updateBoard');
-      socket.off('chatMessage');
-      socket.off('playerDisconnected');
-      socket.off('playerReconnected');
-    };
-  }, [socket, roomId, playerName, session, gameOver, addToast, role]);
-
-  // ─── Timer Synchronization Logic ───
-  useEffect(() => {
-    const data = roomState.disconnect_data;
-    if (!data || gameOver) {
-      setDisconnectTimer(null);
-      if (timerRef.current) clearInterval(timerRef.current);
-      return;
-    }
-
-    const updateTimer = () => {
-      // Use raw Date.now() / 1000. NOTE: This assumes client and server clocks are roughly synced.
-      // A more robust way would be to send the server's 'now' alongside 'start_time'.
-      const now = Date.now() / 1000;
-      const elapsed = now - data.start_time;
-      const remaining = Math.max(0, Math.floor(60 - elapsed));
-      
-      setDisconnectTimer(remaining > 0 ? remaining : null);
-      if (remaining <= 0 && timerRef.current) clearInterval(timerRef.current);
-    };
-
-    updateTimer();
-    timerRef.current = setInterval(updateTimer, 1000);
-    
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [roomState.disconnect_data, gameOver]);
-
-  useEffect(() => {
-    const pRole = role === 'w' ? 'w' : 'b';
-    if (gameOver && gameOver.winner === pRole) fireConfetti();
-  }, [gameOver, role, fireConfetti]);
-
-  const handleMove = useCallback((move: { from: string; to: string; promotion: string }) => {
-    if (role === 'spectator' || !role || gameOver) return;
-    try {
-      const chess = new Chess(fen);
-      const result = chess.move(move);
-      if (result) {
-        setFen(chess.fen());
-        socket.emit('makeMove', move);
-      }
-    } catch (e) {
-      addToast('Invalid move');
-    }
-  }, [socket, role, gameOver, fen, addToast]);
-
+  // ─── Chat Logic ───
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -238,103 +85,79 @@ export default function GamePage() {
   };
 
   const handleStartNewGame = async () => {
-    if (!session) {
-      router.push('/login');
-      return;
-    }
-    try {
-      const { data, error } = await supabase
-        .from('rooms')
-        .insert({
-          white_player_id: session.user.id,
-          status: 'waiting'
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      window.location.href = `/game/${data.id}`;
-    } catch (err: any) {
-      addToast(`Failed to start game: ${err.message}`);
-    }
+    if (!session) { router.push('/login'); return; }
+    const { data, error } = await supabase.from('rooms').insert({ white_player_id: session.user.id, status: 'waiting' }).select().single();
+    if (error) addToast(`Error: ${error.message}`);
+    else window.location.href = `/game/${data.id}`;
   };
 
   const isWinner = gameOver?.winner === (role === 'w' ? 'w' : 'b');
+  const isWhiteTurn = fen.split(' ')[1] === 'w';
+
+  // ─── Navigation Guard ───
+  useEffect(() => {
+    const guard = (e: BeforeUnloadEvent) => {
+      if (!gameOver && role && role !== 'spectator') {
+        e.preventDefault(); e.returnValue = 'Forfeit check?';
+      }
+    };
+    window.addEventListener('beforeunload', guard);
+    return () => window.removeEventListener('beforeunload', guard);
+  }, [gameOver, role]);
 
   return (
-    <AppLayout isConnected={isConnected} role={role} disconnectTimer={disconnectTimer}>
-      <div className="flex flex-1 w-full h-full relative overflow-hidden">
+    <AppLayout 
+      isConnected={isConnected} role={role} disconnectTimer={disconnectTimer}
+      onInvite={() => { navigator.clipboard.writeText(`${window.location.origin}/game/${roomId}`); addToast(`Invite link copied! ♟️`); }}
+      onWatch={() => { navigator.clipboard.writeText(`${window.location.origin}/game/${roomId}`); addToast(`Spectator link copied! 👁️`); }}
+      roomName="Grandmaster's Void"
+    >
+      <div className="flex flex-1 w-full h-full relative overflow-hidden bg-[#0a0a0b]">
+        <MobileGameView 
+          roomState={roomState} fen={fen} isWhiteTurn={isWhiteTurn} 
+          disconnectTimer={disconnectTimer} role={role} handleMove={handleMove} 
+          onSpectatorAttempt={() => !session && router.push('/login')}
+        />
+
+        <DesktopGameView 
+          roomState={roomState} fen={fen} role={role} gameOver={gameOver} 
+          roomId={roomId as string} session={session} messages={messages} 
+          chatInput={chatInput} setChatInput={setChatInput} handleSendMessage={handleSendMessage} 
+          handleMove={handleMove} disconnectTimer={disconnectTimer} addToast={addToast}
+          onSpectatorAttempt={() => !session && router.push('/login')}
+        />
+
+        <BottomControls 
+          role={role} isChatOpen={isChatOpen}
+          onChatToggle={() => setIsChatOpen(true)} onAbort={() => setIsAbortModalOpen(true)} 
+          onMenuToggle={() => setIsMenuOpen(true)}
+          onInvite={() => { navigator.clipboard.writeText(`${window.location.origin}/game/${roomId}`); addToast(`Invite link copied! ♟️`); }}
+          onWatch={() => { navigator.clipboard.writeText(`${window.location.origin}/game/${roomId}`); addToast(`Watch link copied! 👁️`); }}
+        />
         
-        {/* Center Section: Responsive Chessboard Area */}
-        <section className="flex-1 flex flex-col items-center justify-center p-4 min-w-0 transition-all duration-300">
-          <div className="w-full h-full max-w-[85vh] max-h-[85vh] flex items-center justify-center aspect-square relative drop-shadow-2xl">
-            
-            {/* Disconnect Alert Overlay */}
-            <AnimatePresence>
-               {disconnectTimer !== null && (
-                 <motion.div 
-                    initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="absolute top-8 left-1/2 -translate-x-1/2 z-[50] flex items-center gap-4 px-6 py-3 bg-rose-500 rounded-xl shadow-2xl shadow-rose-500/20 border border-rose-400/30"
-                 >
-                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                       <WifiOff size={20} className="text-white animate-pulse" />
-                    </div>
-                    <div className="text-left">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white/80 leading-tight">Opponent Disconnected</p>
-                       <p className="text-lg font-black text-white leading-none font-mono">
-                          WIN IN {disconnectTimer}s
-                       </p>
-                    </div>
-                 </motion.div>
-               )}
-            </AnimatePresence>
+        <ChatDrawer 
+          isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} 
+          messages={messages} chatInput={chatInput} setChatInput={setChatInput} 
+          onSend={handleSendMessage} session={session} 
+        />
 
-            <div className="w-full h-full p-0 flex items-center justify-center bg-[#1e1e20] rounded-lg overflow-hidden border border-white/5 relative z-10 shadow-board">
-              <ChessBoard 
-                fen={fen} 
-                onMove={handleMove} 
-                playerRole={role} 
-                onSpectatorAttempt={() => !session && router.push('/login')}
-              />
-            </div>
-          </div>
-        </section>
+        <SidebarDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} playerName={playerName} />
+        <AbortModal isOpen={isAbortModalOpen} onClose={() => setIsAbortModalOpen(false)} onConfirm={() => { socket.emit('abortGame'); setIsAbortModalOpen(false); }} />
 
-        {/* Right Section: Fixed Controls Panel */}
-        <aside className="w-[320px] shrink-0 bg-[#131314] border-l border-white/5 flex flex-col z-10 shadow-2xl overflow-hidden">
-          <GameSidebar 
-            roomState={roomState} role={role} gameOver={gameOver} roomId={roomId as string}
-            shareLink={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/game/${roomId}`);
-              addToast(`Link copied!`);
-            }}
-            session={session} messages={messages} chatInput={chatInput} setChatInput={setChatInput}
-            handleSendMessage={handleSendMessage}
-          />
-        </aside>
-
-        {/* Toast Layer */}
+      
         <div className="fixed top-20 right-6 z-[110] flex flex-col items-end gap-3 pointer-events-none">
           <AnimatePresence>
             {toasts.map((t) => (
-              <motion.div
-                key={t.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="px-5 py-3 bg-[#1e1e20] rounded-2xl text-xs font-black text-white shadow-2xl pointer-events-auto border border-white/10 flex items-center gap-3 tracking-wide"
-              >
-                <AlertCircle size={14} className="text-[#ba9eff]" />
-                {t.message}
+              <motion.div key={t.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="px-5 py-3 bg-[#1e1e20] rounded-2xl text-xs font-black text-white shadow-2xl pointer-events-auto border border-white/10 flex items-center gap-3 tracking-wide">
+                <AlertCircle size={14} className="text-[#ba9eff]" /> {t.message}
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </div>
 
-      <GameOverModal 
-        gameOver={gameOver}
-        isWinner={isWinner}
+      <GameOverModal
+        gameOver={gameOver} isWinner={isWinner}
         gameOverTitle={gameOver?.winner === (role === 'w' ? 'w' : 'b') ? 'Victory!' : 'Game Over'}
         gameOverMessage={gameOver?.reason || 'The match has concluded.'}
         gameOverReason={gameOver?.reason || ''}

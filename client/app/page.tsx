@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import LandingHero from '@/components/LandingHero';
-import LandingFeatures from '@/components/LandingFeatures';
-import LandingFooter from '@/components/LandingFooter';
-import LandingCTA from '@/components/LandingCTA';
+import LandingHero from '@/components/landing_page/LandingHero';
+import LandingFeatures from '@/components/landing_page/LandingFeatures';
+import LandingFooter from '@/components/landing_page/LandingFooter';
+import LandingCTA from '@/components/landing_page/LandingCTA';
 import { Navbar } from '@/components/Navbar';
 
 export default function Home() {
@@ -14,7 +14,6 @@ export default function Home() {
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
 
-  // ─── Auth State Management ───
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -50,8 +49,7 @@ export default function Home() {
       return;
     }
     
-    // Instead of creating a room directly from landing page, 
-    // we now go to the dashboard / lobby where those actions live.
+   
     router.push('/lobby');
   };
 
@@ -63,16 +61,16 @@ export default function Home() {
     <main className="min-h-screen bg-[#0e0e0f] text-white font-body selection:bg-indigo-500/30 overflow-x-hidden">
       <Navbar />
 
-      {/* ─── Hero Section ─── */}
+    
       <LandingHero onPlayFriend={handlePlayFriend} onViewGame={handleViewGame} />
 
-      {/* ─── Features Grid ─── */}
+    
       <LandingFeatures />
 
-      {/* ─── CTA Section ─── */}
+   
       <LandingCTA onSignUp={() => router.push('/login')} />
 
-      {/* ─── Footer ─── */}
+    
       <LandingFooter />
     </main>
   );

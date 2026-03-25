@@ -11,7 +11,7 @@ export default function LandingCTA({ onSignUp }: LandingCTAProps) {
   return (
     <section className="py-32 px-8 max-w-screen-2xl mx-auto">
       <div className="relative overflow-hidden rounded-[48px] bg-[#1a1a1b] p-12 md:p-20 border border-white/5 group">
-        {/* Background Chess Piece Decoration */}
+        
         <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-[2s]">
           <svg
             width="400"
@@ -58,7 +58,7 @@ export default function LandingCTA({ onSignUp }: LandingCTAProps) {
           </div>
         </div>
         
-        {/* Subtle Inner Glow */}
+        
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
       </div>
     </section>

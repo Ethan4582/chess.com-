@@ -68,6 +68,38 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
     [onMove]
   );
 
+  const [selectedSquare, setSelectedSquare] = useState<{ row: number; col: number } | null>(null);
+
+  /**
+   * handleSquareClick - implements Click-to-Move for mobile & ease of use
+   */
+  const handleSquareClick = (row: number, col: number) => {
+    // If not player's turn or spectator, show login prompt if provided
+    if ((playerRole === 'spectator' || !playerRole) && onSpectatorAttempt) {
+      onSpectatorAttempt();
+      return;
+    }
+
+    const square = board[row][col];
+
+    if (selectedSquare) {
+      // If clicking same square, deselect
+      if (selectedSquare.row === row && selectedSquare.col === col) {
+        setSelectedSquare(null);
+        return;
+      }
+      
+      // Attempt move from selected to target
+      handleMove(selectedSquare, { row, col });
+      setSelectedSquare(null);
+    } else {
+      // Select source square only if it contains player's piece
+      if (square && square.color === playerRole) {
+        setSelectedSquare({ row, col });
+      }
+    }
+  };
+
   // Board is flipped when player is black (mirrors: if (playerRole === "b") boardElement.classList.add("flipped"))
   const isFlipped = playerRole === 'b';
 
@@ -76,13 +108,15 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
       {board.map((row, rowIndex) =>
         row.map((square, colIndex) => {
           const isLight = (rowIndex + colIndex) % 2 === 0;
+          const isSelected = selectedSquare?.row === rowIndex && selectedSquare?.col === colIndex;
 
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`square ${isLight ? 'light' : 'dark'}`}
+              className={`square ${isLight ? 'light' : 'dark'} ${isSelected ? 'selected' : ''}`}
               data-row={rowIndex}
               data-col={colIndex}
+              onClick={() => handleSquareClick(rowIndex, colIndex)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -91,24 +125,14 @@ export default function ChessBoard({ fen, onMove, playerRole, onSpectatorAttempt
                   setDragSource(null);
                 }
               }}
-              onClick={() => {
-                if ((playerRole === 'spectator' || playerRole === null) && onSpectatorAttempt) {
-                  onSpectatorAttempt();
-                }
-              }}
             >
               {square && (
                 <div
                   className={`piece ${square.color === 'w' ? 'white' : 'black'}`}
-                  // Only the correct player can drag their own pieces
-                  // Mirrors: pieceElement.draggable = playerRole === square.color
                   draggable={playerRole === square.color}
                   onDragStart={(e) => {
                     if (playerRole !== square.color) {
                       e.preventDefault();
-                      if ((playerRole === 'spectator' || playerRole === null) && onSpectatorAttempt) {
-                        onSpectatorAttempt();
-                      }
                       return;
                     }
                     setDragSource({ row: rowIndex, col: colIndex });

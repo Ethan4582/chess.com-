@@ -12,7 +12,7 @@ export default function LandingFeatures() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Large Feature 1 */}
+        
         <div className="md:col-span-2 relative overflow-hidden p-12 rounded-[32px] bg-[#121213] border border-white/5 hover:border-white/10 transition-colors group min-h-[400px] flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-[#b9a2ff]/10 via-transparent to-transparent opacity-50 pointer-events-none group-hover:opacity-100 transition-opacity duration-700" />
           
@@ -26,7 +26,7 @@ export default function LandingFeatures() {
             </p>
           </div>
           
-          {/* Decorative graphic */}
+          
           <div className="absolute right-0 bottom-0 opacity-20 translate-x-1/4 translate-y-1/4 group-hover:opacity-40 transition-opacity duration-700 delay-100">
             <svg width="400" height="400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.2" className="text-[#b9a2ff]">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -34,7 +34,7 @@ export default function LandingFeatures() {
           </div>
         </div>
 
-        {/* Tall Feature 2 */}
+        
         <div className="relative overflow-hidden p-12 rounded-[32px] bg-[#121213] border border-white/5 hover:border-white/10 transition-colors group flex flex-col justify-between">
           <div className="relative z-10">
             <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-8 border border-white/10">
@@ -47,7 +47,7 @@ export default function LandingFeatures() {
           </div>
         </div>
 
-        {/* Small Feature 3 */}
+        
         <div className="relative overflow-hidden p-10 rounded-[32px] bg-[#121213] border border-white/5 hover:border-white/10 transition-colors group flex flex-col justify-between">
           <div className="relative z-10">
             <Focus className="text-blue-400 mb-6" size={28} />
@@ -56,7 +56,7 @@ export default function LandingFeatures() {
           </div>
         </div>
 
-        {/* Small Feature 4 */}
+        
         <div className="relative overflow-hidden p-10 rounded-[32px] bg-[#121213] border border-white/5 hover:border-white/10 transition-colors group flex flex-col justify-between">
           <div className="relative z-10">
             <Target className="text-rose-400 mb-6" size={28} />
@@ -65,7 +65,7 @@ export default function LandingFeatures() {
           </div>
         </div>
 
-        {/* Small Feature 5 */}
+        
         <div className="relative overflow-hidden p-10 rounded-[32px] bg-[#121213] border border-white/5 hover:border-white/10 transition-colors group flex flex-col justify-between">
           <div className="relative z-10">
             <Crosshair className="text-[#b9a2ff] mb-6" size={28} />
