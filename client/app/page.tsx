@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import LandingHero from '@/components/LandingHero';
-import LandingFeatures from '@/components/LandingFeatures';
-import LandingFooter from '@/components/LandingFooter';
-import LandingCTA from '@/components/LandingCTA';
+import LandingHero from '@/components/landing_page/LandingHero';
+import LandingFeatures from '@/components/landing_page/LandingFeatures';
+import LandingFooter from '@/components/landing_page/LandingFooter';
+import LandingCTA from '@/components/landing_page/LandingCTA';
 import { Navbar } from '@/components/Navbar';
 
 export default function Home() {
